@@ -18,7 +18,7 @@ format:
 install-dependencies-for-test:
 	luarocks install --local busted
 
-ROCKSPEC_FILE = $(shell ls | grep '\\.rockspec$$' | head -1)
+ROCKSPEC_FILE = $(shell ls | grep '\.rockspec$$' | head -1)
 
 build:
 	@echo "Validating rockspec..."
