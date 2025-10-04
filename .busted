@@ -1,0 +1,40 @@
+return {
+  -- Output format
+  output = 'TAP',
+
+  -- Pattern for test files
+  pattern = '_spec',
+
+  -- Test directories
+  directories = {
+    'spec',
+  },
+
+  -- Lua paths
+  ['lua_path'] = './src/?.lua;./?.lua',
+
+  -- Exclude patterns
+  exclude = {
+    '.git',
+    'doc',
+  },
+
+  -- Coverage settings (optional)
+  coverage = {
+    enabled = false,
+    stats_file = 'luacov.stats.out',
+    report_file = 'luacov.report.out',
+  },
+
+  -- Verbose output
+  verbose = true,
+
+  -- Number of runs before stopping
+  runs = 1,
+
+  -- Random seed for test ordering
+  shuffle = false,
+
+  -- Keep going after first failure
+  keep_going = true,
+}
