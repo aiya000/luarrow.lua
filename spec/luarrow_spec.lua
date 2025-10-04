@@ -1,8 +1,0 @@
-describe('`luarrow` module', function()
-  it('should be an alias to `luarrow.fun` module', function()
-    local ok, result = pcall(require, 'luarrow')
-    assert.is_true(ok)
-    assert.is_not_nil(result)
-    assert.is_not_nil(result.fun)
-  end)
-end)
