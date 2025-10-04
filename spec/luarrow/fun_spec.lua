@@ -17,13 +17,13 @@ local function k(x)
 end
 
 describe('fun', function()
-  it('`fun(f) * fun(g) % x` should same as `f(g(x))`', function()
+  it('`fun(f) * fun(g) % x` should be the same as `f(g(x))`', function()
     local actual = fun(f) * fun(g) % 42
     local expected = f(g(42))
     assert.are.equal(actual, expected)
   end)
 
-  it('the operator style should can compose 3 or more functions', function()
+  it('the operator style should be able to compose 3 or more functions', function()
     local actual3 = fun(f) * fun(g) * fun(h) % 42
     local expected3 = f(g(h(42)))
     assert.are.equal(actual3, expected3)
@@ -33,7 +33,7 @@ describe('fun', function()
     assert.are.equal(actual4, expected4)
   end)
 
-  it('method style should can be used and it same as operator style', function()
+  it('method style should be usable and behave the same as operator style', function()
     local actual = fun(f):compose(fun(g)):apply(42)
     local expected = fun(f) * fun(g) % 42
     assert.are.equal(actual, expected)
