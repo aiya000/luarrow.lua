@@ -7,7 +7,7 @@ For practical examples and use cases, see [examples.md](examples.md).
 ## Table of Contents
 
 1. [API Reference](#-api-reference)
-    - [Fun Class](#fun-class)
+    - [Fun class](#fun-class)
     - [fun(f)](#funf)
     - [f * g (Composition Operator)](#f--g-composition-operator)
     - [Fun:compose(g)](#funcomposeg)
@@ -26,7 +26,8 @@ The `luarrow.Fun<A, B>` class represents a wrapped function from type A to type 
 ```
 
 **Type Parameters:**
-- `<A, B>` - Generic type parameters where `A` is the input type and `B` is the output type
+- `A` - Input type
+- `B` - Output type
 
 **Fields:**
 - `raw: fun(x: A): B` - The original unwrapped Lua function
@@ -45,7 +46,7 @@ local wrapped = fun(function(x) return x * 2 end)
 - `B` - Output type
 
 **Parameters:**
-- `f: fun(x: A): B` - Any Lua function
+- `f: fun(x: A): B` - Lua function
 
 **Returns:**
 - `luarrow.Fun<A, B>` - Wrapped function object
