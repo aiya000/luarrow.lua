@@ -130,6 +130,8 @@ $ make install-to-local
 
 For complete API documentation, see **[doc/api.md](doc/api.md)**.
 
+For practical examples and use cases, see **[doc/examples.md](doc/examples.md)**.
+
 **Quick reference:**
 - `fun(f)` - Wrap a function for composition
 - `f * g` - Compose two functions (`f ∘ g`)
@@ -232,7 +234,8 @@ local result = composed % 10  -- Type-checked!
 
 ## 📖 Documentation
 
-- **[API Reference](doc/api.md)** - Complete API documentation with examples and use cases
+- **[API Reference](doc/api.md)** - Complete API documentation
+- **[Examples](doc/examples.md)** - Practical examples and use cases
 
 ## 🤝 Contributing
 
