@@ -1,4 +1,14 @@
-.PHONY: test lint format clean install-dependencies-for-test build install-to-local release upload open-repo open-luarocks check
+.PHONY: install-dependencies-for-repl repl test lint format clean install-dependencies-for-test build install-to-local release upload open-repo open-luarocks check
+
+install-dependencies-for-repl:
+	luarocks install --local luaprompt
+
+# Run `dofile('luarrow.lua')` in the REPL to load the library
+# e.g.:
+# - `fun = require('luarrow').fun`
+# - `arrow = require('luarrow').arrow`
+repl:
+	cd src && luap
 
 test:
 	@echo "Running tests..."
