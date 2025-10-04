@@ -1,8 +1,15 @@
 local M = {}
 
 ---The wrapper of a function from A to B.
----Contains **the Haskell stlye function composition system**:
----`fun(f) * fun(g) % x`
+---Contains **the Haskell style function composition system**:
+---```lua
+---fun(f) * fun(g) % x
+---````
+---which is equivalent to
+---```lua
+---f(g(x))
+---```
+---
 ---@generic A, B
 ---@class Fun<A, B> : { raw: fun(x: A): B }
 ---
@@ -42,7 +49,11 @@ Fun.__mul = Fun.compose
 ---```
 ---fun(f):apply(x) -- luarrow (method call)
 ---===
+---fun(f) % x -- luarrow (operator call)
+---===
 ---f(x) -- Pure Lua
+---===
+---f $ x -- Haskell
 ---```
 ---@generic A, B
 ---@param self Fun<A, B>
@@ -58,8 +69,8 @@ Fun.__mod = Fun.apply
 ---@param func fun(x: A): B
 ---@return Fun<A, B>
 function Fun.new(func)
+ ---@type Fun<unknown, unknown> -- unknown because limitation of LuaCATS
   local self = setmetatable({}, Fun)
-  ---@diagnostic disable-next-line -- TODO: なぜか怒られるので、直すか、強制する
   self.raw = func
   return self
 end
