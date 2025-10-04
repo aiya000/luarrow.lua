@@ -73,14 +73,26 @@ function Arrow:apply(x)
   return self.raw(x)
 end
 
-Arrow.__mod = function(f, g)
-  if getmetatable(f) == Arrow then
-    return f:apply(g)
-  elseif getmetatable(g) == Arrow then
-    return g:apply(f)
-  else
-    error('One of the operands must be an Arrow')
-  end
+---```lua
+---local result = x % arrow(raw_f)
+---```
+---
+---@generic A, B
+---@param x A
+---@param f Arrow<A, B>
+---@return B
+---
+---Evaluation (Why this definition is tricky?):
+---```lua
+---x % f
+----- Try to call metamethod __mod of x
+---(__mod of x)(x, f) -- but f is not a number
+----- Then, fallback to Arrow.__mod
+---Arrow.__mod(x, f)
+----- End
+---```
+Arrow.__mod = function(x, f)
+  return f:apply(x)
 end
 
 ---@generic A, B
