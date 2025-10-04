@@ -1,3 +1,6 @@
+TODO:
+- 各関数にself引数を項目に入れる
+
 # luarrow API Reference
 
 Complete API documentation for luarrow - The Haskell-inspired function composition library for Lua.

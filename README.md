@@ -1,6 +1,8 @@
-# luarrow.lua
+# luarrow
 
-**Haskell-style function composition and application for Lua!**
+**Haskell-style function composition and true pipeline operators for Lua!**
+
+TODO: Implement pipeline operators
 
 Bring the elegance of Haskell's `f . g $ x` syntax to Lua with beautiful operator overloading.
 
@@ -215,7 +217,7 @@ local result = fun(map(double)) * fun(filter(is_even)) % numbers
 
 ## 🏷️ Type Annotations
 
-luarrow.lua provides full luaCATS type annotations for editor support:
+luarrow provides full luaCATS type annotations for editor support:
 
 ```lua
 local fun = require('luarrow').fun
@@ -237,10 +239,6 @@ local result = composed % 10  -- Type-checked!
 - **[API Reference](doc/api.md)** - Complete API documentation
 - **[Examples](doc/examples.md)** - Practical examples and use cases
 
-## 🤝 Contributing
-
-Contributions are welcome! Please check the issues page for current needs.
-
 ## 🙏 Acknowledgments
 
 Inspired by Haskell's elegant function composition and the power of operator overloading in Lua.
@@ -249,6 +247,6 @@ Inspired by Haskell's elegant function composition and the power of operator ove
 
 > "The best code is code that reads like poetry."
 
-luarrow.lua brings functional programming elegance to Lua, making your code more expressive, composable, and maintainable. Whether you're building data pipelines, processing lists, or creating complex transformations, luarrow.lua makes your intent crystal clear.
+luarrow brings functional programming elegance to Lua, making your code more expressive, composable, and maintainable. Whether you're building data pipelines, processing lists, or creating complex transformations, luarrow.lua makes your intent crystal clear.
 
 **Happy composing!** 🎯

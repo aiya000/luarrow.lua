@@ -6,31 +6,34 @@ For API reference, see [api.md](api.md).
 
 ## 🎯 Basic Examples
 
-### Simple Composition
+### Operator-Style Composition
+
+Recommended.
 
 ```lua
 local fun = require('luarrow').fun
 
 -- Define some basic functions
-local add_one = function(x) return x + 1 end
-local double = function(x) return x * 2 end
+local f = function(x) return x + 1 end
+local g = function(x) return x * 2 end
 
--- Compose using operator
-local f = fun(add_one) * fun(double)
-
--- Apply to a value
-local result = f % 5
-print(result)  -- 11, because add_one(double(5)) = add_one(10) = 11
+-- Compose and apply using operator
+local result = fun(f) * fun(g) % 5
+print(result)  -- 11, because f(g(5)) = f(10) = 11
 ```
 
 ### Method-Style Composition
 
+An option other than Operator-Style.
+(But not elegant.)
+
 ```lua
 -- Using explicit method calls
-local f = fun(add_one):compose(fun(double))
-local result = f:apply(5)
+local result = fun(f):compose(fun(g)):apply(5)
 print(result)  -- 11
 ```
+
+## 💡 Real-World Use Cases
 
 ### Multi-Function Composition
 
@@ -41,6 +44,7 @@ local minus_two = function(x) return x - 2 end
 local square = function(x) return x * x end
 
 -- Chain multiple functions
+-- In other word, Haskell programmers calls by the function definition of 'Point-Free-Style'
 local pipeline = fun(square) * fun(add_one) * fun(times_ten) * fun(minus_two)
 
 local result = pipeline % 42
@@ -52,8 +56,6 @@ local result = pipeline % 42
 
 print(result)  -- 160801
 ```
-
-## 💡 Real-World Use Cases
 
 ### String Processing Pipeline
 
@@ -77,7 +79,7 @@ local replace_spaces = function(s)
   return s:gsub("%s+", "_")
 end
 
--- Create a slug generator
+-- Create a slug generator - Point-Free-Style function definition
 local slugify = fun(replace_spaces)
               * fun(remove_special_chars)
               * fun(lowercase)
