@@ -11,6 +11,9 @@ local M = {}
 local Fun = {}
 Fun.__index = Fun
 
+---Exposes for users
+---@alias luarrow.Fun Fun
+
 ---NOTE: `===` means "is equivalent to"
 ---```
 ---fun(f):compose(fun(g)) -- luarrow (method call)
