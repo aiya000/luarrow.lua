@@ -1,6 +1,3 @@
-TODO:
-- 各関数にself引数を項目に入れる
-
 # luarrow API Reference
 
 Complete API documentation for luarrow - The Haskell-inspired function composition library for Lua.
@@ -21,7 +18,7 @@ For practical examples and use cases, see [examples.md](examples.md).
 
 ### `Fun` class
 
-The `luarrow.Fun<A, B>` class represents a wrapped function from type A to type B.
+The `luarrow.Fun<A, B>` class represents a wrapped function from type A to type B (`A → B`).
 
 ```lua
 ---@class luarrow.Fun<A, B>
@@ -56,7 +53,8 @@ local wrapped = fun(function(x) return x * 2 end)
 
 ### `f * g` (Composition Operator)
 
-Composes two functions using the `*` operator. Returns a new function that applies `g` first, then `f`.
+Composes two functions using the `*` operator.  
+Returns a new function that applies `g` first, then `f`.
 
 ```lua
 local f = fun(function(x) return x + 1 end)
@@ -68,22 +66,56 @@ print(result)  -- 11, because f(g(5)) = f(10) = 11
 ```
 
 **Type Parameters:**
-- `A` - Input type of the second function (applied first)
-- `B` - Output type of the second function / Input type of the first function
-- `C` - Output type of the first function (applied second)
+- `A` - Input type
+- `B` - Output type / Input type
+- `C` - Output type
 
 **Parameters:**
-- `f: luarrow.Fun<B, C>` - First function (applied second)
-- `g: luarrow.Fun<A, B>` - Second function (applied first)
+- `f: luarrow.Fun<B, C>` - A function that applied second
+- `g: luarrow.Fun<A, B>` - A function that applied first
 
 **Returns:**
 - `luarrow.Fun<A, C>` - Composed function
 
-**Note:** The order follows mathematical notation: `(f ∘ g)(x) = f(g(x))`
+- - -
+
+#### Note(1)
+
+The order follows mathematical notation:
+
+- `(f ∘ g)(x) = f(g(x))`
+
+In other words, you can think of:
+
+- `f * g`
+    - = `f ∘ g`
+
+as evaluating from right to left:
+
+- `f ← g`
+
+- - -
+
+#### Note(2)
+
+In other terms, this represents the logical syllogism:
+
+- "If B implies C, and A implies B, then A implies C."
+
+In terms of function types, this is:
+
+- `Fun<B, C> → Fun<A, B> → Fun<A, C>`
+
+Or more simply:
+
+-  `(B → C) → (A → B) → (A → C)`
+
+- - -
 
 ### `Fun:compose(g)`
 
-Method-style composition. Equivalent to `f * g` operator.
+Method-style composition.
+Equivalent to `f * g` operator.
 
 ```lua
 local f = fun(function(x) return x + 1 end)
@@ -95,15 +127,18 @@ print(result)  -- 11
 ```
 
 **Type Parameters:**
-- `A` - Input type of the second function (applied first)
-- `B` - Output type of the second function / Input type of the first function
-- `C` - Output type of the first function (applied second)
+- `A` - Input type
+- `B` - Output type / Input type
+- `C` - Output type
 
 **Parameters:**
-- `g: luarrow.Fun<A, B>` - Function to compose with (applied first)
+- `self: luarrow.Fun<B, C>` - A function that applied second
+- `g: luarrow.Fun<A, B>` - A function that applied first
 
 **Returns:**
 - `luarrow.Fun<A, C>` - Composed function
+
+See [Note(1)](#note1) and [Note(2)](#note2) above for details on composition order and type relationships.
 
 ### `f % x` (Application Operator)
 
@@ -129,7 +164,8 @@ print(result)  -- 11
 
 ### `Fun:apply(x)`
 
-Method-style application. Equivalent to `f % x` operator.
+Method-style application.  
+Equivalent to `f % x` operator.
 
 ```lua
 local f = fun(function(x) return x + 1 end)
@@ -143,6 +179,7 @@ print(result)  -- 11
 - `B` - Output type
 
 **Parameters:**
+- `self: luarrow.Fun<A, B>` - The wrapped function
 - `x: A` - Value to apply the function to
 
 **Returns:**

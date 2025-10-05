@@ -24,8 +24,7 @@ print(result)  -- 11, because f(g(5)) = f(10) = 11
 
 ### Method-Style Composition
 
-An option other than Operator-Style.
-(But not elegant.)
+Alternative approach using explicit method calls.
 
 ```lua
 -- Using explicit method calls
@@ -44,7 +43,6 @@ local minus_two = function(x) return x - 2 end
 local square = function(x) return x * x end
 
 -- Chain multiple functions
--- In other word, Haskell programmers calls by the function definition of 'Point-Free-Style'
 local pipeline = fun(square) * fun(add_one) * fun(times_ten) * fun(minus_two)
 
 local result = pipeline % 42
@@ -56,6 +54,10 @@ local result = pipeline % 42
 
 print(result)  -- 160801
 ```
+
+**Important Note:**  
+This definition style for `pipeline` is what Haskell programmers call '**Point-Free Style**'!  
+In Haskell, this is a very common technique to reduce the amount of code and improve readability.
 
 ### String Processing Pipeline
 
@@ -467,107 +469,132 @@ print("Counter:", counter.value)  -- 5
 -- output.log contains: 2, 4, 6, 8, 10
 ```
 
-## ⚡ Performance Considerations
+## 🏷️ Working with LuaCATS
 
-### Overhead Analysis
+luarrow provides LuaCATS type annotations in its source code.  
+However, due to LuaCATS limitations with generic type inference, **type checking will not work automatically**.
+
+If you want type safety with LuaCATS, you must **explicitly annotate** types yourself:
 
 ```lua
 local fun = require('luarrow').fun
 
--- Benchmark: luarrow vs native Lua
-local function benchmark(name, f, iterations)
-  local start = os.clock()
-  for i = 1, iterations do
-    f(i)
-  end
-  local elapsed = os.clock() - start
-  print(string.format("%s: %.6f seconds", name, elapsed))
-end
+---@type luarrow.Fun<number, string>
+local to_string = fun(function(x) return tostring(x) end)
 
+---@type luarrow.Fun<string, boolean>
+local is_long = fun(function(s) return #s > 3 end)
+
+---@type luarrow.Fun<number, boolean>
+local composed = is_long * to_string
+
+---@type boolean
+local result = composed:apply(1234)  -- Returns: true
+```
+
+**Important**:  
+Unfortunately, due to LuaCATS's limitations, you must provide `---@type` annotations for all intermediate variables.  
+Without explicit `---@type` annotations, LuaCATS will infer types as `unknown` and will not provide type checking benefits.
+
+We look forward to future improvements in LuaCATS `:D`
+
+## ⚡ Performance Considerations
+
+### Benchmark Results
+
+Performance comparison between luarrow and native Lua using 1,000,000 iterations:
+
+#### Functions used
+
+```lua
 local add_one = function(x) return x + 1 end
 local double = function(x) return x * 2 end
 local square = function(x) return x * x end
-
--- Native Lua
-local native = function(x)
-  return square(double(add_one(x)))
-end
-
--- luarrow
-local composed = fun(square) * fun(double) * fun(add_one)
-local luarrow_fn = function(x)
-  return composed % x
-end
-
-benchmark("Native Lua", native, 1000000)
-benchmark("luarrow", luarrow_fn, 1000000)
-
--- Note: luarrow has minimal overhead due to simple table wrapping
--- The performance difference is typically negligible for most use cases
 ```
 
-### When to Use luarrow
-
-**Use luarrow when:**
-- Code clarity and maintainability are priorities
-- Building complex transformation pipelines
-- Working with functional programming patterns
-- Composing reusable function components
-
-**Consider native Lua when:**
-- Performance is absolutely critical (hot loops)
-- Working with simple, one-time transformations
-- Interfacing with performance-sensitive C libraries
-
-### Optimization Tips
+#### Pre-composed functions
 
 ```lua
--- 1. Pre-compose functions outside loops
-local fun = require('luarrow').fun
-
--- BAD: Composing inside loop
-for i = 1, 1000 do
-  local f = fun(add_one) * fun(double)  -- Allocates new objects each iteration
-  result = f % i
+local native_direct = function(x)
+  return h(g(f(x)))
 end
 
--- GOOD: Compose once, reuse
+local fun_composed = fun(h) * fun(g) * fun(f)
+local fun_precomposed = function(x)
+  return fun_composed % x
+end
+```
+
+Result:
+- Native Lua: `0.078s`
+- Fun (pre-composed): `0.197s`
+
+#### On-the-fly composition (inside loop)
+
+```lua
+local native_onthefly = function(x)
+  local function native_composed(y)
+    return h(g(f(y)))
+  end
+  return native_composed(x)
+end
+
+local fun_onthefly = function(x)
+  return fun(h) * fun(g) * fun(f) % x
+end
+```
+
+Result:
+- Native Lua (function wrapper): `0.155s`
+- Fun (on-the-fly): `1.476s`
+
+Benchmark script is here: [benchmark.lua](../scripts/benchmark.lua)  
+To optimizet this, see: [How to optimize performance](#how-to-optimaize-performance)
+
+### How to optimaize performance
+
+Use pre-compose pattern outside loops:
+
+:o: Good
+
+```lua
+local fun = require('luarrow').fun
+
+-- Compose once (pre-composed), and reuse.
+-- This allocates objects only once.
 local f = fun(add_one) * fun(double)
 for i = 1, 1000 do
   result = f % i
 end
-
--- 2. Use method style for single compositions
--- If you're only composing two functions once, method style is fine
-local result = fun(f):compose(fun(g)):apply(x)
-
--- 3. For very hot paths, consider native Lua
--- If profiling shows composition is a bottlenack, unwrap to native
-local function hot_path(x)
-  return f(g(h(x)))  -- Direct calls, no wrapper overhead
-end
 ```
 
-## 🏷️ Type Safety with luaCATS
+:x: BAD
 
 ```lua
 local fun = require('luarrow').fun
 
----@type luarrow.Fun<number, number>
-local add_one = fun(function(x) return x + 1 end)
-
----@type luarrow.Fun<number, number>
-local double = fun(function(x) return x * 2 end)
-
----@type luarrow.Fun<number, number>
-local composed = add_one * double
-
--- This will be type-checked by your editor
-local result = composed % 10  -- OK: number
-
--- This would show a type error in editors with luaCATS support
--- local bad = composed % "hello"  -- Error: expected number, got string
+-- Composing inside loop.
+-- This allocates new objects each iteration.
+-- Too slower.
+for i = 1, 1000 do
+  local f = fun(add_one) * fun(double)
+  result = f % i
+end
 ```
+
+#### Performance-critical paths
+
+Unfortunately, luarrow has some overhead.
+
+If you are in some performance-critical paths, use Native Lua for:
+
+```lua
+local function hot_path(x)
+  return f(g(h(x)))  -- Direct function calls
+end
+```
+
+But luarrow is still good selection if you are interested in **code clarity and maintainability**.
 
 ## 🔄 Comparison with Other Approaches
 
@@ -609,6 +636,7 @@ local result = fun(f) * fun(g) * fun(h) % x
 
 ## 🎊 Conclusion
 
-luarrow brings the elegance of Haskell's function composition to Lua while maintaining excellent performance and type safety. Whether you're building data pipelines, processing configurations, or creating complex transformations, luarrow makes your code more expressive and maintainable.
+luarrow brings the elegance of Haskell's function composition to Lua while maintaining excellent performance and type safety.  
+Whether you're building data pipelines, processing configurations, or creating complex transformations, luarrow makes your code more expressive and maintainable.
 
 **Happy functional programming!** 🚀

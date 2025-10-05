@@ -2,8 +2,6 @@
 
 **Haskell-style function composition and true pipeline operators for Lua!**
 
-TODO: Implement pipeline operators
-
 Bring the elegance of Haskell's `f . g $ x` syntax to Lua with beautiful operator overloading.
 
 ```lua
@@ -31,7 +29,6 @@ Functional programming in Lua just got **dramatically** more expressive:
 
 - **Haskell-inspired syntax** - Write `f * g % x` instead of `f(g(x))`
 - **Zero dependencies** - Pure Lua implementation with no external dependencies
-- **Type-safe** - Full luaCATS annotations for editor support
 - **Minimal overhead** - Lightweight wrapper around native Lua functions
 - **Elegant composition** - Chain multiple functions naturally with `*` operator
 - **Beautiful code** - Make your functional pipelines readable and maintainable
@@ -159,12 +156,15 @@ local trim = function(s) return s:match("^%s*(.-)%s*$") end
 local uppercase = function(s) return s:upper() end
 local add_prefix = function(s) return "USER: " .. s end
 
--- NOTE: This style of function definition is called 'point-free style'. In Haskell, this is a common technique
 local process_username = fun(add_prefix) * fun(uppercase) * fun(trim)
 
 local username = process_username % "  alice  "
 print(username)  -- "USER: ALICE"
 ```
+
+**Important Note**:  
+This definition style for `process_username` is what Haskell programmers call '**Point-Free Style**'!  
+In Haskell, this is a very common technique to reduce the amount of code and improve readability.
 
 ### Numerical Computations
 
@@ -215,25 +215,6 @@ local result = fun(map(double)) * fun(filter(is_even)) % numbers
 -- result: {4, 8, 12}
 ```
 
-## 🏷️ Type Annotations
-
-luarrow provides full luaCATS type annotations for editor support:
-
-```lua
-local fun = require('luarrow').fun
-
----@type luarrow.Fun<number, number>
-local add_one = fun(function(x) return x + 1 end)
-
----@type luarrow.Fun<number, number>
-local times_two = fun(function(x) return x * 2 end)
-
----@type luarrow.Fun<number, number>
-local composed = add_one * times_two
-
-local result = composed % 10  -- Type-checked!
-```
-
 ## 📖 Documentation
 
 - **[API Reference](doc/api.md)** - Complete API documentation
@@ -247,6 +228,7 @@ Inspired by Haskell's elegant function composition and the power of operator ove
 
 > "The best code is code that reads like poetry."
 
-luarrow brings functional programming elegance to Lua, making your code more expressive, composable, and maintainable. Whether you're building data pipelines, processing lists, or creating complex transformations, luarrow.lua makes your intent crystal clear.
+luarrow brings functional programming elegance to Lua, making your code more expressive, composable, and maintainable.
+Whether you're building data pipelines, processing lists, or creating complex transformations, luarrow makes your intent crystal clear.
 
 **Happy composing!** 🎯

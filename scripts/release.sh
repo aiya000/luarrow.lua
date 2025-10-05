@@ -48,7 +48,6 @@ description = {
       Features:
       - Haskell-inspired syntax with * for composition and % for application
       - Zero dependencies - pure Lua implementation
-      - Full luaCATS type annotations for editor support
       - Minimal overhead with simple table wrapping
    ]],
    homepage = 'https://github.com/aiya000/luarrow.lua',
