@@ -33,7 +33,10 @@ Functional programming in Lua just got **dramatically** more expressive:
 - **Elegant composition** - Chain multiple functions naturally with `*` operator
 - **Beautiful code** - Make your functional pipelines readable and maintainable
 
-**About the name:** "luarrow" is a portmanteau of "Lua" + "arrow", where "arrow" refers to the function arrow (→) commonly used in mathematics and functional programming to denote functions (`A → B`).
+> [!NOTE]
+> **About the name:**
+>
+> "luarrow" is a portmanteau of "Lua" + "arrow", where "arrow" refers to the function arrow (→) commonly used in mathematics and functional programming to denote functions (`A → B`).
 
 ## 🚀 Quick Start
 
@@ -162,9 +165,9 @@ local username = process_username % "  alice  "
 print(username)  -- "USER: ALICE"
 ```
 
-**Important Note**:  
-This definition style for `process_username` is what Haskell programmers call '**Point-Free Style**'!  
-In Haskell, this is a very common technique to reduce the amount of code and improve readability.
+> [!IMPORTANT]
+> This definition style for `process_username` is what Haskell programmers call '**Point-Free Style**'!  
+> In Haskell, this is a very common technique to reduce the amount of code and improve readability.
 
 ### Numerical Computations
 

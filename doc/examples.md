@@ -55,9 +55,9 @@ local result = pipeline % 42
 print(result)  -- 160801
 ```
 
-**Important Note:**  
-This definition style for `pipeline` is what Haskell programmers call '**Point-Free Style**'!  
-In Haskell, this is a very common technique to reduce the amount of code and improve readability.
+> [!Important]
+> This definition style for `pipeline` is what Haskell programmers call '**Point-Free Style**'!  
+> In Haskell, this is a very common technique to reduce the amount of code and improve readability.
 
 ### String Processing Pipeline
 
@@ -492,9 +492,9 @@ local composed = is_long * to_string
 local result = composed:apply(1234)  -- Returns: true
 ```
 
-**Important**:  
-Unfortunately, due to LuaCATS's limitations, you must provide `---@type` annotations for all intermediate variables.  
-Without explicit `---@type` annotations, LuaCATS will infer types as `unknown` and will not provide type checking benefits.
+> [!WARNING]
+> Unfortunately, due to LuaCATS's limitations, you must provide `---@type` annotations for all intermediate variables.  
+> Without explicit `---@type` annotations, LuaCATS will infer types as `unknown` and will not provide type checking benefits.
 
 We look forward to future improvements in LuaCATS `:D`
 
@@ -548,8 +548,9 @@ Result:
 - Native Lua (function wrapper): `0.155s`
 - Fun (on-the-fly): `1.476s`
 
-Benchmark script is here: [benchmark.lua](../scripts/benchmark.lua)  
-To optimizet this, see: [How to optimize performance](#how-to-optimaize-performance)
+> [!TIP]
+> - Benchmark script is here: [benchmark.lua](../scripts/benchmark.lua)  
+> - To optimizet this, see: [How to optimize performance](#how-to-optimaize-performance)
 
 ### How to optimaize performance
 

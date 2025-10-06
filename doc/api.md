@@ -77,40 +77,39 @@ print(result)  -- 11, because f(g(5)) = f(10) = 11
 **Returns:**
 - `luarrow.Fun<A, C>` - Composed function
 
-- - -
+> [!TIP]
+> The order follows mathematical notation:
+>
+> - `(f ∘ g)(x) = f(g(x))`
+>
+> In other words, you can think of:
+>
+> - `f * g` - (luarrow)
+> - `f ∘ g` - (Math)
+>
+> as evaluating from right to left:
+>
+> - `f ← g`
 
-#### Note(1)
-
-The order follows mathematical notation:
-
-- `(f ∘ g)(x) = f(g(x))`
-
-In other words, you can think of:
-
-- `f * g`
-    - = `f ∘ g`
-
-as evaluating from right to left:
-
-- `f ← g`
-
-- - -
-
-#### Note(2)
-
-In other terms, this represents the logical syllogism:
-
-- "If B implies C, and A implies B, then A implies C."
-
-In terms of function types, this is:
-
-- `Fun<B, C> → Fun<A, B> → Fun<A, C>`
-
-Or more simply:
-
--  `(B → C) → (A → B) → (A → C)`
-
-- - -
+> [!TIP]
+> In other terms, this represents the logical syllogism:
+>
+> - "If B implies C, and A implies B, then A implies C."
+>
+> In terms of function types, this is:
+>
+> - `Fun<B, C> → Fun<A, B> → Fun<A, C>`
+>
+> Or more simply:
+>
+> -  `(B → C) → (A → B) → (A → C)`
+>
+> If we change the order of the functions in the arguments,
+> it may help you to easier understand,  
+> although this is different from the actual arguments.
+>
+> - `Fun<A, B> → Fun<B, C> → Fun<A, C>`
+> - `(A → B) → (B → C) → (A → C)`
 
 ### `Fun:compose(g)`
 
