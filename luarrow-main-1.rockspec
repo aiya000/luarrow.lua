@@ -25,7 +25,9 @@ build = {
    type = 'builtin',
    modules = {
       luarrow = 'src/luarrow.lua',
-      ['luarrow.fun'] = 'src/luarrow/fun.lua'
+      ['luarrow.fun'] = 'src/luarrow/fun.lua',
+      ['luarrow.arrow'] = 'src/luarrow/arrow.lua',
+      ['luarrow.utils'] = 'src/luarrow/utils.lua'
    },
    copy_directories = {
       'doc'
