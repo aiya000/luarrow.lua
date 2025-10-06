@@ -105,21 +105,36 @@ print(result)  -- 401
 
 ### Applicative-Style Function Application
 
-For those who prefer the applicative style from Haskell:
+The Identity monad (available as `identity` or `pure` for backward compatibility) provides applicative-style function composition:
 
 ```lua
-local pure = require('luarrow').pure
+local identity = require('luarrow').identity
 
 local function f(x) return x + 1 end
 local function g(x) return x * 10 end
 local function h(x) return x - 2 end
 
 -- Applicative style composition and application
-local result = pure(f) * pure(g) * pure(h) % 42
+local result = identity(f) * identity(g) * identity(h) % 42
 print(result)  -- 401
 ```
 
-This provides the same functionality as `fun` but with a different conceptual approach - wrapping values in an applicative context.
+luarrow also provides **Maybe** and **Either** monads for handling optional values and errors:
+
+```lua
+local just = require('luarrow').just
+local nothing = require('luarrow').nothing
+
+-- Maybe monad for optional values
+local safe_divide = function(x)
+  return function(y)
+    if y == 0 then return nothing() else return just(x / y) end
+  end
+end
+
+local result = just(10) % safe_divide(5)  -- just(2.0)
+print(result:or_else(0))  -- 2.0
+```
 
 ## 📦 Installation
 
@@ -153,8 +168,10 @@ For practical examples and use cases, see **[doc/examples.md](doc/examples.md)**
 - `fun(f)` - Wrap a function for composition
 - `f * g` - Compose two functions (`f ∘ g`)
 - `f % x` - Apply function to value for this API
-- `pure(value)` - Wrap a value in applicative context
-- `pure(f) * pure(g) % x` - Applicative-style function application
+- **Monads:**
+  - `identity(value)` / `pure(value)` - Identity monad
+  - `just(value)`, `nothing()` - Maybe monad for optional values
+  - `right(value)`, `left(error)` - Either monad for error handling
 
 ## 🔄 Comparison with Haskell
 
