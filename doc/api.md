@@ -195,7 +195,7 @@ print(result)  -- 11
 
 ### `Arrow` class
 
-The `luarrow.Arrow<A, B>` class represents a wrapped function from type A to type B (`A → B`), similar to `Fun` but with **pipeline-style composition** that reads left-to-right.
+The `luarrow.Arrow<A, B>` class represents a wrapped function from type A to type B (`A → B`), similar to `Fun` but with **pipeline-style composition** that reads left-to-right (like the `|>` operator in Elm, F#, OCaml, Elixir).
 
 ```lua
 ---@class luarrow.Arrow<A, B>
@@ -274,10 +274,13 @@ h(g(f(x)))
 This is similar to:
 - Unix pipes: `x | f | g | h`
 - Haskell's `>>>` operator: `f >>> g >>> h`
+- Pipeline Operator `|>` in Elm, F#, OCaml, Elixir: `x |> f |> g |> h`
+- Pipeline Operator in other languages (Rust, Hack, etc.)
 
 In other words, you can think of:
 - `f ^ g`
     - = `f >>> g` (Haskell)
+    - = `f |> g` (Pipeline Operator)
     - = `f | g` (Unix pipes, conceptually)
 
 as evaluating from left to right:

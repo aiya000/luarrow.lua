@@ -108,7 +108,7 @@ print(result)  -- 401
 
 ### Pipeline-Style Composition with Arrow
 
-If you prefer left-to-right data flow (like Unix pipes), use `arrow`:
+If you prefer left-to-right data flow (like Unix pipes or the `|>` operator in Elm/F#/OCaml), use `arrow`:
 
 ```lua
 local arrow = require('luarrow').arrow
@@ -163,7 +163,7 @@ For practical examples and use cases, see **[doc/examples.md](doc/examples.md)**
 - `f * g` - Compose two functions (`f ∘ g`)
 - `f % x` - Apply function to value
 
-**Quick reference for `arrow` (pipeline/Unix style):**
+**Quick reference for `arrow` (pipeline style - like `|>` operator):**
 - `arrow(f)` - Wrap a function for pipeline composition
 - `f ^ g` - Compose two functions in pipeline order
 - `x % f` - Apply function to value in pipeline style

@@ -34,7 +34,10 @@ print(result)  -- 11
 
 ## 🎯 Arrow Examples (Pipeline Style)
 
-The `arrow` API provides an alternative pipeline-style composition that reads **left-to-right**, similar to Unix pipes or Haskell's `>>>` operator.
+The `arrow` API provides an alternative pipeline-style composition that reads **left-to-right**, similar to:
+- Unix pipes (`|`)
+- Haskell's `>>>` operator
+- Pipeline Operator `|>` in Elm, F#, OCaml, Elixir, and other languages
 
 ### Operator-Style Pipeline Composition
 
@@ -130,7 +133,7 @@ print(result2)  -- 17, because h(g(f(10))) = h(g(11)) = h(22) = 17
 
 **When to use which:**
 - Use `fun` when thinking in mathematical/Haskell style (function composition)
-- Use `arrow` when thinking in pipeline/data-flow style (Unix pipes, reactive streams)
+- Use `arrow` when thinking in pipeline/data-flow style (Unix pipes, Pipeline Operator `|>`, reactive streams)
 
 ## 💡 Real-World Use Cases
 
