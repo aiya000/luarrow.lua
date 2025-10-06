@@ -13,6 +13,13 @@ For practical examples and use cases, see [examples.md](examples.md).
     - [Fun:compose(g)](#funcomposeg)
     - [f % x (Application Operator)](#f--x-application-operator)
     - [Fun:apply(x)](#funapplyx)
+2. [Arrow API Reference](#-arrow-api-reference)
+    - [Arrow class](#arrow-class)
+    - [arrow(f)](#arrowf)
+    - [f ^ g (Pipeline Composition Operator)](#f--g-pipeline-composition-operator)
+    - [Arrow:to(g)](#arrowtog)
+    - [x % f (Pipeline Application Operator)](#x--f-pipeline-application-operator)
+    - [Arrow:apply(x)](#arrowapplyx)
 
 ## 📖 API Reference
 
@@ -179,6 +186,189 @@ print(result)  -- 11
 
 **Parameters:**
 - `self: luarrow.Fun<A, B>` - The wrapped function
+- `x: A` - Value to apply the function to
+
+**Returns:**
+- `B` - Result of applying the function
+
+## 🎯 Arrow API Reference
+
+### `Arrow` class
+
+The `luarrow.Arrow<A, B>` class represents a wrapped function from type A to type B (`A → B`), similar to `Fun` but with **pipeline-style composition** that reads left-to-right.
+
+```lua
+---@class luarrow.Arrow<A, B>
+---@field raw fun(x: A): B  -- The original unwrapped function
+```
+
+**Type Parameters:**
+- `A` - Input type
+- `B` - Output type
+
+**Fields:**
+- `raw: fun(x: A): B` - The original unwrapped Lua function
+
+**Key Difference from `Fun`:**
+- `Fun`: Composes right-to-left (mathematical style) - `fun(f) * fun(g) % x` means `f(g(x))`
+- `Arrow`: Composes left-to-right (pipeline style) - `x % arrow(f) ^ arrow(g)` means `g(f(x))`
+
+### `arrow(f)`
+
+Wraps a Lua function into an `Arrow` object that supports pipeline-style composition and application.
+
+```lua
+local arrow = require('luarrow').arrow
+local wrapped = arrow(function(x) return x * 2 end)
+```
+
+**Type Parameters:**
+- `A` - Input type
+- `B` - Output type
+
+**Parameters:**
+- `f: fun(x: A): B` - Lua function
+
+**Returns:**
+- `luarrow.Arrow<A, B>` - Wrapped function object
+
+### `f ^ g` (Pipeline Composition Operator)
+
+Composes two functions using the `^` operator in **pipeline order** (left-to-right).  
+Returns a new function that applies `f` first, then `g`.
+
+```lua
+local f = arrow(function(x) return x + 1 end)
+local g = arrow(function(x) return x * 2 end)
+
+local composed = f ^ g
+local result = 5 % composed
+print(result)  -- 12, because g(f(5)) = g(6) = 12
+```
+
+**Type Parameters:**
+- `A` - Input type
+- `B` - Intermediate type
+- `C` - Output type
+
+**Parameters:**
+- `f: luarrow.Arrow<A, B>` - A function that is applied first
+- `g: luarrow.Arrow<B, C>` - A function that is applied second
+
+**Returns:**
+- `luarrow.Arrow<A, C>` - Composed function
+
+- - -
+
+#### Note(1)
+
+The order follows **pipeline/Unix-style** composition (opposite of mathematical notation):
+
+```lua
+-- Arrow pipeline style (left-to-right)
+x % arrow(f) ^ arrow(g) ^ arrow(h)
+-- Equivalent to:
+h(g(f(x)))
+```
+
+This is similar to:
+- Unix pipes: `x | f | g | h`
+- Haskell's `>>>` operator: `f >>> g >>> h`
+
+In other words, you can think of:
+- `f ^ g`
+    - = `f >>> g` (Haskell)
+    - = `f | g` (Unix pipes, conceptually)
+
+as evaluating from left to right:
+- `f → g`
+
+- - -
+
+#### Note(2)
+
+In terms of function types:
+- `Arrow<A, B> → Arrow<B, C> → Arrow<A, C>`
+
+Or more simply:
+- `(A → B) → (B → C) → (A → C)`
+
+This represents the natural data flow from A to B to C.
+
+- - -
+
+### `Arrow:to(g)`
+
+Method-style pipeline composition.
+Equivalent to `f ^ g` operator.
+
+```lua
+local f = arrow(function(x) return x + 1 end)
+local g = arrow(function(x) return x * 2 end)
+
+local composed = f:to(g)
+local result = composed:apply(5)
+print(result)  -- 12
+```
+
+**Type Parameters:**
+- `A` - Input type
+- `B` - Intermediate type
+- `C` - Output type
+
+**Parameters:**
+- `self: luarrow.Arrow<A, B>` - A function that is applied first
+- `g: luarrow.Arrow<B, C>` - A function that is applied second
+
+**Returns:**
+- `luarrow.Arrow<A, C>` - Composed function
+
+See [Note(1)](#note1-1) and [Note(2)](#note2-1) above for details on composition order and type relationships.
+
+### `x % f` (Pipeline Application Operator)
+
+Applies the wrapped function to a value using the `%` operator in **pipeline style**.
+
+```lua
+local f = arrow(function(x) return x + 1 end)
+
+local result = 10 % f
+print(result)  -- 11
+```
+
+**Type Parameters:**
+- `A` - Input type
+- `B` - Output type
+
+**Parameters:**
+- `x: A` - Value to apply the function to
+- `f: luarrow.Arrow<A, B>` - Wrapped function
+
+**Returns:**
+- `B` - Result of applying the function
+
+**Note:** This uses the same `%` operator as `Fun`, but the order is reversed:
+- `Fun`: `fun(f) % x` means `f(x)`
+- `Arrow`: `x % arrow(f)` means `f(x)`
+
+### `Arrow:apply(x)`
+
+Method-style application.  
+Equivalent to `x % f` operator.
+
+```lua
+local f = arrow(function(x) return x + 1 end)
+
+local result = f:apply(10)
+print(result)  -- 11
+```
+
+**Type Parameters:**
+- `A` - Input type
+- `B` - Output type
+
+**Parameters:**
+- `self: luarrow.Arrow<A, B>` - The wrapped function
 - `x: A` - Value to apply the function to
 
 **Returns:**

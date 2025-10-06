@@ -106,6 +106,30 @@ print(result)  -- 401
 --             add_one(400) = 401
 ```
 
+### Pipeline-Style Composition with Arrow
+
+If you prefer left-to-right data flow (like Unix pipes), use `arrow`:
+
+```lua
+local arrow = require('luarrow').arrow
+
+local add_one = function(x) return x + 1 end
+local times_ten = function(x) return x * 10 end
+local minus_two = function(x) return x - 2 end
+
+-- Pipeline style: data flows left to right!
+local result = 42 % arrow(minus_two) ^ arrow(times_ten) ^ arrow(add_one)
+print(result)  -- 401
+-- Evaluation: minus_two(42) = 40
+--             times_ten(40) = 400
+--             add_one(400) = 401
+```
+
+**Note:** Both `fun` and `arrow` produce the same results but with different syntax:
+- `fun`: Mathematical style - `fun(f) * fun(g) % x` (compose right-to-left, apply at end)
+- `arrow`: Pipeline style - `x % arrow(f) ^ arrow(g)` (data flows left-to-right)
+
+
 ## 📦 Installation
 
 ### With luarocks
@@ -134,10 +158,15 @@ For complete API documentation, see **[doc/api.md](doc/api.md)**.
 
 For practical examples and use cases, see **[doc/examples.md](doc/examples.md)**.
 
-**Quick reference:**
+**Quick reference for `fun` (mathematical/Haskell style):**
 - `fun(f)` - Wrap a function for composition
 - `f * g` - Compose two functions (`f ∘ g`)
-- `f % x` - Apply function to value for this API
+- `f % x` - Apply function to value
+
+**Quick reference for `arrow` (pipeline/Unix style):**
+- `arrow(f)` - Wrap a function for pipeline composition
+- `f ^ g` - Compose two functions in pipeline order
+- `x % f` - Apply function to value in pipeline style
 
 ## 🔄 Comparison with Haskell
 

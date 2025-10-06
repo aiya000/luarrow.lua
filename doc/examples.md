@@ -32,6 +32,106 @@ local result = fun(f):compose(fun(g)):apply(5)
 print(result)  -- 11
 ```
 
+## 🎯 Arrow Examples (Pipeline Style)
+
+The `arrow` API provides an alternative pipeline-style composition that reads **left-to-right**, similar to Unix pipes or Haskell's `>>>` operator.
+
+### Operator-Style Pipeline Composition
+
+Recommended for pipeline-style workflows.
+
+```lua
+local arrow = require('luarrow').arrow
+
+-- Define some basic functions
+local f = function(x) return x + 1 end
+local g = function(x) return x * 2 end
+
+-- Pipeline-style: data flows left-to-right
+local result = 5 % arrow(f) ^ arrow(g)
+print(result)  -- 12, because g(f(5)) = g(6) = 12
+```
+
+### Method-Style Pipeline Composition
+
+Alternative approach using explicit method calls.
+
+```lua
+-- Using explicit method calls
+local result = arrow(f):to(arrow(g)):apply(5)
+print(result)  -- 12
+```
+
+### Multi-Stage Pipeline
+
+```lua
+local arrow = require('luarrow').arrow
+
+local add_one = function(x) return x + 1 end
+local times_ten = function(x) return x * 10 end
+local minus_two = function(x) return x - 2 end
+
+-- Pipeline: data flows naturally from left to right
+local result = 42 % arrow(add_one) ^ arrow(times_ten) ^ arrow(minus_two)
+print(result)  -- 428
+-- Evaluation order (left to right):
+-- add_one(42) = 43
+-- times_ten(43) = 430
+-- minus_two(430) = 428
+```
+
+### String Processing Pipeline
+
+```lua
+local arrow = require('luarrow').arrow
+
+-- String processing functions
+local trim = function(s)
+  return s:match("^%s*(.-)%s*$")
+end
+
+local uppercase = function(s)
+  return s:upper()
+end
+
+local add_prefix = function(s)
+  return "USER: " .. s
+end
+
+-- Create a user name processor - pipeline reads left-to-right
+local username = "  alice  " % arrow(trim) ^ arrow(uppercase) ^ arrow(add_prefix)
+print(username)  -- "USER: ALICE"
+```
+
+### Comparison: Fun vs Arrow
+
+Both `fun` and `arrow` provide the same functionality but with different composition order:
+
+```lua
+local fun = require('luarrow').fun
+local arrow = require('luarrow').arrow
+
+local f = function(x) return x + 1 end
+local g = function(x) return x * 2 end
+local h = function(x) return x - 5 end
+
+-- Fun: Mathematical/Haskell style (right-to-left composition)
+local result1 = fun(h) * fun(g) * fun(f) % 10
+print(result1)  -- 17, because h(g(f(10))) = h(g(11)) = h(22) = 17
+
+-- Arrow: Pipeline/Unix style (left-to-right composition)
+local result2 = 10 % arrow(f) ^ arrow(g) ^ arrow(h)
+print(result2)  -- 17, because h(g(f(10))) = h(g(11)) = h(22) = 17
+
+-- Both produce the same result, but the syntax reflects different mental models:
+-- - fun: Think like mathematics (f ∘ g ∘ h)
+-- - arrow: Think like pipelines (data | f | g | h)
+```
+
+**When to use which:**
+- Use `fun` when thinking in mathematical/Haskell style (function composition)
+- Use `arrow` when thinking in pipeline/data-flow style (Unix pipes, reactive streams)
+
 ## 💡 Real-World Use Cases
 
 ### Multi-Function Composition
