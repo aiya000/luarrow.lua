@@ -1,4 +1,4 @@
-.PHONY: install-dependencies-for-repl repl test lint format clean install-dependencies-for-test build install-to-local release upload open-repo open-luarocks check benchmark
+.PHONY: install-dependencies-for-repl repl test lint format clean install-dependencies-for-test build install-to-local release upload open-repo open-luarocks check benchmark benchmark-both
 
 install-dependencies-for-repl:
 	luarocks install --local luaprompt
@@ -63,3 +63,6 @@ open-luarocks:
 
 benchmark:
 	LUA_PATH='./src/?.lua' lua scripts/benchmark.lua
+
+benchmark-both:
+	lua scripts/benchmark-both.lua

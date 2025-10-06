@@ -42,8 +42,11 @@ Arrow.__index = Arrow
 ---@param g Arrow<B, C>
 ---@return Arrow<A, C>
 function Arrow:compose_to(g)
+  -- To optimize performance, assign to variables outside
+  local self_raw = self.raw
+  local g_raw = g.raw
   return Arrow.new(function(x)
-    return g.raw(self.raw(x))
+    return g_raw(self_raw(x))
   end)
 end
 
@@ -84,7 +87,7 @@ end
 ---@param func fun(x: A): B
 ---@return Arrow<A, B>
 function Arrow.new(func)
- ---@type Arrow<unknown, unknown> -- unknown because limitation of LuaCATS
+  ---@type Arrow<unknown, unknown> -- unknown because limitation of LuaCATS
   local self = setmetatable({}, Arrow)
   self.raw = func
   return self
