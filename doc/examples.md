@@ -32,12 +32,35 @@ local result = fun(f):compose(fun(g)):apply(5)
 print(result)  -- 11
 ```
 
+### Applicative-Style Composition
+
+For those familiar with Haskell's Applicative functors, luarrow provides the `pure` function for wrapping values in an applicative context.
+
+```lua
+local pure = require('luarrow').pure
+
+local f = function(x)
+  return x + 1
+end
+local g = function(x)
+  return x * 2
+end
+
+-- Applicative-style composition
+local result = pure(f) * pure(g) % 5
+print(result) -- 11, because f(g(5)) = f(10) = 11
+```
+
+This is conceptually similar to `fun`, but emphasizes the applicative functor pattern. The `*` operator composes wrapped functions, and `%` applies the result to a value.
+
 ## 💡 Real-World Use Cases
 
 ### Multi-Function Composition
 
 ```lua
-local add_one = function(x) return x + 1 end
+local add_one = function(x)
+  return x + 1
+end
 local times_ten = function(x) return x * 10 end
 local minus_two = function(x) return x - 2 end
 local square = function(x) return x * x end
