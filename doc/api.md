@@ -13,6 +13,12 @@ For practical examples and use cases, see [examples.md](examples.md).
     - [Fun:compose(g)](#funcomposeg)
     - [f % x (Application Operator)](#f--x-application-operator)
     - [Fun:apply(x)](#funapplyx)
+    - [Pure class](#pure-class)
+    - [pure(value)](#purevalue)
+    - [pure(f) * pure(g) (Applicative Composition)](#puref--pureg-applicative-composition)
+    - [Pure:fmap(mg)](#purefmapmg)
+    - [pure(f) % x (Applicative Application)](#puref--x-applicative-application)
+    - [Pure:apply(x)](#pureapplyx)
 
 ## 📖 API Reference
 
@@ -180,6 +186,154 @@ print(result)  -- 11
 
 **Parameters:**
 - `self: luarrow.Fun<A, B>` - The wrapped function
+- `x: A` - Value to apply the function to
+
+**Returns:**
+- `B` - Result of applying the function
+
+---
+
+## Applicative-Style Operations
+
+### `Pure` class
+
+The `luarrow.Pure<A>` class represents a value wrapped in an applicative context.  
+It enables **applicative-style function application** inspired by Haskell's Applicative functors.
+
+```lua
+---@class luarrow.Pure<A>
+---@field value A  -- The wrapped value
+```
+
+**Type Parameters:**
+- `A` - The type of the wrapped value
+
+**Fields:**
+- `value: A` - The wrapped value
+
+### `pure(value)`
+
+Wraps a value (including functions) in the Pure applicative context.
+
+```lua
+local pure = require('luarrow').pure
+
+-- Wrap a function
+local add_one = pure(function(x) return x + 1 end)
+
+-- Wrap a value
+local wrapped_value = pure(10)
+```
+
+**Type Parameters:**
+- `A` - Type of the value to wrap
+
+**Parameters:**
+- `value: A` - Value to wrap (can be a function or any other value)
+
+**Returns:**
+- `luarrow.Pure<A>` - Wrapped value in applicative context
+
+### `pure(f) * pure(g)` (Applicative Composition)
+
+Composes two wrapped functions using the `*` operator.  
+Returns a new wrapped function that applies `g` first, then `f`.
+
+```lua
+local pure = require('luarrow').pure
+
+local add_one = function(x) return x + 1 end
+local times_two = function(x) return x * 2 end
+
+local composed = pure(add_one) * pure(times_two)
+local result = composed % 10
+print(result)  -- 21, because add_one(times_two(10)) = add_one(20) = 21
+```
+
+**Type Parameters:**
+- `A` - Input type
+- `B` - Intermediate type
+- `C` - Output type
+
+**Parameters:**
+- `f: luarrow.Pure<fun(x: B): C>` - A wrapped function that is applied second
+- `g: luarrow.Pure<fun(x: A): B>` - A wrapped function that is applied first
+
+**Returns:**
+- `luarrow.Pure<fun(x: A): C>` - Composed wrapped function
+
+### `Pure:fmap(mg)`
+
+Method-style composition.  
+Equivalent to `pure(f) * pure(g)` operator.
+
+```lua
+local pure = require('luarrow').pure
+
+local f = pure(function(x) return x + 1 end)
+local g = pure(function(x) return x * 2 end)
+
+local composed = f:fmap(g)
+local result = composed:apply(10)
+print(result)  -- 21
+```
+
+**Type Parameters:**
+- `A` - Input type
+- `B` - Intermediate type
+- `C` - Output type
+
+**Parameters:**
+- `self: luarrow.Pure<fun(x: B): C>` - The wrapped function to apply second
+- `mg: luarrow.Pure<fun(x: A): B>` - The wrapped function to apply first
+
+**Returns:**
+- `luarrow.Pure<fun(x: A): C>` - Composed wrapped function
+
+### `pure(f) % x` (Applicative Application)
+
+Applies a wrapped function to a value using the `%` operator.
+
+```lua
+local pure = require('luarrow').pure
+
+local add_one = pure(function(x) return x + 1 end)
+
+local result = add_one % 10
+print(result)  -- 11
+```
+
+**Type Parameters:**
+- `A` - Input type
+- `B` - Output type
+
+**Parameters:**
+- `f: luarrow.Pure<fun(x: A): B>` - Wrapped function
+- `x: A` - Value to apply the function to
+
+**Returns:**
+- `B` - Result of applying the function
+
+### `Pure:apply(x)`
+
+Method-style application.  
+Equivalent to `pure(f) % x` operator.
+
+```lua
+local pure = require('luarrow').pure
+
+local add_one = pure(function(x) return x + 1 end)
+
+local result = add_one:apply(10)
+print(result)  -- 11
+```
+
+**Type Parameters:**
+- `A` - Input type
+- `B` - Output type
+
+**Parameters:**
+- `self: luarrow.Pure<fun(x: A): B>` - The wrapped function
 - `x: A` - Value to apply the function to
 
 **Returns:**

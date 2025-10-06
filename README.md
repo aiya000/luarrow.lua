@@ -103,6 +103,24 @@ print(result)  -- 401
 --             add_one(400) = 401
 ```
 
+### Applicative-Style Function Application
+
+For those who prefer the applicative style from Haskell:
+
+```lua
+local pure = require('luarrow').pure
+
+local function f(x) return x + 1 end
+local function g(x) return x * 10 end
+local function h(x) return x - 2 end
+
+-- Applicative style composition and application
+local result = pure(f) * pure(g) * pure(h) % 42
+print(result)  -- 401
+```
+
+This provides the same functionality as `fun` but with a different conceptual approach - wrapping values in an applicative context.
+
 ## 📦 Installation
 
 ### With luarocks
@@ -135,6 +153,8 @@ For practical examples and use cases, see **[doc/examples.md](doc/examples.md)**
 - `fun(f)` - Wrap a function for composition
 - `f * g` - Compose two functions (`f ∘ g`)
 - `f % x` - Apply function to value for this API
+- `pure(value)` - Wrap a value in applicative context
+- `pure(f) * pure(g) % x` - Applicative-style function application
 
 ## 🔄 Comparison with Haskell
 
