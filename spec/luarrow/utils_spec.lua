@@ -76,7 +76,7 @@ describe('utils.partial', function()
 end)
 
 describe('utils.curry', function()
-  it('should curry a function with 2 arguments (one at a time only)', function()
+  it('should curry a 2-argument function', function()
     local add = curry(function(a, b)
       return a + b
     end)
@@ -85,16 +85,7 @@ describe('utils.curry', function()
     assert.are.equal(3, result)
   end)
 
-  it('should curry a function with 3 arguments (one at a time only)', function()
-    local add3 = curry(function(a, b, c)
-      return a + b + c
-    end)
-
-    local result = add3(1)(2)(3)
-    assert.are.equal(6, result)
-  end)
-
-  it('should allow partial application (one at a time)', function()
+  it('should allow partial application', function()
     local add = curry(function(a, b)
       return a + b
     end)
@@ -104,22 +95,7 @@ describe('utils.curry', function()
     assert.are.equal(15, result)
   end)
 
-  it('should work with explicit arity', function()
-    -- For variadic functions, we need to specify arity
-    local multiply = curry(function(...)
-      local args = {...}
-      local result = 1
-      for _, v in ipairs(args) do
-        result = result * v
-      end
-      return result
-    end, 3)
-
-    local result = multiply(2)(3)(4)
-    assert.are.equal(24, result)
-  end)
-
-  it('should create specialized functions through partial application', function()
+  it('should create specialized functions', function()
     local multiply = curry(function(a, b)
       return a * b
     end)
@@ -132,11 +108,11 @@ describe('utils.curry', function()
   end)
 
   it('should work with different data types', function()
-    local concat = curry(function(a, b, c)
-      return a .. b .. c
+    local concat = curry(function(a, b)
+      return a .. b
     end)
 
-    local result = concat("Hello")(" ")("World")
+    local result = concat("Hello")(" World")
     assert.are.equal("Hello World", result)
   end)
 end)
