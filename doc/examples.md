@@ -32,12 +32,69 @@ local result = fun(f):compose(fun(g)):apply(5)
 print(result)  -- 11
 ```
 
+### Applicative-Style Composition
+
+For those familiar with Haskell's Applicative functors, luarrow provides the `identity` function (also available as `pure` for backward compatibility) for wrapping values in an applicative context.
+
+```lua
+local identity = require('luarrow').identity
+
+local f = function(x)
+  return x + 1
+end
+local g = function(x)
+  return x * 2
+end
+
+-- Applicative-style composition
+local result = identity(f) * identity(g) % 5
+print(result) -- 11, because f(g(5)) = f(10) = 11
+```
+
+This is conceptually similar to `fun`, but emphasizes the applicative functor pattern. The `*` operator composes wrapped functions, and `%` applies the result to a value.
+
+**Monadic Error Handling with Maybe and Either:**
+
+```lua
+local just = require('luarrow').just
+local nothing = require('luarrow').nothing
+local right = require('luarrow').right
+local left = require('luarrow').left
+
+-- Maybe monad for optional values
+local safe_head = function(list)
+  if #list > 0 then
+    return just(list[1])
+  else
+    return nothing()
+  end
+end
+
+local result1 = safe_head({1, 2, 3}):or_else(0)  -- 1
+local result2 = safe_head({}):or_else(0)          -- 0
+
+-- Either monad for error handling  
+local parse_int = function(str)
+  local n = tonumber(str)
+  if n and math.floor(n) == n then
+    return right(n)
+  else
+    return left("Not an integer: " .. str)
+  end
+end
+
+local r1 = parse_int("42"):or_else(0)      -- 42
+local r2 = parse_int("3.14"):or_else(0)    -- 0
+```
+
 ## 💡 Real-World Use Cases
 
 ### Multi-Function Composition
 
 ```lua
-local add_one = function(x) return x + 1 end
+local add_one = function(x)
+  return x + 1
+end
 local times_ten = function(x) return x * 10 end
 local minus_two = function(x) return x - 2 end
 local square = function(x) return x * x end

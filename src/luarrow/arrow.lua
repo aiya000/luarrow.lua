@@ -57,7 +57,7 @@ Arrow.__pow = Arrow.to
 ---```
 ---arrow(f):apply(x) -- luarrow (method call)
 ---===
----x % arrow(f) -- luarrow (operator call). Note that 
+---x % arrow(f) -- luarrow (operator call). Note that
 ---===
 ---f(x) -- Pure Lua
 ---```
@@ -99,7 +99,7 @@ end
 ---@param func fun(x: A): B
 ---@return Arrow<A, B>
 function Arrow.new(func)
- ---@type Arrow<unknown, unknown> -- unknown because limitation of LuaCATS
+  ---@type Arrow<unknown, unknown> -- unknown because limitation of LuaCATS
   local self = setmetatable({}, Arrow)
   self.raw = func
   return self

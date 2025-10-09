@@ -69,7 +69,7 @@ Fun.__mod = Fun.apply
 ---@param func fun(x: A): B
 ---@return Fun<A, B>
 function Fun.new(func)
- ---@type Fun<unknown, unknown> -- unknown because limitation of LuaCATS
+  ---@type Fun<unknown, unknown> -- unknown because limitation of LuaCATS
   local self = setmetatable({}, Fun)
   self.raw = func
   return self
