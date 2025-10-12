@@ -1,27 +1,33 @@
-# luarrow API Reference
+<div align="center">
+<h1>luarrow API Reference</h1>
+<div>Complete API documentation for luarrow</div>
+<div>-- The Haskell-inspired function --</div>
+<div>-- The Pipeline operator --</div>
+<div>Composition operators library for Lua.</div>
+</div>
 
-Complete API documentation for luarrow - The Haskell-inspired function composition library for Lua.
+- - -
 
 For practical examples and use cases, see [examples.md](examples.md).
 
 ## Table of Contents
 
-1. [Fun API Reference](#-api-reference)
+1. [Fun API Reference](#-fun-api-reference)
     - [Fun class](#fun-class)
     - [fun(f)](#funf)
-    - [f * g (Composition Operator)](#f--g-composition-operator)
+    - [f * g (Haskell-Style Composition Operator)](#f--g-haskell-style-composition-operator)
     - [Fun:compose(g)](#funcomposeg)
-    - [f % x (Application Operator)](#f--x-application-operator)
+    - [f % x (Haskell-Style Application Operator)](#f--x-haskell-style-application-operator)
     - [Fun:apply(x)](#funapplyx)
 2. [Arrow API Reference](#-arrow-api-reference)
     - [Arrow class](#arrow-class)
     - [arrow(f)](#arrowf)
-    - [f ^ g (Composition Operator)](#f--g-pipeline-composition-operator)
+    - [f ^ g (Pipeline-Style Composition Operator)](#f--g-pipeline-style-composition-operator)
     - [Arrow:compose_to(g)](#arrowcompose_tog)
-    - [x % f (Application Operator)](#x--f-pipeline-application-operator)
+    - [x % f (Pipeline-Style Application Operator)](#x--f-pipeline-style-application-operator)
     - [Arrow:apply(x)](#arrowapplyx)
 
-## 📖 `Fun` API Reference
+## ⛲ `Fun` API Reference
 
 ### `Fun` class
 
@@ -58,7 +64,7 @@ local wrapped = fun(function(x) return x * 2 end)
 **Returns:**
 - `luarrow.Fun<A, B>` - Wrapped function object
 
-### `f * g` (Composition Operator)
+### `f * g` (Haskell-Style Composition Operator)
 
 Composes two functions using the `*` operator.  
 Returns a new function that applies `g` first, then `f`.
@@ -83,6 +89,8 @@ print(result)  -- 11, because f(g(5)) = f(10) = 11
 
 **Returns:**
 - `luarrow.Fun<A, C>` - Composed function
+
+<a name="haskell-style-composition-operator-tips"></a>
 
 > [!TIP]
 > The order follows mathematical notation:
@@ -144,9 +152,9 @@ print(result)  -- 11
 **Returns:**
 - `luarrow.Fun<A, C>` - Composed function
 
-See [Note(1)](#note1) and [Note(2)](#note2) above for details on composition order and type relationships.
+See [Tips](#haskell-style-composition-operator-tips) above for details on composition order and type relationships.
 
-### `f % x` (Application Operator)
+### `f % x` (Haskell-Style Application Operator)
 
 Applies the wrapped function to a value using the `%` operator.
 
@@ -195,7 +203,10 @@ print(result)  -- 11
 
 ### `Arrow` class
 
-The `luarrow.Arrow<A, B>` class represents a wrapped function from type A to type B (`A → B`), similar to `Fun` but with **pipeline-style composition** that reads left-to-right (like the `|>` operator in Elm, F#, OCaml, Elixir).
+The `luarrow.Arrow<A, B>` class represents a wrapped function from type A to type B (`A → B`).
+
+This is similar to `Fun`, but with **Pipeline-Style** that reads left-to-right.  
+(Like the `|>` operator in Elm, F#, OCaml, Elixir, and etc.)
 
 ```lua
 ---@class luarrow.Arrow<A, B>
@@ -210,8 +221,10 @@ The `luarrow.Arrow<A, B>` class represents a wrapped function from type A to typ
 - `raw: fun(x: A): B` - The original unwrapped Lua function
 
 **Key Difference from `Fun`:**
-- `Fun`: Composes right-to-left (mathematical style) - `fun(f) * fun(g) % x` means `f(g(x))`
-- `Arrow`: Composes left-to-right (pipeline style) - `x % arrow(f) ^ arrow(g)` means `g(f(x))`
+- `Fun`: Composes right-to-left (`←`)
+    - `fun(f) * fun(g) % x` means `f(g(x))`
+- `Arrow`: Composes left-to-right (`→`)
+    - `x % arrow(f) ^ arrow(g)` means `g(f(x))`
 
 ### `arrow(f)`
 
@@ -232,7 +245,7 @@ local wrapped = arrow(function(x) return x * 2 end)
 **Returns:**
 - `luarrow.Arrow<A, B>` - Wrapped function object
 
-### `f ^ g` (Pipeline Composition Operator)
+### `f ^ g` (Pipeline-Style Composition Operator)
 
 Composes two functions using the `^` operator in **pipeline order** (left-to-right).  
 Returns a new function that applies `f` first, then `g`.
@@ -258,45 +271,42 @@ print(result)  -- 12, because g(f(5)) = g(6) = 12
 **Returns:**
 - `luarrow.Arrow<A, C>` - Composed function
 
-- - -
+<a name="pipeline-style-composition-operator-tips"></a>
 
-#### Note(1)
+> [!TIP]
+> The order follows **Pipeline-Style** composition (opposite of mathematical notation):
+>
+> ```lua
+> -- Arrow pipeline style (left-to-right)
+> x % arrow(f) ^ arrow(g) ^ arrow(h)
+>
+> -- Equivalent to:
+> h(g(f(x)))
+> ```
+>
+> This is similar to:
+> - Pipeline Operator in Elm, F#, OCaml, Elixir, and etc: `x |> f |> g |> h`
+> - Haskell's Operator: `x & f >>> g >>> h`
+> - Unix pipes: `x | f | g | h`
+>
+> In other words, you can think of:
+> - `f ^ g`
+>     - = `f >>> g` (Haskell)
+>     - = `f |> g` (Pipeline Operator)
+>     - = `f | g` (Unix pipes, conceptually)
+>
+> as evaluating from left to right:
+> - `f → g`
 
-The order follows **pipeline/Unix-style** composition (opposite of mathematical notation):
-
-```lua
--- Arrow pipeline style (left-to-right)
-x % arrow(f) ^ arrow(g) ^ arrow(h)
--- Equivalent to:
-h(g(f(x)))
-```
-
-This is similar to:
-- Unix pipes: `x | f | g | h`
-- Haskell's `>>>` operator: `f >>> g >>> h`
-- Pipeline Operator `|>` in Elm, F#, OCaml, Elixir: `x |> f |> g |> h`
-- Pipeline Operator in other languages (Rust, Hack, etc.)
-
-In other words, you can think of:
-- `f ^ g`
-    - = `f >>> g` (Haskell)
-    - = `f |> g` (Pipeline Operator)
-    - = `f | g` (Unix pipes, conceptually)
-
-as evaluating from left to right:
-- `f → g`
-
-- - -
-
-#### Note(2)
-
-In terms of function types:
-- `Arrow<A, B> → Arrow<B, C> → Arrow<A, C>`
-
-Or more simply:
-- `(A → B) → (B → C) → (A → C)`
-
-This represents the natural data flow from A to B to C.
+> [!TIP]
+> In terms of function types:
+> - `Arrow<A, B> → Arrow<B, C> → Arrow<A, C>`
+>
+> Or more simply:
+> - `(A → B) → (B → C) → (A → C)`
+>
+> This represents the natural data flow from A to B to C.
+> (A simpler logical syllogism than `Fun`.)
 
 - - -
 
@@ -326,9 +336,9 @@ print(result)  -- 12
 **Returns:**
 - `luarrow.Arrow<A, C>` - Composed function
 
-See [Note(1)](#note1-1) and [Note(2)](#note2-1) above for details on composition order and type relationships.
+See [Tips](#pipeline-style-composition-operator-tips) above for details on composition order and type relationships.
 
-### `x % f` (Pipeline Application Operator)
+### `x % f` (Pipeline-Style Composition Operator)
 
 Applies the wrapped function to a value using the `%` operator in **pipeline style**.
 
@@ -350,9 +360,10 @@ print(result)  -- 11
 **Returns:**
 - `B` - Result of applying the function
 
-**Note:** This uses the same `%` operator as `Fun`, but the order is reversed:
-- `Fun`: `fun(f) % x` means `f(x)`
-- `Arrow`: `x % arrow(f)` means `f(x)`
+> [!IMPORTANT]
+> This uses the same `%` operator as `Fun`, but the order is reversed:
+> - `Fun`: `fun(f) % x` means `f(x)`
+> - `Arrow`: `x % arrow(f)` means `f(x)`
 
 ### `Arrow:apply(x)`
 
