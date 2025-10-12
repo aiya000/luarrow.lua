@@ -15,17 +15,17 @@ For API reference, see [api.md](api.md).
     - [Haskell-Style (`Fun`) Basic Examples](#haskell-style-fun-basic-examples)
         - [Operator-Style Composition](#operator-style-composition)
         - [Method-Style Composition](#method-style-composition)
-        - [Comparison: Fun vs Arrow](#comparison-fun-vs-arrow)
-2. [Real-World Examples](#-real-world-examples)
+        - [Multi-Function Composition](#multi-function-composition)
+1. [Comparison: Fun vs Arrow](#comparison-fun-vs-arrow)
+1. [Real-World Examples](#-real-world-examples)
     - [Pipeline-Style (`Arrow`) Real-World Examples](#pipeline-style-arrow-real-world-examples)
-        - [Data Validation Pipeline](#data-validation-pipeline)
         - [List Transformations](#list-transformations)
         - [Configuration Processing](#configuration-processing)
     - [Haskell-Style (`Fun`) Real-World Examples](#haskell-style-fun-real-world-examples)
-        - [Multi-Function Composition](#multi-function-composition)
+        - [Data Validation Pipeline](#data-validation-pipeline)
         - [String Processing Pipeline](#string-processing-pipeline-1)
         - [Mathematical Computations](#mathematical-computations)
-3. [Advanced Patterns](#-advanced-patterns)
+1. [Advanced Patterns](#-advanced-patterns)
     - [Pipeline-Style (`Arrow`) Advanced Patterns](#pipeline-style-arrow-advanced-patterns)
         - [Debugging Pipeline](#debugging-pipeline)
         - [Composition with Side Effects](#composition-with-side-effects)
@@ -33,28 +33,28 @@ For API reference, see [api.md](api.md).
         - [Partial Application with Composition](#partial-application-with-composition)
         - [Function Factory Pattern](#function-factory-pattern)
         - [Monadic-Style Error Handling](#monadic-style-error-handling)
-4. [Working with LuaCATS](#-working-with-luacats)
-5. [Performance Considerations](#-performance-considerations)
+1. [Working with LuaCATS](#-working-with-luacats)
+1. [Performance Considerations](#-performance-considerations)
     - [Benchmark Results](#benchmark-results)
     - [How to optimize performance](#how-to-optimaize-performance)
-6. [Comparison with Other Approaches](#-comparison-with-other-approaches)
+1. [Comparison with Other Approaches](#-comparison-with-other-approaches)
     - [vs Pure Lua](#vs-pure-lua)
     - [vs Function Chaining](#vs-function-chaining)
     - [vs Lodash-Style](#vs-lodash-style)
-7. [Conclusion](#-conclusion)
+1. [Conclusion](#-conclusion)
 
 ## 🎯 Basic Examples
 
 ### Pipeline-Style (`Arrow`) Basic Examples
 
 The `arrow` API provides an alternative pipeline-style composition that reads **left-to-right**, similar to:
-- Unix pipes (`|`)
-- Haskell's `>>>` operator
 - Pipeline Operator `|>` in Elm, F#, OCaml, Elixir, and other languages
+- Haskell's `>>>` operator
+- Unix pipes (`|`)
 
-### Operator-Style Pipeline Composition
+#### Pipeline Operators
 
-Recommended for pipeline-style workflows.
+Recommended if you don't have some reason to use Method-Style.
 
 ```lua
 local arrow = require('luarrow').arrow
@@ -68,7 +68,7 @@ local result = 5 % arrow(f) ^ arrow(g)
 print(result)  -- 12, because g(f(5)) = g(6) = 12
 ```
 
-### Method-Style Pipeline Composition
+#### Pipeline Methods
 
 Alternative approach using explicit method calls.
 
@@ -78,7 +78,7 @@ local result = arrow(f):compose_to(arrow(g)):apply(5)
 print(result)  -- 12
 ```
 
-### Multi-Stage Pipeline
+#### Multi-Stage Pipeline
 
 ```lua
 local arrow = require('luarrow').arrow
@@ -96,7 +96,7 @@ print(result)  -- 428
 -- minus_two(430) = 428
 ```
 
-### String Processing Pipeline
+#### String Processing Pipeline
 
 ```lua
 local arrow = require('luarrow').arrow
@@ -114,16 +114,20 @@ local add_prefix = function(s)
   return 'USER: ' .. s
 end
 
--- Create a user name processor - pipeline reads left-to-right
-local username = '  alice  ' % arrow(trim) ^ arrow(uppercase) ^ arrow(add_prefix)
-print(username)  -- 'USER: ALICE'
+-- Verify a user name, process it, and print the result - pipeline reads left-to-right
+'  alice  '
+  % arrow(trim)
+  ^ arrow(uppercase)
+  ^ arrow(add_prefix)
+  ^ arrow(print)
+  -- 'USER: ALICE'
 ```
 
 ### Haskell-Style (`Fun`) Basic Examples
 
-#### Operator-Style Composition
+#### Function Composition Operators
 
-Recommended.
+Recommended if you don't have some reason to use Method-Style.
 
 ```lua
 local fun = require('luarrow').fun
@@ -137,7 +141,7 @@ local result = fun(f) * fun(g) % 5
 print(result)  -- 11, because f(g(5)) = f(10) = 11
 ```
 
-#### Method-Style Composition
+#### Function Composition Methods
 
 Alternative approach using explicit method calls.
 
@@ -147,7 +151,48 @@ local result = fun(f):compose(fun(g)):apply(5)
 print(result)  -- 11
 ```
 
-#### Comparison: Fun vs Arrow
+#### Multi-Function Composition
+
+```lua
+local add_one = function(x) return x + 1 end
+local times_ten = function(x) return x * 10 end
+local minus_two = function(x) return x - 2 end
+local square = function(x) return x * x end
+
+-- Chain multiple functions
+local pipeline = fun(square) * fun(add_one) * fun(times_ten) * fun(minus_two)
+
+print(pipeline % 42)  -- 160801
+-- Evaluation order (right to left):
+-- minus_two(42) = 40
+-- times_ten(40) = 400
+-- add_one(400) = 401
+-- square(401) = 160801
+```
+
+<a name="about-point-free-style"></a>
+
+> [!Important]
+> This definition style for `pipeline` is what Haskell programmers call '**Point-Free Style**'!
+> In Haskell, this is a very common technique to reduce the amount of code and improve readability.
+
+> [!TIP]
+> Alternatively, you can compose and print in a single expression:
+>
+> ```lua
+> fun(print) * fun(square) * fun(add_one) * fun(times_ten) * fun(minus_two) % 42
+> ```
+>
+> instead of:
+>
+> ```lua
+> local pipeline = fun(square) * fun(add_one) * fun(times_ten) * fun(minus_two)
+> local result = pipeline % 42
+> print(result)
+> ```
+
+
+## Comparison: `Fun` vs `Arrow`
 
 Both `fun` and `arrow` provide the same functionality but with different composition order:
 
@@ -159,78 +204,30 @@ local f = function(x) return x + 1 end
 local g = function(x) return x * 2 end
 local h = function(x) return x - 5 end
 
--- Fun: Mathematical/Haskell style (right-to-left composition)
+-- Fun: Haskell-Style (right-to-left)
 local result1 = fun(h) * fun(g) * fun(f) % 10
-print(result1)  -- 17, because h(g(f(10))) = h(g(11)) = h(22) = 17
+print(result1)  -- 17
 
--- Arrow: Pipeline/Unix style (left-to-right composition)
+-- Arrow: Pipeline-Style (left-to-right)
 local result2 = 10 % arrow(f) ^ arrow(g) ^ arrow(h)
-print(result2)  -- 17, because h(g(f(10))) = h(g(11)) = h(22) = 17
-
--- Both produce the same result, but the syntax reflects different mental models:
--- - fun: Think like mathematics (f ∘ g ∘ h)
--- - arrow: Think like pipelines (data | f | g | h)
+print(result2)  -- 17
 ```
 
+Both produce the same result, but the syntax reflects different mental models:
+- `fun`: Think like mathematics (`f ∘ g ∘ h`)
+- `arrow`: Think like pipelines (`data | f | g | h`)
+
 **When to use which:**
-- Use `fun` when thinking in mathematical/Haskell style (function composition)
-- Use `arrow` when thinking in pipeline/data-flow style (Unix pipes, Pipeline Operator `|>`, reactive streams)
+- Recommended to use `arrow` when **data-flow** is important:
+    - Pipeline-Style is easy to read how data to be processed
+- Recommended to use `fun` when **function composition** is important
+    - Haskell-Style is easy to compose functions by Point-Free Style
 
 ## 💡 Real-World Examples
 
 ### Pipeline-Style (`Arrow`) Real-World Examples
 
-#### Data Validation Pipeline
-
-```lua
-local arrow = require('luarrow').arrow
-
--- Validation functions that return nil on failure
-local validate_not_nil = function(x)
-  if x == nil then error('Value is nil') end
-  return x
-end
-
-local validate_number = function(x)
-  if type(x) ~= 'number' then error('Not a number') end
-  return x
-end
-
-local validate_positive = function(x)
-  if x <= 0 then error('Not positive') end
-  return x
-end
-
-local validate_range = function(min, max)
-  return function(x)
-    if x < min or x > max then error('Out of range') end
-    return x
-  end
-end
-
--- Create a validator for positive numbers in range 1-100 (pipeline style)
-local validate_score = arrow(validate_not_nil)
-                     ^ arrow(validate_number)
-                     ^ arrow(validate_positive)
-                     ^ arrow(validate_range(1, 100))
-
--- Usage
-local function safe_validate(value, validator)
-  local ok, result = pcall(function() return value % validator end)
-  return ok, result
-end
-
-local ok1, result1 = safe_validate(50, validate_score)
-print(ok1, result1)  -- true, 50
-
-local ok2, result2 = safe_validate(150, validate_score)
-print(ok2, result2)  -- false, error message
-
-local ok3, result3 = safe_validate(-5, validate_score)
-print(ok3, result3)  -- false, error message
-```
-
-### List Transformations
+#### List Transformations
 
 ```lua
 local arrow = require('luarrow').arrow
@@ -258,7 +255,7 @@ local map = function(f)
   end
 end
 
-local reduce = function(f, initial)
+local reduce = function(initial, f)
   return function(list)
     local acc = initial
     for _, v in ipairs(list) do
@@ -268,23 +265,11 @@ local reduce = function(f, initial)
   end
 end
 
--- Example: Process a list of numbers
-local numbers = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
-
--- Pipeline: filter evens -> double each -> sum (left-to-right data flow)
-local is_even = function(x) return x % 2 == 0 end
-local double = function(x) return x * 2 end
-local sum = function(a, b) return a + b end
-
-local result = numbers
-             % arrow(filter(is_even))
-             ^ arrow(map(double))
-             ^ arrow(reduce(sum, 0))
--- filter evens: {2, 4, 6, 8, 10}
--- double each: {4, 8, 12, 16, 20}
--- sum: 60
-
-print(result)  -- 60
+{ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 }
+  % arrow(filter(function(x) return x % 2 == 0 end)) -- filter evens: {2, 4, 6, 8, 10}
+  ^ arrow(map(function(x) return x * 2 end)) -- double each: {4, 8, 12, 16, 20}
+  ^ arrow(reduce(0, function(a, b) return a + b end)) -- sum: 60
+  ^ arrow(print) -- 60
 ```
 
 ### Configuration Processing
@@ -335,47 +320,55 @@ print(config.retries)  -- 3
 
 ### Haskell-Style (`Fun`) Real-World Examples
 
-#### Multi-Function Composition
+#### Data Validation Pipeline
 
 ```lua
-local add_one = function(x) return x + 1 end
-local times_ten = function(x) return x * 10 end
-local minus_two = function(x) return x - 2 end
-local square = function(x) return x * x end
+local fun = require('luarrow').fun
 
--- Chain multiple functions
-local pipeline = fun(square) * fun(add_one) * fun(times_ten) * fun(minus_two)
+-- Validation functions that return nil on failure
+local validate_not_nil = function(x)
+  if x == nil then error('Value is nil') end
+  return x
+end
 
-local result = pipeline % 42
--- Evaluation order (right to left):
--- minus_two(42) = 40
--- times_ten(40) = 400
--- add_one(400) = 401
--- square(401) = 160801
+local validate_number = function(x)
+  if type(x) ~= 'number' then error('Not a number') end
+  return x
+end
 
-print(result)  -- 160801
+local validate_positive = function(x)
+  if x <= 0 then error('Not positive') end
+  return x
+end
+
+local validate_range = function(min, max)
+  return function(x)
+    if x < min or x > max then error('Out of range') end
+    return x
+  end
+end
+
+-- Define a validator by point-free style
+local validate_score = fun(validate_range(1, 100))
+                     * fun(validate_positive)
+                     * fun(validate_number)
+                     * fun(validate_not_nil)
+
+-- Safe call
+local function safe_validate(validator, value)
+  local ok, result = pcall(function() return validator % value end)
+  return ok, result
+end
+
+local ok1, result1 = safe_validate(validate_score, 50)
+print(ok1, result1)  -- true, 50
+
+local ok2, result2 = safe_validate(validate_score, 150)
+print(ok2, result2)  -- false, error message
+
+local ok3, result3 = safe_validate(validate_score, -5)
+print(ok3, result3)  -- false, error message
 ```
-
-<a name="about-point-free-style"></a>
-
-> [!Important]
-> This definition style for `pipeline` is what Haskell programmers call '**Point-Free Style**'!
-> In Haskell, this is a very common technique to reduce the amount of code and improve readability.
-
-> [!TIP]
-> Alternatively, you can compose and print in a single expression:
->
-> ```lua
-> fun(print) * fun(square) * fun(add_one) * fun(times_ten) * fun(minus_two) % 42
-> ```
->
-> instead of:
->
-> ```lua
-> local pipeline = fun(square) * fun(add_one) * fun(times_ten) * fun(minus_two)
-> local result = pipeline % 42
-> print(result)
-> ```
 
 #### String Processing Pipeline
 
@@ -502,7 +495,7 @@ local log_to_file = function(filename)
 end
 
 -- Create a counter
-local counter = {value = 0}
+local counter = { value = 0 }
 
 -- Create a pipeline with side effects (left-to-right flow)
 local process = arrow(double)
@@ -517,6 +510,11 @@ end
 print('Counter:', counter.value)  -- 5
 -- output.log contains: 2, 4, 6, 8, 10
 ```
+
+> [!TIP]
+> In 'pure functional languages', side effects are usually avoided.
+> This is just an example.
+> Refer this as a reference in case side effects are needed.
 
 ### Haskell-Style (`Fun`) Advanced Patterns
 
@@ -580,16 +578,19 @@ print(normalize_percentage % 150)  -- 1.0 (clamped)
 
 #### Monadic-Style Error Handling
 
+> [!TIP]
+> See Haskell's Monad type class or Rust's Result type, if you are not familiar with Monad, and you are interested in this section.
+
 ```lua
 local fun = require('luarrow').fun
 
 -- Result type: {ok: boolean, value: any, error: string}
 local Ok = function(value)
-  return {ok = true, value = value}
+  return { ok = true, value = value }
 end
 
 local Err = function(error)
-  return {ok = false, error = error}
+  return { ok = false, error = error }
 end
 
 -- Lift a function to work with Result type
