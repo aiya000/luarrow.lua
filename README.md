@@ -1,8 +1,42 @@
-# luarrow
+# [→] luarrow [→]
 
-**Haskell-style function composition and true pipeline operators for Lua!**
+**The true pipeline operators** and **Haskell-style function composition** for Lua!
 
-Bring the elegance of Haskell's `f . g $ x` syntax to Lua with beautiful operator overloading.
+## 🚗 Quick Examples
+
+Powered by Lua beautiful operator overloading, bring the elegance of:
+
+- OCaml, Julia, F#, PHP, Elixir, Elm's **true** pipeline **operators** `x |> f |> g` -- Unlike `pipe(x, f, g)` (cheap pipe **function**)[^php-pipeline-operator]
+    - The beauty of the pipeline operator hardly needs mentioning here
+
+[^php-pipeline-operator]: To be precise, a pipeline operator RFC has been submitted for PHP 8.5. [Reference](https://wiki.php.net/rfc/pipe-operator-v3)
+
+```lua
+local arrow = require('luarrow').arrow
+
+-- **True** pipeline style!
+local result =
+    42
+    % arrow(function(x) return x - 2 end)
+    ^ arrow(function(x) return x * 10 end)
+    ^ arrow(function(x) return x + 1 end)
+
+print(result)  -- 401
+```
+
+Equivalent to:
+
+```ocaml
+(* OCaml *)
+42
+  |> (fun x -> x - 2)
+  |> (fun x -> x * 10)
+  |> (fun x -> x + 1)
+;;
+```
+
+- Haskell's **highly readable** `f . g . h $ x` syntax -- Unlike `f(g(h(x)))` (too many parentheses!)
+    - This notation is also used in mathematics, and similarly, it is a very beautiful syntax
 
 ```lua
 local fun = require('luarrow').fun
@@ -25,75 +59,54 @@ f . g . h $ 42
 
 ## ✨ Why luarrow?
 
-Functional programming in Lua just got **dramatically** more expressive:
+By the **dramatically**, write cleaner, more expressive Lua code:
 
-- **Haskell-inspired syntax** - Write `f * g % x` instead of `f(g(x))`
+- **Beautiful code** - Make your functional pipelines readable and maintainable
+- **Elegant composition** - Chain multiple functions naturally with `*`/`^` operator
+    - **True pipeline operators** - Transform data with intuitive left-to-right flow `x % f ^ g`
+    - **Haskell-inspired syntax** - Write `f * g % x` instead of `f(g(x))`
 - **Zero dependencies** - Pure Lua implementation with no external dependencies
 - **Minimal overhead** - Lightweight wrapper around native Lua functions
-- **Elegant composition** - Chain multiple functions naturally with `*` operator
-- **Beautiful code** - Make your functional pipelines readable and maintainable
+    - TODO: ここにベンチマーク結果を載せる
 
 > [!NOTE]
 > **About the name:**
 >
 > "luarrow" is a portmanteau of "Lua" + "arrow", where "arrow" refers to the function arrow (→) commonly used in mathematics and functional programming to denote functions (`A → B`).
 
-## 🚀 Quick Start
+## 🚀 Getting Started
 
-### Basic Function Composition
+### Pipeline-Style Composition [^pipeline-introduction]
 
-Elegant Example:
+[^pipeline-introduction]: Are you a new comer for the pipeline operator? Alright! The pipeline operator is a very simple idea. For easy understanding, you can find a lot of documentations if you google it. Or for the detail, my recommended documentation is ['PHP RFC: Pipe operator v3'](https://wiki.php.net/rfc/pipe-operator-v3).
+
+If you prefer left-to-right (`→`) data flow (like the `|>` operator in OCaml/Julia/F#/Elixir/Elm), use `arrow`, `%`, and `^`:
 
 ```lua
-local fun = require('luarrow').fun
+local arrow = require('luarrow').arrow
 
-local function f(x) return x + 1 end
-local function g(x) return x * 10 end
-local function h(x) return x - 2 end
+-- Pipeline style: data flows left to right
+local result =
+  42
+  % arrow(function(x) return x - 2 end)
+  ^ arrow(function(x) return x * 10 end)
+  ^ arrow(function(x) return x + 1 end)
 
-local result = fun(f) * fun(g) * fun(h) % 42
 print(result)  -- 401
+-- Evaluation: minus_two(42) = 40
+--             times_ten(40) = 400
+--             add_one(400) = 401
 ```
 
-Step-by-step Explanation:
+- [Method-Style API is also available](./doc/api.md)
+
+### Haskell-Style Composition
+
+If you prefer right-to-left  (`←`) data flow (like the `.` and the `$` operator in Haskell), use `fun`, `%`, and `*`:
 
 ```lua
 local fun = require('luarrow').fun
 
-local plus_one = function(x) return x + 1 end
-local times_two = function(x) return x * 2 end
-
--- Compose functions with * operator
-local composed = fun(plus_one) * fun(times_two)
-
--- Apply with % operator
-local result = composed % 10
-
-print(result)  -- 21
--- because plus_one(times_two(10)) = plus_one(20) = 21
-```
-
-### Method-Style API
-
-If you prefer explicit method calls, they're available too:
-
-```lua
-local k = fun(f):compose(fun(g))
-local result = k:apply(10)
-print(result)  -- 21
-```
-
-This is equivalent to:
-
-```lua
-local k = fun(f) * fun(g)
-local result = k % 10
-print(result)  -- 21
-```
-
-### Chaining Multiple Functions
-
-```lua
 local add_one = function(x) return x + 1 end
 local times_ten = function(x) return x * 10 end
 local minus_two = function(x) return x - 2 end
@@ -106,29 +119,34 @@ print(result)  -- 401
 --             add_one(400) = 401
 ```
 
-### Pipeline-Style Composition with Arrow
+> [!TIP]
+> This function composition `f * g` is the mathematical notation `f ∘ g`.
 
-If you prefer left-to-right data flow (like Unix pipes or the `|>` operator in Elm/F#/OCaml), use `arrow`:
+> [!TIP]
+> 🤫 Secret Notes:  
+> Actually, the function composition part `f ^ g` of the pipeline operator is also used in some areas of mathematics as `f ; g`.
 
-```lua
-local arrow = require('luarrow').arrow
+- [Method-Style API is also available](./doc/api.md)
 
-local add_one = function(x) return x + 1 end
-local times_ten = function(x) return x * 10 end
-local minus_two = function(x) return x - 2 end
+### Pipeline-Style vs Haskell-Style
 
--- Pipeline style: data flows left to right!
-local result = 42 % arrow(minus_two) ^ arrow(times_ten) ^ arrow(add_one)
-print(result)  -- 401
--- Evaluation: minus_two(42) = 40
---             times_ten(40) = 400
---             add_one(400) = 401
-```
+Both `arrow` and `fun` produce the same results but with different syntax:
+- `arrow`: Pipeline style -- `x % arrow(f) ^ arrow(g)` (data flows left-to-right)
+- `fun`: Mathematical style -- `fun(f) * fun(g) % x` (compose right-to-left, apply at end)
 
-**Note:** Both `fun` and `arrow` produce the same results but with different syntax:
-- `fun`: Mathematical style - `fun(f) * fun(g) % x` (compose right-to-left, apply at end)
-- `arrow`: Pipeline style - `x % arrow(f) ^ arrow(g)` (data flows left-to-right)
+So how should we use it differently?  
+Actually, Haskell-Style is not in vogue in languages other than Haskell.  
+So, 📝 **"basically", we recommend Pipeline-Style** 📝, which is popular in many languages.
 
+However, Haskell-Style is still really useful.  
+For example, Point-Free-Style.
+
+See below for more information on Point-Free-Style:
+- [Real-World Examples > Data Transformation Pipeline](#point-free-style-example)
+- [examples.md > Point-Free-Style](doc/examples.md#about-point-free-style)
+
+But when it comes down to it, ✨**choose whichever you want to write**✨.  
+luarrow aims to make your programming entertaining!
 
 ## 📦 Installation
 
@@ -158,28 +176,36 @@ For complete API documentation, see **[doc/api.md](doc/api.md)**.
 
 For practical examples and use cases, see **[doc/examples.md](doc/examples.md)**.
 
-**Quick reference for `fun` (mathematical/Haskell style):**
-- `fun(f)` - Wrap a function for composition
-- `f * g` - Compose two functions (`f ∘ g`)
-- `f % x` - Apply function to value
+**Quick reference for `fun`:**
+- `fun(f)` -- Wrap a function for composition
+- `f * g` -- Compose two functions in mathematical order (`f ∘ g`)
+- `f % x` -- Apply function to value in Haskell-Style
 
-**Quick reference for `arrow` (pipeline style - like `|>` operator):**
-- `arrow(f)` - Wrap a function for pipeline composition
-- `f ^ g` - Compose two functions in pipeline order
-- `x % f` - Apply function to value in pipeline style
+**Quick reference for `arrow`:**
+- `arrow(f)` -- Wrap a function for pipeline
+- `f ^ g` -- Compose two functions in pipeline order (`f |> g`)
+- `x % f` -- Apply function to value in Pipeline-Style
 
-## 🔄 Comparison with Haskell
+## 🔄 Comparison Haskell-Style with Real Haskell
 
-| Haskell | luarrow.lua | Pure Lua |
-|---------|-------------|----------|
+| Haskell | luarrow | Pure Lua |
+|-|-|-|
 | `let k = f . g` | `local k = fun(f) * fun(g)` | `local function k(x) return f(g(x)) end` |
 | `f . g . h $ x` | `fun(f) * fun(g) * fun(h) % x` | `f(g(h(x)))` |
 
 The syntax is remarkably close to Haskell's elegance, while staying within Lua's operator overloading capabilities!
 
+## 🔄 Comparison Pipeline-Style with OCaml
+
+| OCaml | luarrow | Pure Lua |
+|-|-|-|
+| `x \|> f \|> g \|> print_int` | `x % arrow(f) ^ arrow(g) ^ arrow(print)` | `print(g(f(x)))` |
+
+The syntax is remarkably close to general language's elegant pipeline operator, too!
+
 ## 💡 Real-World Examples
 
-### Data Transformation Pipeline
+### Data Transformation Pipeline (`fun`)
 
 ```lua
 local fun = require('luarrow').fun
@@ -194,24 +220,26 @@ local username = process_username % "  alice  "
 print(username)  -- "USER: ALICE"
 ```
 
+<a name="point-free-style-example"></a>
+
 > [!IMPORTANT]
 > This definition style for `process_username` is what Haskell programmers call '**Point-Free Style**'!  
 > In Haskell, this is a very common technique to reduce the amount of code and improve readability.
 
-### Numerical Computations
+### Numerical Computations (`arrow`)
 
 ```lua
-local fun = require('luarrow').fun
+local arrow = require('luarrow').arrow
 
-local square = function(x) return x * x end
-local negate = function(x) return -x end
-local add_ten = function(x) return x + 10 end
-
-local result = fun(negate) * fun(add_ten) * fun(square) % 5
-print(result)  -- -35, because square(5)=25, add_ten(25)=35, negate(35)=-35
+local result =
+  5
+  % arrow(function(x) return -x end)
+  ^ arrow(function(x) return x + 10 end)
+  ^ arrow(function(x) return x * x end)
+print(result)  -- -35
 ```
 
-### List Processing
+### List Processing (`fun`)
 
 ```lua
 local fun = require('luarrow').fun
@@ -244,7 +272,7 @@ local is_even = function(x) return x % 2 == 0 end
 local double = function(x) return x * 2 end
 
 local result = fun(map(double)) * fun(filter(is_even)) % numbers
--- result: {4, 8, 12}
+print(result) -- { 4, 8, 12 }
 ```
 
 ## 📖 Documentation

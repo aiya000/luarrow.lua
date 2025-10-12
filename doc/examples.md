@@ -158,6 +158,8 @@ local result = pipeline % 42
 print(result)  -- 160801
 ```
 
+<a name="about-point-free-style"></a>
+
 > [!Important]
 > This definition style for `pipeline` is what Haskell programmers call '**Point-Free Style**'!  
 > In Haskell, this is a very common technique to reduce the amount of code and improve readability.
