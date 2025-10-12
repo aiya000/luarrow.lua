@@ -19,9 +19,6 @@ local M = {}
 ---
 ---@generic A, B
 ---@class Arrow<A, B> : { raw: fun(x: A): B }
----
----@see Arrow.compose_to
----@see Arrow.apply
 local Arrow = {}
 Arrow.__index = Arrow
 
@@ -53,22 +50,21 @@ end
 Arrow.__pow = Arrow.compose_to
 
 ---Same as `Fun.apply()`
----@see Arrow.apply
+---@see Arrow.__mod
+---
+---NOTE: `===` means "is equivalent to"
 ---```
 ---arrow(f):apply(x) -- luarrow (method call)
 ---===
----x % arrow(f) -- luarrow (operator call). Note that 
+---x % arrow(f) -- luarrow (operator call)
 ---===
 ---f(x) -- Pure Lua
 ---```
+---
 ---@generic A, B
 ---@param self Arrow<A, B>
 ---@param x A
 ---@return B
----
----Note that `%` operator implementation is tricky.
----It is not same as this.
----@see Arrow.__mod
 function Arrow:apply(x)
   return self.raw(x)
 end
