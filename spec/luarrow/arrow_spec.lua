@@ -34,7 +34,7 @@ describe('arrow', function()
   end)
 
   it('method style should be usable and behave the same as operator style', function()
-    local actual = arrow(f):to(arrow(g)):apply(42)
+    local actual = arrow(f):compose_to(arrow(g)):apply(42)
     local expected = 42 % arrow(f) ^ arrow(g)
     assert.are.equal(actual, expected)
   end)

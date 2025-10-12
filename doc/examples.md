@@ -61,7 +61,7 @@ Alternative approach using explicit method calls.
 
 ```lua
 -- Using explicit method calls
-local result = arrow(f):to(arrow(g)):apply(5)
+local result = arrow(f):compose_to(arrow(g)):apply(5)
 print(result)  -- 12
 ```
 

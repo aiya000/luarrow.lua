@@ -6,7 +6,7 @@ For practical examples and use cases, see [examples.md](examples.md).
 
 ## Table of Contents
 
-1. [API Reference](#-api-reference)
+1. [Fun API Reference](#-api-reference)
     - [Fun class](#fun-class)
     - [fun(f)](#funf)
     - [f * g (Composition Operator)](#f--g-composition-operator)
@@ -16,12 +16,12 @@ For practical examples and use cases, see [examples.md](examples.md).
 2. [Arrow API Reference](#-arrow-api-reference)
     - [Arrow class](#arrow-class)
     - [arrow(f)](#arrowf)
-    - [f ^ g (Pipeline Composition Operator)](#f--g-pipeline-composition-operator)
-    - [Arrow:to(g)](#arrowtog)
-    - [x % f (Pipeline Application Operator)](#x--f-pipeline-application-operator)
+    - [f ^ g (Composition Operator)](#f--g-pipeline-composition-operator)
+    - [Arrow:compose_to(g)](#arrowcompose_tog)
+    - [x % f (Application Operator)](#x--f-pipeline-application-operator)
     - [Arrow:apply(x)](#arrowapplyx)
 
-## 📖 API Reference
+## 📖 `Fun` API Reference
 
 ### `Fun` class
 
@@ -300,7 +300,7 @@ This represents the natural data flow from A to B to C.
 
 - - -
 
-### `Arrow:to(g)`
+### `Arrow:compose_to(g)`
 
 Method-style pipeline composition.
 Equivalent to `f ^ g` operator.
@@ -309,7 +309,7 @@ Equivalent to `f ^ g` operator.
 local f = arrow(function(x) return x + 1 end)
 local g = arrow(function(x) return x * 2 end)
 
-local composed = f:to(g)
+local composed = f:compose_to(g)
 local result = composed:apply(5)
 print(result)  -- 12
 ```

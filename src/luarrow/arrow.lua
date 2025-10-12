@@ -20,7 +20,7 @@ local M = {}
 ---@generic A, B
 ---@class Arrow<A, B> : { raw: fun(x: A): B }
 ---
----@see Arrow.to
+---@see Arrow.compose_to
 ---@see Arrow.apply
 local Arrow = {}
 Arrow.__index = Arrow
@@ -30,7 +30,7 @@ Arrow.__index = Arrow
 
 ---NOTE: `===` means "is equivalent to"
 ---```
----arrow(f):to(arrow(g)) -- luarrow (method call)
+---arrow(f):compose_to(arrow(g)) -- luarrow (method call)
 ---===
 ---arrow(f) ^ arrow(g) -- luarrow (operator call)
 ---===
@@ -44,13 +44,13 @@ Arrow.__index = Arrow
 ---@param self Arrow<A, B>
 ---@param g Arrow<B, C>
 ---@return Arrow<A, C>
-function Arrow:to(g)
+function Arrow:compose_to(g)
   return Arrow.new(function(x)
     return g.raw(self.raw(x))
   end)
 end
 
-Arrow.__pow = Arrow.to
+Arrow.__pow = Arrow.compose_to
 
 ---Same as `Fun.apply()`
 ---@see Arrow.apply
@@ -76,21 +76,10 @@ end
 ---```lua
 ---local result = x % arrow(raw_f)
 ---```
----
 ---@generic A, B
 ---@param x A
 ---@param f Arrow<A, B>
 ---@return B
----
----Evaluation (Why this definition is tricky?):
----```lua
----x % f
------ Try to call metamethod __mod of x
----(__mod of x)(x, f) -- but f is not a number
------ Then, fallback to Arrow.__mod
----Arrow.__mod(x, f)
------ End
----```
 Arrow.__mod = function(x, f)
   return f:apply(x)
 end
