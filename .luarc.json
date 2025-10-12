@@ -1,0 +1,23 @@
+{
+  "$schema": "https://raw.githubusercontent.com/LuaLS/vscode-lua/master/setting/schema.json",
+  "Lua.runtime.version": "LuaJIT",
+  "Lua.diagnostics.globals": [
+    "describe",
+    "it",
+    "before_each",
+    "after_each",
+    "assert",
+    "pending",
+    "setup",
+    "teardown"
+  ],
+  "Lua.workspace.userThirdParty": [
+    "${workspaceFolder}/types"
+  ],
+  "Lua.workspace.library": [
+    "${workspaceFolder}/types",
+    "${3rd}/luv/library"
+  ],
+  "Lua.workspace.checkThirdParty": false,
+  "Lua.completion.callSnippet": "Replace"
+}
