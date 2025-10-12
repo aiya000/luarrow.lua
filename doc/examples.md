@@ -4,35 +4,48 @@ This document provides comprehensive examples of using luarrow, from basic usage
 
 For API reference, see [api.md](api.md).
 
+## Table of Contents
+
+1. [Basic Examples](#-basic-examples)
+    - [Pipeline-Style (`Arrow`) Basic Examples](#pipeline-style-arrow-basic-examples)
+        - [Operator-Style Pipeline Composition](#operator-style-pipeline-composition)
+        - [Method-Style Pipeline Composition](#method-style-pipeline-composition)
+        - [Multi-Stage Pipeline](#multi-stage-pipeline)
+        - [String Processing Pipeline](#string-processing-pipeline)
+    - [Haskell-Style (`Fun`) Basic Examples](#haskell-style-fun-basic-examples)
+        - [Operator-Style Composition](#operator-style-composition)
+        - [Method-Style Composition](#method-style-composition)
+        - [Comparison: Fun vs Arrow](#comparison-fun-vs-arrow)
+2. [Real-World Examples](#-real-world-examples)
+    - [Pipeline-Style (`Arrow`) Real-World Examples](#pipeline-style-arrow-real-world-examples)
+        - [Data Validation Pipeline](#data-validation-pipeline)
+        - [List Transformations](#list-transformations)
+        - [Configuration Processing](#configuration-processing)
+    - [Haskell-Style (`Fun`) Real-World Examples](#haskell-style-fun-real-world-examples)
+        - [Multi-Function Composition](#multi-function-composition)
+        - [String Processing Pipeline](#string-processing-pipeline-1)
+        - [Mathematical Computations](#mathematical-computations)
+3. [Advanced Patterns](#-advanced-patterns)
+    - [Pipeline-Style (`Arrow`) Advanced Patterns](#pipeline-style-arrow-advanced-patterns)
+        - [Debugging Pipeline](#debugging-pipeline)
+        - [Composition with Side Effects](#composition-with-side-effects)
+    - [Haskell-Style (`Fun`) Advanced Patterns](#haskell-style-fun-advanced-patterns)
+        - [Partial Application with Composition](#partial-application-with-composition)
+        - [Function Factory Pattern](#function-factory-pattern)
+        - [Monadic-Style Error Handling](#monadic-style-error-handling)
+4. [Working with LuaCATS](#-working-with-luacats)
+5. [Performance Considerations](#-performance-considerations)
+    - [Benchmark Results](#benchmark-results)
+    - [How to optimize performance](#how-to-optimaize-performance)
+6. [Comparison with Other Approaches](#-comparison-with-other-approaches)
+    - [vs Pure Lua](#vs-pure-lua)
+    - [vs Function Chaining](#vs-function-chaining)
+    - [vs Lodash-Style](#vs-lodash-style)
+7. [Conclusion](#-conclusion)
+
 ## 🎯 Basic Examples
 
-### Operator-Style Composition
-
-Recommended.
-
-```lua
-local fun = require('luarrow').fun
-
--- Define some basic functions
-local f = function(x) return x + 1 end
-local g = function(x) return x * 2 end
-
--- Compose and apply using operator
-local result = fun(f) * fun(g) % 5
-print(result)  -- 11, because f(g(5)) = f(10) = 11
-```
-
-### Method-Style Composition
-
-Alternative approach using explicit method calls.
-
-```lua
--- Using explicit method calls
-local result = fun(f):compose(fun(g)):apply(5)
-print(result)  -- 11
-```
-
-## 🎯 Arrow Examples (Pipeline Style)
+### Pipeline-Style (`Arrow`) Basic Examples
 
 The `arrow` API provides an alternative pipeline-style composition that reads **left-to-right**, similar to:
 - Unix pipes (`|`)
@@ -90,7 +103,7 @@ local arrow = require('luarrow').arrow
 
 -- String processing functions
 local trim = function(s)
-  return s:match("^%s*(.-)%s*$")
+  return s:match('^%s*(.-)%s*$')
 end
 
 local uppercase = function(s)
@@ -98,15 +111,43 @@ local uppercase = function(s)
 end
 
 local add_prefix = function(s)
-  return "USER: " .. s
+  return 'USER: ' .. s
 end
 
 -- Create a user name processor - pipeline reads left-to-right
-local username = "  alice  " % arrow(trim) ^ arrow(uppercase) ^ arrow(add_prefix)
-print(username)  -- "USER: ALICE"
+local username = '  alice  ' % arrow(trim) ^ arrow(uppercase) ^ arrow(add_prefix)
+print(username)  -- 'USER: ALICE'
 ```
 
-### Comparison: Fun vs Arrow
+### Haskell-Style (`Fun`) Basic Examples
+
+#### Operator-Style Composition
+
+Recommended.
+
+```lua
+local fun = require('luarrow').fun
+
+-- Define some basic functions
+local f = function(x) return x + 1 end
+local g = function(x) return x * 2 end
+
+-- Compose and apply using operator
+local result = fun(f) * fun(g) % 5
+print(result)  -- 11, because f(g(5)) = f(10) = 11
+```
+
+#### Method-Style Composition
+
+Alternative approach using explicit method calls.
+
+```lua
+-- Using explicit method calls
+local result = fun(f):compose(fun(g)):apply(5)
+print(result)  -- 11
+```
+
+#### Comparison: Fun vs Arrow
 
 Both `fun` and `arrow` provide the same functionality but with different composition order:
 
@@ -135,9 +176,166 @@ print(result2)  -- 17, because h(g(f(10))) = h(g(11)) = h(22) = 17
 - Use `fun` when thinking in mathematical/Haskell style (function composition)
 - Use `arrow` when thinking in pipeline/data-flow style (Unix pipes, Pipeline Operator `|>`, reactive streams)
 
-## 💡 Real-World Use Cases
+## 💡 Real-World Examples
 
-### Multi-Function Composition
+### Pipeline-Style (`Arrow`) Real-World Examples
+
+#### Data Validation Pipeline
+
+```lua
+local arrow = require('luarrow').arrow
+
+-- Validation functions that return nil on failure
+local validate_not_nil = function(x)
+  if x == nil then error('Value is nil') end
+  return x
+end
+
+local validate_number = function(x)
+  if type(x) ~= 'number' then error('Not a number') end
+  return x
+end
+
+local validate_positive = function(x)
+  if x <= 0 then error('Not positive') end
+  return x
+end
+
+local validate_range = function(min, max)
+  return function(x)
+    if x < min or x > max then error('Out of range') end
+    return x
+  end
+end
+
+-- Create a validator for positive numbers in range 1-100 (pipeline style)
+local validate_score = arrow(validate_not_nil)
+                     ^ arrow(validate_number)
+                     ^ arrow(validate_positive)
+                     ^ arrow(validate_range(1, 100))
+
+-- Usage
+local function safe_validate(value, validator)
+  local ok, result = pcall(function() return value % validator end)
+  return ok, result
+end
+
+local ok1, result1 = safe_validate(50, validate_score)
+print(ok1, result1)  -- true, 50
+
+local ok2, result2 = safe_validate(150, validate_score)
+print(ok2, result2)  -- false, error message
+
+local ok3, result3 = safe_validate(-5, validate_score)
+print(ok3, result3)  -- false, error message
+```
+
+### List Transformations
+
+```lua
+local arrow = require('luarrow').arrow
+
+-- Higher-order functions for lists
+local filter = function(predicate)
+  return function(list)
+    local result = {}
+    for _, v in ipairs(list) do
+      if predicate(v) then
+        table.insert(result, v)
+      end
+    end
+    return result
+  end
+end
+
+local map = function(f)
+  return function(list)
+    local result = {}
+    for i, v in ipairs(list) do
+      result[i] = f(v)
+    end
+    return result
+  end
+end
+
+local reduce = function(f, initial)
+  return function(list)
+    local acc = initial
+    for _, v in ipairs(list) do
+      acc = f(acc, v)
+    end
+    return acc
+  end
+end
+
+-- Example: Process a list of numbers
+local numbers = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
+
+-- Pipeline: filter evens -> double each -> sum (left-to-right data flow)
+local is_even = function(x) return x % 2 == 0 end
+local double = function(x) return x * 2 end
+local sum = function(a, b) return a + b end
+
+local result = numbers
+             % arrow(filter(is_even))
+             ^ arrow(map(double))
+             ^ arrow(reduce(sum, 0))
+-- filter evens: {2, 4, 6, 8, 10}
+-- double each: {4, 8, 12, 16, 20}
+-- sum: 60
+
+print(result)  -- 60
+```
+
+### Configuration Processing
+
+```lua
+local arrow = require('luarrow').arrow
+local json = require('json')  -- Assuming a JSON library
+
+-- Configuration processing functions
+local parse_json = function(text)
+  return json.decode(text)
+end
+
+local validate_config = function(config)
+  assert(config.host, 'Missing host')
+  assert(config.port, 'Missing port')
+  return config
+end
+
+local apply_defaults = function(config)
+  config.timeout = config.timeout or 30
+  config.retries = config.retries or 3
+  return config
+end
+
+local normalize_host = function(config)
+  config.host = config.host:lower()
+  return config
+end
+
+-- Usage (pipeline style: data flows left-to-right)
+local config_text = [[{
+  'host': 'EXAMPLE.COM',
+  'port': 8080
+}]]
+
+local config = config_text
+             % arrow(parse_json)
+             ^ arrow(validate_config)
+             ^ arrow(apply_defaults)
+             ^ arrow(normalize_host)
+
+print(config.host)     -- 'example.com'
+print(config.port)     -- 8080
+print(config.timeout)  -- 30
+print(config.retries)  -- 3
+```
+
+### Haskell-Style (`Fun`) Real-World Examples
+
+#### Multi-Function Composition
 
 ```lua
 local add_one = function(x) return x + 1 end
@@ -161,17 +359,32 @@ print(result)  -- 160801
 <a name="about-point-free-style"></a>
 
 > [!Important]
-> This definition style for `pipeline` is what Haskell programmers call '**Point-Free Style**'!  
+> This definition style for `pipeline` is what Haskell programmers call '**Point-Free Style**'!
 > In Haskell, this is a very common technique to reduce the amount of code and improve readability.
 
-### String Processing Pipeline
+> [!TIP]
+> Alternatively, you can compose and print in a single expression:
+>
+> ```lua
+> fun(print) * fun(square) * fun(add_one) * fun(times_ten) * fun(minus_two) % 42
+> ```
+>
+> instead of:
+>
+> ```lua
+> local pipeline = fun(square) * fun(add_one) * fun(times_ten) * fun(minus_two)
+> local result = pipeline % 42
+> print(result)
+> ```
+
+#### String Processing Pipeline
 
 ```lua
 local fun = require('luarrow').fun
 
 -- String processing functions
 local trim = function(s)
-  return s:match("^%s*(.-)%s*$")
+  return s:match('^%s*(.-)%s*$')
 end
 
 local lowercase = function(s)
@@ -179,11 +392,11 @@ local lowercase = function(s)
 end
 
 local remove_special_chars = function(s)
-  return s:gsub("[^%w%s]", "")
+  return s:gsub('[^%w%s]', '')
 end
 
 local replace_spaces = function(s)
-  return s:gsub("%s+", "_")
+  return s:gsub('%s+', '_')
 end
 
 -- Create a slug generator - Point-Free-Style function definition
@@ -192,12 +405,12 @@ local slugify = fun(replace_spaces)
               * fun(lowercase)
               * fun(trim)
 
-local title = "  Hello, World! This is Amazing  "
+local title = '  Hello, World! This is Amazing  '
 local slug = slugify % title
-print(slug)  -- "hello_world_this_is_amazing"
+print(slug)  -- hello_world_this_is_amazing
 ```
 
-### Mathematical Computations
+#### Mathematical Computations
 
 ```lua
 local fun = require('luarrow').fun
@@ -226,164 +439,88 @@ local result = polynomial % 2
 print(result)  -- -23
 ```
 
-### Data Validation Pipeline
+## 🚀 Advanced Patterns
+
+### Pipeline-Style (`Arrow`) Advanced Patterns
+
+#### Debugging Pipeline
 
 ```lua
-local fun = require('luarrow').fun
+local arrow = require('luarrow').arrow
 
--- Validation functions that return nil on failure
-local validate_not_nil = function(x)
-  if x == nil then error("Value is nil") end
-  return x
-end
-
-local validate_number = function(x)
-  if type(x) ~= "number" then error("Not a number") end
-  return x
-end
-
-local validate_positive = function(x)
-  if x <= 0 then error("Not positive") end
-  return x
-end
-
-local validate_range = function(min, max)
+-- Debug wrapper that logs intermediate values
+local debug = function(label)
   return function(x)
-    if x < min or x > max then error("Out of range") end
+    print(string.format('[DEBUG %s]: %s', label, tostring(x)))
     return x
   end
 end
 
--- Create a validator for positive numbers in range 1-100
-local validate_score = fun(validate_range(1, 100))
-                     * fun(validate_positive)
-                     * fun(validate_number)
-                     * fun(validate_not_nil)
-
--- Usage
-local function safe_validate(validator, value)
-  local ok, result = pcall(function() return validator % value end)
-  return ok, result
-end
-
-local ok1, result1 = safe_validate(validate_score, 50)
-print(ok1, result1)  -- true, 50
-
-local ok2, result2 = safe_validate(validate_score, 150)
-print(ok2, result2)  -- false, error message
-
-local ok3, result3 = safe_validate(validate_score, -5)
-print(ok3, result3)  -- false, error message
-```
-
-### List Transformations
-
-```lua
-local fun = require('luarrow').fun
-
--- Higher-order functions for lists
-local map = function(f)
-  return function(list)
-    local result = {}
-    for i, v in ipairs(list) do
-      result[i] = f(v)
-    end
-    return result
-  end
-end
-
-local filter = function(predicate)
-  return function(list)
-    local result = {}
-    for _, v in ipairs(list) do
-      if predicate(v) then
-        table.insert(result, v)
-      end
-    end
-    return result
-  end
-end
-
-local reduce = function(f, initial)
-  return function(list)
-    local acc = initial
-    for _, v in ipairs(list) do
-      acc = f(acc, v)
-    end
-    return acc
-  end
-end
-
--- Example: Process a list of numbers
-local numbers = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
-
--- Pipeline: filter evens -> double each -> sum
-local is_even = function(x) return x % 2 == 0 end
+-- Create a pipeline with debug points (left-to-right flow)
+local add_one = function(x) return x + 1 end
 local double = function(x) return x * 2 end
-local sum = function(a, b) return a + b end
+local square = function(x) return x * x end
 
-local process = fun(reduce(sum, 0))
-              * fun(map(double))
-              * fun(filter(is_even))
-
-local result = process % numbers
--- filter evens: {2, 4, 6, 8, 10}
--- double each: {4, 8, 12, 16, 20}
--- sum: 60
-
-print(result)  -- 60
+local result = 5
+             % arrow(debug('input'))
+             ^ arrow(add_one)
+             ^ arrow(debug('after add_one'))
+             ^ arrow(double)
+             ^ arrow(debug('after double'))
+             ^ arrow(square)
+             ^ arrow(debug('final'))
+-- Output:
+-- [DEBUG input]: 5
+-- [DEBUG after add_one]: 6
+-- [DEBUG after double]: 12
+-- [DEBUG final]: 144
+print('Result:', result)  -- 144
 ```
 
-### Configuration Processing
+#### Composition with Side Effects
 
 ```lua
-local fun = require('luarrow').fun
-local json = require('json')  -- Assuming a JSON library
+local arrow = require('luarrow').arrow
 
--- Configuration processing functions
-local parse_json = function(text)
-  return json.decode(text)
+-- Functions with side effects
+local double = function(x) return x * 2 end
+
+local increment_counter = function(counter)
+  return function(x)
+    counter.value = counter.value + 1
+    return x
+  end
 end
 
-local validate_config = function(config)
-  assert(config.host, "Missing host")
-  assert(config.port, "Missing port")
-  return config
+local log_to_file = function(filename)
+  return function(x)
+    local file = io.open(filename, 'a')
+    file:write(tostring(x) .. '\n')
+    file:close()
+    return x  -- Pass through the value
+  end
 end
 
-local apply_defaults = function(config)
-  config.timeout = config.timeout or 30
-  config.retries = config.retries or 3
-  return config
+-- Create a counter
+local counter = {value = 0}
+
+-- Create a pipeline with side effects (left-to-right flow)
+local process = arrow(double)
+              ^ arrow(increment_counter(counter))
+              ^ arrow(log_to_file('output.log'))
+
+-- Process multiple values
+for i = 1, 5 do
+  i % process
 end
 
-local normalize_host = function(config)
-  config.host = config.host:lower()
-  return config
-end
-
--- Create config loader
-local load_config = fun(normalize_host)
-                  * fun(apply_defaults)
-                  * fun(validate_config)
-                  * fun(parse_json)
-
--- Usage
-local config_text = [[{
-  "host": "EXAMPLE.COM",
-  "port": 8080
-}]]
-
-local config = load_config % config_text
-print(config.host)     -- "example.com"
-print(config.port)     -- 8080
-print(config.timeout)  -- 30
-print(config.retries)  -- 3
+print('Counter:', counter.value)  -- 5
+-- output.log contains: 2, 4, 6, 8, 10
 ```
 
-## 🚀 Advanced Patterns
+### Haskell-Style (`Fun`) Advanced Patterns
 
-### Partial Application with Composition
+#### Partial Application with Composition
 
 ```lua
 local fun = require('luarrow').fun
@@ -412,7 +549,7 @@ local result = transform % 5
 print(result)  -- 25, because add_ten(triple(5)) = add_ten(15) = 25
 ```
 
-### Function Factory Pattern
+#### Function Factory Pattern
 
 ```lua
 local fun = require('luarrow').fun
@@ -441,7 +578,7 @@ print(normalize_percentage % 0)    -- 0.0
 print(normalize_percentage % 150)  -- 1.0 (clamped)
 ```
 
-### Monadic-Style Error Handling
+#### Monadic-Style Error Handling
 
 ```lua
 local fun = require('luarrow').fun
@@ -471,12 +608,12 @@ end
 -- Example functions
 local parse_number = function(s)
   local n = tonumber(s)
-  if not n then error("Not a number") end
+  if not n then error('Not a number') end
   return n
 end
 
 local validate_positive = function(n)
-  if n <= 0 then error("Not positive") end
+  if n <= 0 then error('Not positive') end
   return n
 end
 
@@ -490,88 +627,14 @@ local process = fun(lift(double))
               * fun(lift(parse_number))
 
 -- Usage
-local result1 = process % Ok("10")
+local result1 = process % Ok('10')
 print(result1.ok, result1.value)  -- true, 20
 
-local result2 = process % Ok("-5")
-print(result2.ok, result2.error)  -- false, "Not positive"
+local result2 = process % Ok('-5')
+print(result2.ok, result2.error)  -- false, 'Not positive'
 
-local result3 = process % Ok("abc")
-print(result3.ok, result3.error)  -- false, "Not a number"
-```
-
-### Debugging Pipeline
-
-```lua
-local fun = require('luarrow').fun
-
--- Debug wrapper that logs intermediate values
-local debug = function(label)
-  return function(x)
-    print(string.format("[DEBUG %s]: %s", label, tostring(x)))
-    return x
-  end
-end
-
--- Create a pipeline with debug points
-local add_one = function(x) return x + 1 end
-local double = function(x) return x * 2 end
-local square = function(x) return x * x end
-
-local pipeline = fun(debug("final"))
-               * fun(square)
-               * fun(debug("after double"))
-               * fun(double)
-               * fun(debug("after add_one"))
-               * fun(add_one)
-               * fun(debug("input"))
-
-local result = pipeline % 5
--- Output:
--- [DEBUG input]: 5
--- [DEBUG after add_one]: 6
--- [DEBUG after double]: 12
--- [DEBUG final]: 144
-print("Result:", result)  -- 144
-```
-
-### Composition with Side Effects
-
-```lua
-local fun = require('luarrow').fun
-
--- Functions with side effects
-local log_to_file = function(filename)
-  return function(x)
-    local file = io.open(filename, "a")
-    file:write(tostring(x) .. "\n")
-    file:close()
-    return x  -- Pass through the value
-  end
-end
-
-local increment_counter = function(counter)
-  return function(x)
-    counter.value = counter.value + 1
-    return x
-  end
-end
-
--- Create a counter
-local counter = {value = 0}
-
--- Pipeline with side effects
-local process = fun(log_to_file("output.log"))
-              * fun(increment_counter(counter))
-              * fun(function(x) return x * 2 end)
-
--- Process multiple values
-for i = 1, 5 do
-  process % i
-end
-
-print("Counter:", counter.value)  -- 5
--- output.log contains: 2, 4, 6, 8, 10
+local result3 = process % Ok('abc')
+print(result3.ok, result3.error)  -- false, 'Not a number'
 ```
 
 ## 🏷️ Working with LuaCATS
