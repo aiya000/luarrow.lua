@@ -14,14 +14,12 @@ Powered by Lua beautiful operator overloading, bring the elegance of:
 ```lua
 local arrow = require('luarrow').arrow
 
--- **True** pipeline style!
-local result =
-    42
-    % arrow(function(x) return x - 2 end)
-    ^ arrow(function(x) return x * 10 end)
-    ^ arrow(function(x) return x + 1 end)
-
-print(result)  -- 401
+-- The **true** pipeline operator
+42
+  % arrow(function(x) return x - 2 end)
+  ^ arrow(function(x) return x * 10 end)
+  ^ arrow(function(x) return x + 1 end)
+  ^ arrow(print)  -- 401
 ```
 
 Equivalent to:
@@ -32,8 +30,10 @@ Equivalent to:
   |> (fun x -> x - 2)
   |> (fun x -> x * 10)
   |> (fun x -> x + 1)
+  |> print_int
 ;;
 ```
+- TODO: PHPの例にした方が親しみやすそう
 
 - Haskell's **highly readable** `f . g . h $ x` syntax -- Unlike `f(g(h(x)))` (too many parentheses!)
     - This notation is also used in mathematics, and similarly, it is a very beautiful syntax
