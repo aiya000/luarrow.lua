@@ -676,9 +676,9 @@ Performance comparison between luarrow and native Lua using 1,000,000 iterations
 #### Functions used
 
 ```lua
-local add_one = function(x) return x + 1 end
-local double = function(x) return x * 2 end
-local square = function(x) return x * x end
+local f = function(x) return x + 1 end
+local g = function(x) return x * 10 end
+local h = function(x) return x - 2 end
 ```
 
 #### Pre-composed functions
@@ -692,11 +692,25 @@ local fun_composed = fun(h) * fun(g) * fun(f)
 local fun_precomposed = function(x)
   return fun_composed % x
 end
+
+local arrow_composed = arrow(f) ^ arrow(g) ^ arrow(h)
+local arrow_precomposed = function(x)
+  return x % arrow_composed
+end
 ```
 
-Result:
-- Native Lua: `0.078s`
-- Fun (pre-composed): `0.197s`
+**With Standard Lua 5.1:**
+- Native Lua: `0.089s`
+- Fun (pre-composed): `0.168s` (1.90x overhead)
+- Arrow (pre-composed): `0.196s` (2.22x overhead)
+
+**With LuaJIT:**
+- Native Lua: `0.000383s`
+- Fun (pre-composed): `0.000386s` (**1.01x** - virtually no overhead!)
+- Arrow (pre-composed): `0.000360s` (**0.94x** - actually faster!)
+
+> [!IMPORTANT]
+> **In LuaJIT environments (like Neovim), luarrow pre-composed functions have essentially no performance overhead compared to pure Lua!** This makes luarrow an excellent choice for environments where LuaJIT is available.
 
 #### On-the-fly composition (inside loop)
 
@@ -711,21 +725,31 @@ end
 local fun_onthefly = function(x)
   return fun(h) * fun(g) * fun(f) % x
 end
+
+local arrow_onthefly = function(x)
+  return x % arrow(f) ^ arrow(g) ^ arrow(h)
+end
 ```
 
-Result:
-- Native Lua (function wrapper): `0.155s`
-- Fun (on-the-fly): `1.476s`
+**With Standard Lua 5.1:**
+- Native Lua (function wrapper): `0.170s`
+- Fun (on-the-fly): `1.547s` (9.19x slower than pre-composed)
+- Arrow (on-the-fly): `1.629s` (8.30x slower than pre-composed)
+
+**With LuaJIT:**
+- Native Lua (function wrapper): `0.068s`
+- Fun (on-the-fly): `0.852s` (2208x slower than pre-composed)
+- Arrow (on-the-fly): `0.884s` (2455x slower than pre-composed)
 
 > [!TIP]
 > - Benchmark script is here: [benchmark.lua](../scripts/benchmark.lua)  
-> - To optimizet this, see: [How to optimize performance](#how-to-optimaize-performance)
+> - To optimize this, see: [How to optimize performance](#how-to-optimaize-performance)
 
-### How to optimaize performance
+### How to optimize performance
 
-Use pre-compose pattern outside loops:
+Always use pre-compose pattern outside loops for best performance:
 
-:o: Good
+✅ **Good:**
 
 ```lua
 local fun = require('luarrow').fun
@@ -738,14 +762,14 @@ for i = 1, 1000 do
 end
 ```
 
-:x: BAD
+❌ **Bad:**
 
 ```lua
 local fun = require('luarrow').fun
 
 -- Composing inside loop.
 -- This allocates new objects each iteration.
--- Too slower.
+-- Much slower.
 for i = 1, 1000 do
   local f = fun(add_one) * fun(double)
   result = f % i
@@ -754,17 +778,20 @@ end
 
 #### Performance-critical paths
 
-Unfortunately, luarrow has some overhead.
+**With LuaJIT** (Neovim, many game engines, etc.):
+- Pre-composed luarrow functions have **virtually no overhead** compared to native Lua
+- You should feel confident using luarrow for most use cases
+- The improved code readability and maintainability is a clear win
 
-If you are in some performance-critical paths, use Native Lua for:
+**With standard Lua interpreters**:
+- Pre-composed functions have ~2x overhead, which is still acceptable for most use cases
+- Only avoid luarrow in extremely performance-critical hot paths if you've measured and confirmed it's a bottleneck
+- The benefits of code clarity and maintainability often outweigh the small performance cost
 
-```lua
-local function hot_path(x)
-  return f(g(h(x)))  -- Direct function calls
-end
-```
-
-But luarrow is still good selection if you are interested in **code clarity and maintainability**.
+**General recommendation:**
+- Write your code with luarrow for better clarity and maintainability
+- Only optimize to native Lua if profiling shows it's actually a bottleneck
+- In LuaJIT environments, there's essentially no reason to avoid luarrow!
 
 ## 🔄 Comparison with Other Approaches
 
@@ -806,7 +833,12 @@ local result = fun(f) * fun(g) * fun(h) % x
 
 ## 🎊 Conclusion
 
-luarrow brings the elegance of Haskell's function composition to Lua while maintaining excellent performance and type safety.  
-Whether you're building data pipelines, processing configurations, or creating complex transformations, luarrow makes your code more expressive and maintainable.
+luarrow brings the elegance of functional programming to Lua with remarkable performance characteristics:
+
+- **In LuaJIT environments** (Neovim, many game engines, etc.): Pre-composed luarrow functions have **virtually no performance difference from pure Lua**, making it an excellent choice for writing clean, maintainable code without sacrificing performance.
+
+- **In standard Lua environments**: While there is a modest overhead (~2x for pre-composed functions), the benefits of improved code readability, maintainability, and expressiveness often outweigh this cost for most applications.
+
+Whether you're building data pipelines, processing configurations, or creating complex transformations, luarrow makes your code more elegant and easier to understand. In environments where LuaJIT is available, you get this elegance essentially for free!
 
 **Happy functional programming!** 🚀

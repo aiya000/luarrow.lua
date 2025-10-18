@@ -59,15 +59,15 @@ f . g . h $ 42
 
 ## ✨ Why luarrow?
 
-By the **dramatically**, write cleaner, more expressive Lua code:
+Write **dramatically** cleaner, more expressive Lua code:
 
 - **Beautiful code** - Make your functional pipelines readable and maintainable
-- **Elegant composition** - Chain multiple functions naturally with `*`/`^` operator
+- **Elegant composition** - Chain multiple functions naturally with `*`/`^` operators
     - **True pipeline operators** - Transform data with intuitive left-to-right flow `x % f ^ g`
     - **Haskell-inspired syntax** - Write `f * g % x` instead of `f(g(x))`
 - **Zero dependencies** - Pure Lua implementation with no external dependencies
-- **Minimal overhead** - Lightweight wrapper around native Lua functions
-    - TODO: ここにベンチマーク結果を載せる
+- **Excellent performance** - In LuaJIT environments (like Neovim), pre-composed functions have **virtually no overhead** compared to pure Lua
+    - See [Performance Benchmarks](doc/examples.md#-performance-considerations) for detailed results
 
 > [!NOTE]
 > **About the name:**
