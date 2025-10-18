@@ -38,8 +38,10 @@ Fun.__index = Fun
 ---@param g Fun<B, C>
 ---@return Fun<A, C>
 function Fun:compose(g)
+  local self_raw = self.raw
+  local g_raw = g.raw
   return Fun.new(function(x)
-    return self.raw(g.raw(x))
+    return self_raw(g_raw(x))
   end)
 end
 
@@ -69,7 +71,7 @@ Fun.__mod = Fun.apply
 ---@param func fun(x: A): B
 ---@return Fun<A, B>
 function Fun.new(func)
- ---@type Fun<unknown, unknown> -- unknown because limitation of LuaCATS
+  ---@type Fun<unknown, unknown> -- unknown because limitation of LuaCATS
   local self = setmetatable({}, Fun)
   self.raw = func
   return self
