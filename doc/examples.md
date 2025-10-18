@@ -36,7 +36,7 @@ For API reference, see [api.md](api.md).
 1. [Working with LuaCATS](#-working-with-luacats)
 1. [Performance Considerations](#-performance-considerations)
     - [Benchmark Results](#benchmark-results)
-    - [How to optimize performance](#how-to-optimaize-performance)
+    - [How to optimize performance](#how-to-optimize-performance)
 1. [Comparison with Other Approaches](#-comparison-with-other-approaches)
     - [vs Pure Lua](#vs-pure-lua)
     - [vs Function Chaining](#vs-function-chaining)
@@ -743,7 +743,7 @@ end
 
 > [!TIP]
 > - Benchmark script is here: [benchmark.lua](../scripts/benchmark.lua)  
-> - To optimize this, see: [How to optimize performance](#how-to-optimaize-performance)
+> - To optimize this, see: [How to optimize performance](#how-to-optimize-performance)
 
 ### How to optimize performance
 
