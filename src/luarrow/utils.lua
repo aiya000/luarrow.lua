@@ -10,7 +10,7 @@ local unpack = unpack or table.unpack
 ---@return function
 local function make_partial(accumulated, f, arity)
   return function(...)
-    local args = {...}
+    local args = { ... }
     local new_accumulated = {}
 
     -- Copy accumulated arguments
@@ -94,12 +94,12 @@ function M.partial(f, arity)
     local info = debug.getinfo(f, 'u')
     if not info then
       error(
-        "partial: Cannot determine function arity automatically. " ..
-        "This may occur when:\n" ..
-        "  1. The function is a C function (Lua built-in or C extension)\n" ..
-        "  2. The function is JIT-compiled (debug info lost in LuaJIT)\n" ..
-        "  3. The function uses only variadic parameters (...)\n" ..
-        "Please specify the 'arity' parameter explicitly."
+        'partial: Cannot determine function arity automatically. '
+          .. 'This may occur when:\n'
+          .. '  1. The function is a C function (Lua built-in or C extension)\n'
+          .. '  2. The function is JIT-compiled (debug info lost in LuaJIT)\n'
+          .. '  3. The function uses only variadic parameters (...)\n'
+          .. "Please specify the 'arity' parameter explicitly."
       )
     end
 
@@ -107,9 +107,9 @@ function M.partial(f, arity)
 
     if arity == 0 and info.isvararg then
       error(
-        "partial: Cannot determine function arity automatically. " ..
-        "The function appears to use only variadic parameters (...).\n" ..
-        "Please specify the 'arity' parameter explicitly."
+        'partial: Cannot determine function arity automatically. '
+          .. 'The function appears to use only variadic parameters (...).\n'
+          .. "Please specify the 'arity' parameter explicitly."
       )
     end
   end

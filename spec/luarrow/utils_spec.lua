@@ -13,7 +13,7 @@ describe('utils.partial', function()
   end
 
   local function variadic_args_func(...)
-    local args = {...}
+    local args = { ... }
     local result = 1
     for _, v in ipairs(args) do
       result = result * v
@@ -48,8 +48,8 @@ describe('utils.partial', function()
     local concat = partial(function(a, b, c)
       return a .. b .. c
     end)
-    local result = concat("Hello")(" ")("World")
-    assert.are.equal(result, "Hello World")
+    local result = concat('Hello')(' ')('World')
+    assert.are.equal(result, 'Hello World')
   end)
 end)
 
@@ -58,7 +58,6 @@ describe('utils.curry', function()
     local add = curry(two_args_func)
     assert.are.equal(add(1)(2), 3)
   end)
-
 end)
 
 describe('utils.swap', function()
@@ -66,6 +65,6 @@ describe('utils.swap', function()
     local swapped_concat = utils.swap(function(a, b)
       return a .. b
     end)
-    assert.are.equal(swapped_concat("Hello", "World"), "WorldHello")
+    assert.are.equal(swapped_concat('Hello', 'World'), 'WorldHello')
   end)
 end)
