@@ -18,6 +18,123 @@ function M.curry(f)
   end
 end
 
+---An alias to `curry()`
+M.curry2 = M.curry
+
+---Similar to `curry()`, but for three-argument functions
+---@generic A, B, C, D
+---@param f fun(a: A, b: B, c: C): D
+---@return fun(a: A): fun(b: B): fun(c: C): D
+function M.curry3(f)
+  return function(a)
+    return function(b)
+      return function(c)
+        return f(a, b, c)
+      end
+    end
+  end
+end
+
+---Similar to `curry()`, but for four-argument functions
+---@generic A, B, C, D, E
+---@param f fun(a: A, b: B, c: C, d: D): E
+---@return fun(a: A): fun(b: B): fun(c: C): fun(d: D): E
+function M.curry4(f)
+  return function(a)
+    return function(b)
+      return function(c)
+        return function(d)
+          return f(a, b, c, d)
+        end
+      end
+    end
+  end
+end
+
+---Similar to `curry()`, but for five-argument functions
+---@generic A, B, C, D, E, F
+---@param f fun(a: A, b: B, c: C, d: D, e: E): F
+---@return fun(a: A): fun(b: B): fun(c: C): fun(d: D): fun(e: E): F
+function M.curry5(f)
+  return function(a)
+    return function(b)
+      return function(c)
+        return function(d)
+          return function(e)
+            return f(a, b, c, d, e)
+          end
+        end
+      end
+    end
+  end
+end
+
+---Similar to `curry()`, but for six-argument functions
+---@generic A, B, C, D, E, F, G
+---@param f fun(a: A, b: B, c: C, d: D, e: E, f: F): G
+---@return fun(a: A): fun(b: B): fun(c: C): fun(d: D): fun(e: E): fun(f: F): G
+function M.curry6(f)
+  return function(a)
+    return function(b)
+      return function(c)
+        return function(d)
+          return function(e)
+            return function(f_arg)
+              return f(a, b, c, d, e, f_arg)
+            end
+          end
+        end
+      end
+    end
+  end
+end
+
+---Similar to `curry()`, but for seven-argument functions
+---@generic A, B, C, D, E, F, G, H
+---@param f fun(a: A, b: B, c: C, d: D, e: E, f: F, g: G): H
+---@return fun(a: A): fun(b: B): fun(c: C): fun(d: D): fun(e: E): fun(f: F): fun(g: G): H
+function M.curry7(f)
+  return function(a)
+    return function(b)
+      return function(c)
+        return function(d)
+          return function(e)
+            return function(f_arg)
+              return function(g)
+                return f(a, b, c, d, e, f_arg, g)
+              end
+            end
+          end
+        end
+      end
+    end
+  end
+end
+
+---Similar to `curry()`, but for eight-argument functions
+---@generic A, B, C, D, E, F, G, H, I
+---@param f fun(a: A, b: B, c: C, d: D, e: E, f: F, g: G, h: H): I
+---@return fun(a: A): fun(b: B): fun(c: C): fun(d: D): fun(e: E): fun(f: F): fun(g: G): fun(h: H): I
+function M.curry8(f)
+  return function(a)
+    return function(b)
+      return function(c)
+        return function(d)
+          return function(e)
+            return function(f_arg)
+              return function(g)
+                return function(h)
+                  return f(a, b, c, d, e, f_arg, g, h)
+                end
+              end
+            end
+          end
+        end
+      end
+    end
+  end
+end
+
 ---@see partial
 ---@param accumulated table
 ---@param f function

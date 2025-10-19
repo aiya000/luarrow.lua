@@ -60,6 +60,68 @@ describe('utils.curry', function()
   end)
 end)
 
+describe('utils.curry2', function()
+  it('should curry a 2-argument function', function()
+    local add = curry(two_args_func)
+    assert.are.equal(add(1)(2), 3)
+  end)
+end)
+
+
+describe('utils.curry3', function()
+  it('should curry a 3-argument function', function()
+    local add = utils.curry3(function(a, b, c)
+      return a + b + c
+    end)
+    assert.are.equal(add(1)(2)(3), 6)
+  end)
+end)
+
+describe('utils.curry4', function()
+  it('should curry a 4-argument function', function()
+    local add = utils.curry4(function(a, b, c, d)
+      return a + b + c + d
+    end)
+    assert.are.equal(add(1)(2)(3)(4), 10)
+  end)
+end)
+
+describe('utils.curry5', function()
+  it('should curry a 5-argument function', function()
+    local add = utils.curry5(function(a, b, c, d, e)
+      return a + b + c + d + e
+    end)
+    assert.are.equal(add(1)(2)(3)(4)(5), 15)
+  end)
+end)
+
+describe('utils.curry6', function()
+  it('should curry a 6-argument function', function()
+    local add = utils.curry6(function(a, b, c, d, e, f)
+      return a + b + c + d + e + f
+    end)
+    assert.are.equal(add(1)(2)(3)(4)(5)(6), 21)
+  end)
+end)
+
+describe('utils.curry7', function()
+  it('should curry a 7-argument function', function()
+    local add = utils.curry7(function(a, b, c, d, e, f, g)
+      return a + b + c + d + e + f + g
+    end)
+    assert.are.equal(add(1)(2)(3)(4)(5)(6)(7), 28)
+  end)
+end)
+
+describe('utils.curry8', function()
+  it('should curry a 8-argument function', function()
+    local add = utils.curry8(function(a, b, c, d, e, f, g, h)
+      return a + b + c + d + e + f + g + h
+    end)
+    assert.are.equal(add(1)(2)(3)(4)(5)(6)(7)(8), 36)
+  end)
+end)
+
 describe('utils.swap', function()
   it('should work', function()
     local swapped_concat = utils.swap(function(a, b)
