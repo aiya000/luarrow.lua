@@ -1,12 +1,4 @@
-<div align="center">
-<h1>luarrow API Reference</h1>
-<div>Complete API documentation for luarrow</div>
-<div>-- The Haskell-inspired function --</div>
-<div>-- The Pipeline operator --</div>
-<div>Composition operators library for Lua.</div>
-</div>
-
-- - -
+# luarrow API Reference
 
 For practical examples and use cases, see [examples.md](examples.md).
 
@@ -206,7 +198,7 @@ print(result)  -- 11
 The `luarrow.Arrow<A, B>` class represents a wrapped function from type A to type B (`A → B`).
 
 This is similar to `Fun`, but with **Pipeline-Style** that reads left-to-right.  
-(Like the `|>` operator in Elm, F#, OCaml, Elixir, and etc.)
+(Like the `|>` operator in PHP, Elm, F#, OCaml, Elixir, and etc.)
 
 ```lua
 ---@class luarrow.Arrow<A, B>
@@ -285,7 +277,7 @@ print(result)  -- 12, because g(f(5)) = g(6) = 12
 > ```
 >
 > This is similar to:
-> - Pipeline Operator in Elm, F#, OCaml, Elixir, and etc: `x |> f |> g |> h`
+> - Pipeline Operator in PHP, Elm, F#, OCaml, Elixir, and etc: `x |> f |> g |> h`
 > - Haskell's Operator: `x & f >>> g >>> h`
 > - Unix pipes: `x | f | g | h`
 >

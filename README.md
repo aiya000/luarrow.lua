@@ -1,6 +1,9 @@
-# [→] luarrow [→]
-
-**The true pipeline operators** and **Haskell-style function composition** for Lua!
+<div align="center">
+<h1>[→] luarrow [→]</h1>
+<div><code>|></code> <b>The true Pipeline operator</b> <code>|></code></div>
+<div><code>.</code> <code>$</code> <b>The Haskell-inspired function compositions</b> <code>.</code> <code>$</code></div>
+<div>The new syntax for Lua, and you.</div>
+</div>
 
 ## 🚗 Quick Examples
 
@@ -24,16 +27,14 @@ local arrow = require('luarrow').arrow
 
 Equivalent to:
 
-```ocaml
-(* OCaml *)
+```php
+// PHP
 42
-  |> (fun x -> x - 2)
-  |> (fun x -> x * 10)
-  |> (fun x -> x + 1)
-  |> print_int
-;;
+  |> fn($x) => $x - 2
+  |> fn($x) => $x * 10
+  |> fn($x) => $x + 1
+  |> var_dump;
 ```
-- TODO: PHPの例にした方が親しみやすそう
 
 - Haskell's **highly readable** `f . g . h $ x` syntax -- Unlike `f(g(h(x)))` (too many parentheses!)
     - This notation is also used in mathematics, and similarly, it is a very beautiful syntax
@@ -59,15 +60,15 @@ f . g . h $ 42
 
 ## ✨ Why luarrow?
 
-By the **dramatically**, write cleaner, more expressive Lua code:
+Write **dramatically** cleaner, more expressive Lua code:
 
 - **Beautiful code** - Make your functional pipelines readable and maintainable
-- **Elegant composition** - Chain multiple functions naturally with `*`/`^` operator
+- **Elegant composition** - Chain multiple functions naturally with `*`/`^` operators
     - **True pipeline operators** - Transform data with intuitive left-to-right flow `x % f ^ g`
     - **Haskell-inspired syntax** - Write `f * g % x` instead of `f(g(x))`
 - **Zero dependencies** - Pure Lua implementation with no external dependencies
-- **Minimal overhead** - Lightweight wrapper around native Lua functions
-    - TODO: ここにベンチマーク結果を載せる
+- **Excellent performance** - In LuaJIT environments (like Neovim), pre-composed functions have **virtually no overhead** compared to pure Lua
+    - See [Performance Benchmarks](doc/examples.md#-performance-considerations) for detailed results
 
 > [!NOTE]
 > **About the name:**
@@ -195,13 +196,17 @@ For practical examples and use cases, see **[doc/examples.md](doc/examples.md)**
 
 The syntax is remarkably close to Haskell's elegance, while staying within Lua's operator overloading capabilities!
 
-## 🔄 Comparison Pipeline-Style with OCaml
+## 🔄 Comparison Pipeline-Style with PHP
 
-| OCaml | luarrow | Pure Lua |
+| PHP | luarrow | Pure Lua |
 |-|-|-|
-| `x \|> f \|> g \|> print_int` | `x % arrow(f) ^ arrow(g) ^ arrow(print)` | `print(g(f(x)))` |
+| `$x \|> $f \|> $g \|> var_dump` | `x % arrow(f) ^ arrow(g) ^ arrow(print)` | `print(g(f(x)))` |
 
 The syntax is remarkably close to general language's elegant pipeline operator, too!
+
+> [!NOTE]
+> PHP's pipeline operator is shown as a familiar comparison example.
+> Currently, this PHP syntax is at the RFC stage.
 
 ## 💡 Real-World Examples
 
