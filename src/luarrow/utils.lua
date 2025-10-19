@@ -3,6 +3,21 @@ local M = {}
 ---Compatibility for Lua 5.1 and 5.2+
 local unpack = unpack or table.unpack
 
+---Extracts a two-argument function into a function that returns a function.
+---Meaning `(X, Y) -> Z` becomes `X -> Y -> Z` (NOTE: This is Haskell's notation).
+---See also this function's type signature.
+---@generic A, B, C
+---@param f fun(a: A, b: B): C
+---@return fun(a: A): fun(b: B): C
+---This is the traditional currying function from programming history.
+function M.curry(f)
+  return function(a)
+    return function(b)
+      return f(a, b)
+    end
+  end
+end
+
 ---@see partial
 ---@param accumulated table
 ---@param f function
@@ -114,15 +129,6 @@ function M.partial(f, arity)
     end
   end
   return make_partial({}, f, arity)
-end
-
----Same as `partial()`, but only accept to functions what have just two arguments.
----This is the traditional currying function from programming history.
----@generic A, B, C
----@param f fun(a: A, b: B): C
----@return fun(a: A): fun(b: B): C
-function M.curry(f)
-  return M.partial(f, 2)
 end
 
 ---Swaps the first and the two argument of a function.
