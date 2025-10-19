@@ -681,7 +681,9 @@ local g = function(x) return x * 10 end
 local h = function(x) return x - 2 end
 ```
 
-#### Pre-composed functions
+#### Pre-composed functions (outside loop)
+
+These functions are composed once, reused many times.
 
 ```lua
 local native_direct = function(x)
@@ -699,20 +701,26 @@ local arrow_precomposed = function(x)
 end
 ```
 
+**With LuaJIT:**
+- Native Lua: `0.000301s`
+- Fun (pre-composed): `0.000392s` (essentially equivalent to native)
+- Arrow (pre-composed): `0.000446s` (essentially equivalent to native)
+
 **With Standard Lua 5.1:**
 - Native Lua: `0.089s`
-- Fun (pre-composed): `0.168s` (1.90x overhead)
-- Arrow (pre-composed): `0.196s` (2.22x overhead)
+- Fun (pre-composed): `0.168s`
+- Arrow (pre-composed): `0.196s`
 
-**With LuaJIT:**
-- Native Lua: `0.000383s`
-- Fun (pre-composed): `0.000386s` (**1.01x** - virtually no overhead!)
-- Arrow (pre-composed): `0.000360s` (**0.94x** - actually faster!)
+> [!NOTE]
+> The performance differences with LuaJIT are within measurement variance and can be considered equivalent to Pure Lua in practice.
+> Results may vary within the margin of error from run to run.
 
 > [!IMPORTANT]
 > **In LuaJIT environments (like Neovim), luarrow pre-composed functions have essentially no performance overhead compared to pure Lua!** This makes luarrow an excellent choice for environments where LuaJIT is available.
 
-#### On-the-fly composition (inside loop)
+#### On-the-fly composition (inside loop) - Bad Pattern
+
+These functions are composed every time they are called.
 
 ```lua
 local native_onthefly = function(x)
@@ -731,15 +739,19 @@ local arrow_onthefly = function(x)
 end
 ```
 
+**With LuaJIT:**
+- Native Lua (function wrapper): `0.068s`
+- Fun (on-the-fly): `0.852s` (2208x slower than pre-composed)
+- Arrow (on-the-fly): `0.884s` (2455x slower than pre-composed)
+
 **With Standard Lua 5.1:**
 - Native Lua (function wrapper): `0.170s`
 - Fun (on-the-fly): `1.547s` (9.19x slower than pre-composed)
 - Arrow (on-the-fly): `1.629s` (8.30x slower than pre-composed)
 
-**With LuaJIT:**
-- Native Lua (function wrapper): `0.068s`
-- Fun (on-the-fly): `0.852s` (2208x slower than pre-composed)
-- Arrow (on-the-fly): `0.884s` (2455x slower than pre-composed)
+> [!NOTE]
+> As you can see, this usage pattern is not recommended.
+> For details, see [How to optimize performance](#how-to-optimize-performance).
 
 > [!TIP]
 > - Benchmark script is here: [benchmark.lua](../scripts/benchmark.lua)  
@@ -776,6 +788,10 @@ for i = 1, 1000 do
 end
 ```
 
+> [!NOTE]
+> This good pattern aligns with "declarative programming" principles.
+> It maintains consistency in programming style.
+
 #### Performance-critical paths
 
 **With LuaJIT** (Neovim, many game engines, etc.):
@@ -786,59 +802,107 @@ end
 **With standard Lua interpreters**:
 - Pre-composed functions have ~2x overhead, which is still acceptable for most use cases
 - Only avoid luarrow in extremely performance-critical hot paths if you've measured and confirmed it's a bottleneck
-- The benefits of code clarity and maintainability often outweigh the small performance cost
+- The benefits of code clarity and maintainability almost outweigh the small performance cost
 
 **General recommendation:**
 - Write your code with luarrow for better clarity and maintainability
 - Only optimize to native Lua if profiling shows it's actually a bottleneck
 - In LuaJIT environments, there's essentially no reason to avoid luarrow!
 
-## 🔄 Comparison with Other Approaches
+## 🔄 Summary: Comparison with Other Approaches
 
 ### vs Pure Lua
 
 ```lua
-local fun = require('luarrow').fun
-
 -- Pure Lua: Verbose, hard to read
 local result = f(g(h(x)))
 
--- luarrow: Clear, expressive
+-- luarrow (arrow): Clear, expressive
+local result = x % arrow(h) ^ arrow(g) ^ arrow(f)
+
+-- luarrow (fun): Clear, expressive
 local result = fun(f) * fun(g) * fun(h) % x
 ```
+
+> [!NOTE]
+> When a termination needed, our style is more elegant:
+> ```lua
+> -- Example for `print()`
+>
+> print(f(g(h(x))))
+>
+> x
+>   % arrow(h)
+>   ^ arrow(g)
+>   ^ arrow(f)
+>   ^ arrow(print)
+>
+> fun(print) * fun(f) * fun(g) * fun(h) % x
+> ```
 
 ### vs Function Chaining
 
 ```lua
-local fun = require('luarrow').fun
-
--- Chaining (OOP style): Left-to-right, but limited to methods
+-- Pure Lua (OOP style function chaining): Left-to-right, but limited to methods
 local result = x:h():g():f()
 
--- luarrow: Right-to-left (mathematical), works with any functions
+-- luarrow (arrow): Left-to-right (natural flow), works with any functions
+local result = x % arrow(h) ^ arrow(g) ^ arrow(f)
+
+-- luarrow (fun): Right-to-left (mathematical), works with any functions
 local result = fun(f) * fun(g) * fun(h) % x
 ```
+
+> [!NOTE]
+> ```lua
+> print(x:h():g():f())
+>
+> x
+>   % arrow(h)
+>   ^ arrow(g)
+>   ^ arrow(f)
+>   ^ arrow(print)
+>
+> fun(print) * fun(f) * fun(g) * fun(h) % x
+> ```
 
 ### vs Lodash-Style
 
 ```lua
-local fun = require('luarrow').fun
-
 -- Lodash-style (if it existed in Lua)
 local result = _.flow(h, g, f)(x)
 
--- luarrow: More elegant with operators
+-- luarrow (arrow): More elegant with operators
+x ^ arrow(h) ^ arrow(g) ^ arrow(f)
+
+-- luarrow (fun): More elegant with operators
 local result = fun(f) * fun(g) * fun(h) % x
 ```
 
+> [!NOTE]
+> ```lua
+> print(_.flow(h, g, f)(x))
+>
+> x
+>   % arrow(h)
+>   ^ arrow(g)
+>   ^ arrow(f)
+>   ^ arrow(print)
+>
+> fun(print) * fun(f) * fun(g) * fun(h) % x
+> ```
+
 ## 🎊 Conclusion
 
-luarrow brings the elegance of functional programming to Lua with remarkable performance characteristics:
+luarrow brings the elegance of functional programming to Lua, making your code more expressive and maintainable:
 
-- **In LuaJIT environments** (Neovim, many game engines, etc.): Pre-composed luarrow functions have **virtually no performance difference from pure Lua**, making it an excellent choice for writing clean, maintainable code without sacrificing performance.
+- **Enhanced Readability**: Transform nested function calls into clear, linear pipelines that are easier to understand and modify.
+- **Universal Function Composition**: Unlike method chaining which requires special methods, luarrow works with any functions, giving you complete flexibility.
+- **Two Complementary Styles**: Choose `arrow` for natural left-to-right flow or `fun` for mathematical right-to-left composition, depending on what fits your use case best.
+- **Battle-Tested Styles**: Built on two time-proven approaches used across many languages:
+    - `arrow`: Pipeline style (like `|>` in F#, Elixir, OCaml, and shell pipes)
+    - `fun`: Haskell-style function composition (like `.` operator in Haskell and mathematical notation. also `$`)
 
-- **In standard Lua environments**: While there is a modest overhead (~2x for pre-composed functions), the benefits of improved code readability, maintainability, and expressiveness often outweigh this cost for most applications.
+Whether you're building data pipelines, processing configurations, or creating complex transformations, luarrow helps you write code that's both elegant and practical.
 
-Whether you're building data pipelines, processing configurations, or creating complex transformations, luarrow makes your code more elegant and easier to understand. In environments where LuaJIT is available, you get this elegance essentially for free!
-
-**Happy functional programming!** 🚀
+**Happy programming!** 🚀
