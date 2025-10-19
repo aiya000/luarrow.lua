@@ -48,7 +48,7 @@ For API reference, see [api.md](api.md).
 ### Pipeline-Style (`Arrow`) Basic Examples
 
 The `arrow` API provides an alternative pipeline-style composition that reads **left-to-right**, similar to:
-- Pipeline Operator `|>` in Elm, F#, OCaml, Elixir, and other languages
+- Pipeline Operator `|>` in PHP, Elm, F#, OCaml, Elixir, and other languages
 - Haskell's `>>>` operator
 - Unix pipes (`|`)
 
