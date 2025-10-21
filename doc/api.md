@@ -18,6 +18,11 @@ For practical examples and use cases, see [examples.md](examples.md).
     - [Arrow:compose_to(g)](#arrowcompose_tog)
     - [x % f (Pipeline-Style Application Operator)](#x--f-pipeline-style-application-operator)
     - [Arrow:apply(x)](#arrowapplyx)
+3. [Utility Functions API Reference](#-utility-functions-api-reference)
+    - [partial(f, arity)](#partialf-arity)
+    - [curry(f) / curry2(f)](#curryf--curry2f)
+    - [curry3(f), curry4(f), ..., curry8(f)](#curry3f-curry4f--curry8f)
+    - [swap(f)](#swapf)
 
 ## ⛲ `Fun` API Reference
 
@@ -379,3 +384,313 @@ print(result)  -- 11
 
 **Returns:**
 - `B` - Result of applying the function
+
+## 🛠️ Utility Functions API Reference
+
+The `luarrow.utils` module provides utility functions that help integrate multi-argument functions into `arrow` and `fun` pipelines. These utilities serve as supporting tools to make `arrow` and `fun` more powerful and flexible.
+
+```lua
+local utils = require('luarrow.utils')
+```
+
+### `partial(f, arity)`
+
+Creates a partially applicable version of a function, enabling seamless integration of multi-argument functions with `arrow` and `fun` pipelines.
+
+This allows you to write `x % arrow(partial(f)(y))` instead of `x % arrow(function(x) return f(x, y) end)`, making it much more concise and expressive when integrating functions that take multiple arguments.
+
+```lua
+local arrow = require('luarrow').arrow
+local partial = require('luarrow.utils').partial
+
+local function add(a, b, c)
+  return a + b + c
+end
+
+-- Partial application styles
+add_partial = partial(add)
+
+-- All of these work:
+add_partial(1)(2)(3)        -- 6
+add_partial(1, 2)(3)        -- 6
+add_partial(1)(2, 3)        -- 6
+add_partial(1, 2, 3)        -- 6
+
+-- Integration with arrow/fun:
+local result = 42
+  % arrow(partial(add)(10, 20))  -- 72 (= (10 + 20) + 42)
+  ^ arrow(partial(multiply)(100)) -- 7200 (= 72 * 100)
+```
+
+**Type Parameters:**
+- `...` - Variable argument types
+
+**Parameters:**
+- `f: function` - The function to make partially applicable
+- `arity: number | nil` - Optional: Number of parameters the function expects (auto-detected if omitted)
+
+**Returns:**
+- `function` - A partially applicable version of the function
+
+**Advanced Usage:**
+
+You can also combine `partial()` with multiple arguments in pipelines:
+
+```lua
+-- Multi-argument functions in pipelines
+local function format(prefix, suffix, text)
+  return prefix .. text .. suffix
+end
+
+local result = "hello"
+  % arrow(partial(format)("[", "]"))  -- "[hello]"
+  ^ arrow(string.upper)               -- "[HELLO]"
+```
+
+**When combined with `swap()`:**
+
+```lua
+local function divide(a, b)
+  return a / b
+end
+
+-- Swap arguments and partially apply
+local result = 100
+  % arrow(partial(swap(divide))(2))  -- 50 (= 100 / 2)
+```
+
+**Important Notes:**
+
+> [!IMPORTANT]
+> This function may not work correctly with:
+> 1. **C functions** (Lua built-in functions or functions written in C)
+> 2. **JIT-compiled functions** (in LuaJIT, debug information may be lost)
+> 3. **Variadic-only functions** (functions with only `...` parameters)
+>
+> For these cases, you have two options:
+> - Explicitly specify the `arity` parameter: `partial(f, 2)`
+> - Use `curry()` or `curry[3-8]()` functions instead (see below)
+
+**Examples of when you need to specify arity or use curry:**
+
+```lua
+-- C function - won't work without arity
+local p = partial(string.sub, 3)  -- Explicitly specify arity=3
+
+-- Or use curry for a fixed number of arguments:
+local curry3 = require('luarrow.utils').curry3
+local substring = curry3(string.sub)
+```
+
+### `curry(f)` / `curry2(f)`
+
+Converts a two-argument function into a curried form.
+
+This is the traditional currying function from programming history, converting `(A, B) → C` into `A → (B → C)`.
+
+**Unlike `partial()`**, `curry()` functions work reliably with C functions, JIT-compiled functions, and other edge cases because they don't rely on debug information.
+
+```lua
+local curry = require('luarrow.utils').curry
+local arrow = require('luarrow').arrow
+
+local function add(a, b)
+  return a + b
+end
+
+local add_curried = curry(add)
+
+-- Curried application
+add_curried(10)(5)  -- 15
+
+-- Integration with arrow/fun
+local result = 42
+  % arrow(add_curried(10))  -- 52
+```
+
+**Type Parameters:**
+- `A` - First argument type
+- `B` - Second argument type
+- `C` - Return type
+
+**Parameters:**
+- `f: fun(a: A, b: B): C` - Two-argument function
+
+**Returns:**
+- `fun(a: A): fun(b: B): C` - Curried function
+
+**Comparison with `partial()`:**
+
+```lua
+-- partial: More flexible, but may fail with C functions
+local p = partial(add)
+p(1, 2)     -- ✓ Works
+p(1)(2)     -- ✓ Works
+
+-- curry: More reliable, but strict single-argument application
+local c = curry(add)
+c(1, 2)     -- ✗ Doesn't work (only returns intermediate function)
+c(1)(2)     -- ✓ Works
+
+-- However, curry is MORE RELIABLE with C functions:
+local sub_p = partial(string.sub, 3)  -- ✓ Need explicit arity
+local sub_c = curry3(string.sub)      -- ✓ Always works, no arity needed
+```
+
+Use `curry()` when:
+- You need guaranteed compatibility with C functions
+- You prefer the traditional currying style
+- You're working with exactly 2 arguments
+
+Use `partial()` when:
+- You want flexible argument application (one-by-one OR multiple at once)
+- You're working with Lua functions (not C functions)
+- You want more flexibility in how arguments are provided
+
+### `curry3(f)`, `curry4(f)`, ..., `curry8(f)`
+
+Similar to `curry()`, but for functions with 3 to 8 arguments.
+
+These functions provide reliable currying for multi-argument functions, especially useful as an alternative when `partial()` encounters issues with C functions, JIT-compiled functions, or variadic functions.
+
+```lua
+local curry3 = require('luarrow.utils').curry3
+local arrow = require('luarrow').arrow
+
+local function add3(a, b, c)
+  return a + b + c
+end
+
+local add3_curried = curry3(add3)
+
+-- Curried application (one argument at a time)
+add3_curried(10)(20)(30)  -- 60
+
+-- Integration with arrow
+local result = 42
+  % arrow(add3_curried(10)(20))  -- 72 (= 10 + 20 + 42)
+```
+
+**Available functions:**
+- `curry3(f)` - For 3-argument functions: `(A, B, C) → D` becomes `A → B → C → D`
+- `curry4(f)` - For 4-argument functions: `(A, B, C, D) → E` becomes `A → B → C → D → E`
+- `curry5(f)` - For 5-argument functions
+- `curry6(f)` - For 6-argument functions
+- `curry7(f)` - For 7-argument functions
+- `curry8(f)` - For 8-argument functions
+
+**Why these exist:**
+
+These functions solve the limitations of `partial()`:
+
+```lua
+local partial = require('luarrow.utils').partial
+local curry3 = require('luarrow.utils').curry3
+
+-- partial() doesn't work with C functions without explicit arity
+local sub1 = partial(string.sub)  -- ✗ Error: Cannot determine arity
+local sub2 = partial(string.sub, 3)  -- ✓ Works with explicit arity
+
+-- curry3() works reliably without needing arity specification
+local sub3 = curry3(string.sub)  -- ✓ Always works
+local result = "hello" % arrow(sub3(1)(3))  -- "hel"
+```
+
+**Type Signatures:**
+
+```lua
+-- curry3
+---@generic A, B, C, D
+---@param f fun(a: A, b: B, c: C): D
+---@return fun(a: A): fun(b: B): fun(c: C): D
+
+-- curry4
+---@generic A, B, C, D, E
+---@param f fun(a: A, b: B, c: C, d: D): E
+---@return fun(a: A): fun(b: B): fun(c: C): fun(d: D): E
+
+-- (And so on for curry5-8...)
+```
+
+**Practical Example:**
+
+```lua
+local curry3 = require('luarrow.utils').curry3
+local arrow = require('luarrow').arrow
+
+-- Using string.sub (a C function) with curry3
+local substring = curry3(string.sub)
+
+"Hello, World!"
+  % arrow(substring(1)(5))  -- "Hello"
+  ^ arrow(string.upper)     -- "HELLO"
+  ^ arrow(print)            -- Prints: HELLO
+```
+
+> [!TIP]
+> While providing up to `curry8` might seem like overkill, it ensures comprehensive support for various multi-argument scenarios. In practice, most use cases will only need `curry`, `curry3`, or `curry4`.
+
+### `swap(f)`
+
+Swaps the first two arguments of a two-argument function.
+
+This is useful for argument order adjustment when integrating functions into pipelines.
+
+```lua
+local swap = require('luarrow.utils').swap
+local arrow = require('luarrow').arrow
+local partial = require('luarrow.utils').partial
+
+local function divide(a, b)
+  return a / b
+end
+
+local divide_swapped = swap(divide)
+
+divide(10, 2)          -- 5 (= 10 / 2)
+divide_swapped(10, 2)  -- 0.2 (= 2 / 10)
+
+-- Integration with arrow/partial
+local result = 100
+  % arrow(partial(swap(divide))(2))  -- 50 (= 100 / 2)
+```
+
+**Type Parameters:**
+- `A` - First argument type
+- `B` - Second argument type
+- `C` - Return type
+
+**Parameters:**
+- `f: fun(a: A, b: B): C` - Two-argument function
+
+**Returns:**
+- `fun(b: B, a: A): C` - Function with swapped argument order
+
+**Practical Example:**
+
+```lua
+local arrow = require('luarrow').arrow
+local partial = require('luarrow.utils').partial
+local swap = require('luarrow.utils').swap
+
+-- Without swap: awkward argument order
+local function power(base, exponent)
+  return base ^ exponent
+end
+
+-- We want to square numbers in a pipeline
+local result1 = 5
+  % arrow(partial(power)(nil, 2))  -- Doesn't work as intended
+
+-- With swap: natural argument order
+local result2 = 5
+  % arrow(partial(swap(power))(2))  -- 25 (= 5^2)
+
+-- Pipeline processing multiple values
+local numbers = {2, 3, 4, 5}
+local square = arrow(partial(swap(power))(2))
+
+for _, n in ipairs(numbers) do
+  print(n % square)  -- 4, 9, 16, 25
+end
+```

@@ -25,6 +25,8 @@ For API reference, see [api.md](api.md).
         - [Data Validation Pipeline](#data-validation-pipeline)
         - [String Processing Pipeline](#string-processing-pipeline-1)
         - [Mathematical Computations](#mathematical-computations)
+1. [Utility Functions](#-utility-functions)
+    - [Integrating Multi-Argument Functions with partial()](#integrating-multi-argument-functions-with-partial)
 1. [Advanced Patterns](#-advanced-patterns)
     - [Pipeline-Style (`Arrow`) Advanced Patterns](#pipeline-style-arrow-advanced-patterns)
         - [Debugging Pipeline](#debugging-pipeline)
@@ -431,6 +433,100 @@ local result = polynomial % 2
 
 print(result)  -- -23
 ```
+
+## 🛠️ Utility Functions
+
+The `luarrow.utils` module provides supporting functions that help integrate multi-argument functions into `arrow` and `fun` pipelines. These utilities enhance the capabilities of the main `arrow` and `fun` APIs.
+
+### Integrating Multi-Argument Functions with `partial()`
+
+The `partial()` function enables seamless integration of multi-argument functions into pipelines, eliminating the need to wrap them in anonymous functions.
+
+**Without `partial()`:**
+
+```lua
+local arrow = require('luarrow').arrow
+
+local function add(a, b, c)
+  return a + b + c
+end
+
+-- You need to wrap in an anonymous function
+local result = 42
+  % arrow(function(x) return add(10, 20, x) end)  -- 72
+```
+
+**With `partial()`:**
+
+```lua
+local arrow = require('luarrow').arrow
+local partial = require('luarrow.utils').partial
+
+local function add(a, b, c)
+  return a + b + c
+end
+
+-- Much more concise!
+local result = 42
+  % arrow(partial(add)(10, 20))  -- 72
+```
+
+**Combining Multiple Multi-Argument Functions:**
+
+```lua
+local arrow = require('luarrow').arrow
+local partial = require('luarrow.utils').partial
+
+local function add(a, b, c)
+  return a + b + c
+end
+
+local function multiply(x, y)
+  return x * y
+end
+
+-- Complex pipeline with multiple multi-argument functions
+local result = 5
+  % arrow(partial(add)(10, 20))      -- 35 (= 10 + 20 + 5)
+  ^ arrow(partial(multiply)(2))      -- 70 (= 35 * 2)
+  ^ arrow(partial(add)(100, 200))    -- 370 (= 100 + 200 + 70)
+```
+
+**Using `swap()` for Argument Order:**
+
+```lua
+local arrow = require('luarrow').arrow
+local partial = require('luarrow.utils').partial
+local swap = require('luarrow.utils').swap
+
+local function divide(a, b)
+  return a / b
+end
+
+-- Without swap: would need divide(2, 100) to get 100/2
+-- With swap: natural pipeline flow
+local result = 100
+  % arrow(partial(swap(divide))(2))  -- 50 (= 100 / 2)
+```
+
+**When to use `curry()` instead:**
+
+If you encounter issues with C functions or JIT-compiled functions, use the `curry()` family:
+
+```lua
+local curry3 = require('luarrow.utils').curry3
+local arrow = require('luarrow').arrow
+
+-- string.sub is a C function, so curry3 is more reliable
+local substring = curry3(string.sub)
+
+local result = "Hello, World!"
+  % arrow(substring(1)(5))  -- "Hello"
+  ^ arrow(string.upper)     -- "HELLO"
+```
+
+> [!TIP]
+> For complete details on all utility functions (`partial`, `curry`, `curry3-8`, `swap`), see the [Utility Functions API Reference](api.md#-utility-functions-api-reference).
 
 ## 🚀 Advanced Patterns
 

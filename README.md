@@ -187,6 +187,27 @@ For practical examples and use cases, see **[doc/examples.md](doc/examples.md)**
 - `f ^ g` -- Compose two functions in pipeline order (`f |> g`)
 - `x % f` -- Apply function to value in Pipeline-Style
 
+**Utility functions:**
+- `partial(f)` -- Integrate multi-argument functions with `arrow`/`fun`
+- `curry(f)`, `curry3(f)`, ..., `curry8(f)` -- Traditional currying for multi-argument functions
+- `swap(f)` -- Swap the first two arguments of a function
+
+> [!TIP]
+> Use `partial()` to seamlessly integrate functions with multiple arguments into arrow/fun pipelines:
+> ```lua
+> local arrow = require('luarrow').arrow
+> local partial = require('luarrow.utils').partial
+>
+> local function add(a, b) return a + b end
+> local function multiply(x, y) return x * y end
+>
+> local result = 42
+>   % arrow(partial(add)(10))      -- 52 (42 + 10)
+>   ^ arrow(partial(multiply)(2))  -- 104 (52 * 2)
+> ```
+>
+> For details, see [Utility Functions API](doc/api.md#-utility-functions-api-reference).
+
 ## 🔄 Comparison Haskell-Style with Real Haskell
 
 | Haskell | luarrow | Pure Lua |
