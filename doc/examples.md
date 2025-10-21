@@ -436,7 +436,23 @@ print(result)  -- -23
 
 ## 🛠️ Utility Functions
 
-The `luarrow.utils` module provides supporting functions that help integrate multi-argument functions into `arrow` and `fun` pipelines. These utilities enhance the capabilities of the main `arrow` and `fun` APIs.
+The `luarrow.utils` module provides utility functions for functional programming patterns like currying and partial application.
+
+**Important:** These utilities (`curry`, `partial`, etc.) are **standalone functions** that work independently. They don't require `arrow` or `fun` to be used. While they integrate seamlessly with `arrow` and `fun` pipelines, you can also use them for general-purpose functional programming in Lua without any dependency on the pipeline operators.
+
+```lua
+-- Standalone usage (no arrow/fun required)
+local partial = require('luarrow.utils').partial
+local curry = require('luarrow.utils').curry
+
+local add = function(a, b) return a + b end
+local add_curried = curry(add)
+print(add_curried(10)(5))  -- 15
+
+-- But they also work great with pipelines
+local arrow = require('luarrow').arrow
+local result = 42 % arrow(add_curried(10))  -- 52
+```
 
 ### Integrating Multi-Argument Functions with `partial()`
 
@@ -507,6 +523,34 @@ end
 -- With swap: natural pipeline flow
 local result = 100
   % arrow(partial(swap(divide))(2))  -- 50 (= 100 / 2)
+```
+
+**Standalone Usage (Without `arrow`/`fun`):**
+
+The utility functions work perfectly fine on their own without any pipeline operators:
+
+```lua
+local partial = require('luarrow.utils').partial
+local curry = require('luarrow.utils').curry
+
+-- Pure functional programming, no pipelines needed
+local add = function(a, b, c) return a + b + c end
+local multiply = function(a, b) return a * b end
+
+-- Using partial for flexible application
+local add_p = partial(add)
+print(add_p(1)(2)(3))      -- 6
+print(add_p(1, 2)(3))      -- 6 (flexible!)
+
+-- Using curry for traditional currying
+local mult_c = curry(multiply)
+print(mult_c(3)(4))        -- 12
+
+-- Create specialized functions
+local add10 = add_p(10)
+local triple = mult_c(3)
+print(add10(5, 6))         -- 21
+print(triple(7))           -- 21
 ```
 
 **When to use `curry()` instead:**

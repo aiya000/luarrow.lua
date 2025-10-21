@@ -387,10 +387,21 @@ print(result)  -- 11
 
 ## 🛠️ Utility Functions API Reference
 
-The `luarrow.utils` module provides utility functions that help integrate multi-argument functions into `arrow` and `fun` pipelines. These utilities serve as supporting tools to make `arrow` and `fun` more powerful and flexible.
+The `luarrow.utils` module provides utility functions for functional programming patterns like currying and partial application.
+
+**Key Point:** These utilities are **completely standalone** and do not depend on `arrow` or `fun`. While they integrate seamlessly with `arrow` and `fun` pipelines, you can use `curry` and `partial` on their own for general-purpose functional programming in Lua.
 
 ```lua
 local utils = require('luarrow.utils')
+
+-- Standalone usage (no arrow/fun needed)
+local curry = utils.curry
+local add_curried = curry(function(a, b) return a + b end)
+print(add_curried(10)(5))  -- 15
+
+-- Also works great with arrow/fun
+local arrow = require('luarrow').arrow
+local result = 42 % arrow(add_curried(10))  -- 52
 ```
 
 ### `partial(f, arity)`
