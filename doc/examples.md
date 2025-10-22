@@ -894,7 +894,8 @@ end
 > For details, see [How to optimize performance](#how-to-optimize-performance).
 
 > [!TIP]
-> - Benchmark script is here: [benchmark.lua](../scripts/benchmark.lua)  
+> - Benchmark script for `fun`/`arrow`: [benchmark.lua](../scripts/benchmark.lua)  
+> - Benchmark script for `curry`/`partial`: [benchmark-utils.lua](../scripts/benchmark-utils.lua)  
 > - To optimize this, see: [How to optimize performance](#how-to-optimize-performance)
 
 ### How to optimize performance
@@ -943,6 +944,23 @@ end
 - Pre-composed functions have ~2x overhead, which is still acceptable for most use cases
 - Only avoid luarrow in extremely performance-critical hot paths if you've measured and confirmed it's a bottleneck
 - The benefits of code clarity and maintainability almost outweigh the small performance cost
+
+**Performance of `curry` and `partial` utilities:**
+
+The utility functions have different performance characteristics:
+
+- **`curry` functions (curry2-8)**: 
+  - Simple nested closures with predictable overhead
+  - Typically 2-5x slower than pure Lua (scales with argument count)
+  - Efficient and suitable for most use cases
+
+- **`partial` function**:
+  - More flexible but higher overhead due to dynamic arity detection
+  - When calling one arg at a time: 5-15x slower than pure Lua
+  - When passing all args at once: 2-4x slower (much better!)
+  - Recommendation: prefer passing multiple args when possible
+
+- **Benchmark**: Run `make benchmark-utils` to see actual numbers on your system
 
 **General recommendation:**
 - Write your code with luarrow for better clarity and maintainability
