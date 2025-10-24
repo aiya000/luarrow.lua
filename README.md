@@ -7,7 +7,7 @@
 
 ## 🚗 Quick Examples
 
-Powered by Lua beautiful operator overloading, bring the elegance of:
+Powered by Lua's beautiful operator overloading, bringing the elegance of:
 
 - OCaml, Julia, F#, PHP, Elixir, Elm's **true** pipeline **operators** `x |> f |> g` -- Unlike `pipe(x, f, g)` (cheap pipe **function**)[^php-pipeline-operator]
     - The beauty of the pipeline operator hardly needs mentioning here
@@ -200,7 +200,7 @@ The syntax is remarkably close to Haskell's elegance, while staying within Lua's
 
 | PHP | luarrow | Pure Lua |
 |-|-|-|
-| `$x \|> $f \|> $g \|> var_dump` | `x % arrow(f) ^ arrow(g) ^ arrow(print)` | `print(g(f(x)))` |
+| `$x |> $f |> $g |> var_dump` | `x % arrow(f) ^ arrow(g) ^ arrow(print)` | `print(g(f(x)))` |
 
 The syntax is remarkably close to general language's elegant pipeline operator, too!
 

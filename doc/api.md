@@ -330,7 +330,7 @@ print(result)  -- 12
 
 See [Tips](#pipeline-style-composition-operator-tips) above for details on composition order and type relationships.
 
-### `x % f` (Pipeline-Style Composition Operator)
+### `x % f` (Pipeline-Style Application Operator)
 
 Applies the wrapped function to a value using the `%` operator in **pipeline style**.
 
