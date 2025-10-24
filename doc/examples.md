@@ -52,7 +52,7 @@ The `arrow` API provides an alternative pipeline-style composition that reads **
 - Haskell's `>>>` operator
 - Unix pipes (`|`)
 
-#### Pipeline Operators
+#### Operator-Style Pipeline Composition
 
 Recommended if you don't have some reason to use Method-Style.
 
@@ -68,7 +68,7 @@ local result = 5 % arrow(f) ^ arrow(g)
 print(result)  -- 12, because g(f(5)) = g(6) = 12
 ```
 
-#### Pipeline Methods
+#### Method-Style Pipeline Composition
 
 Alternative approach using explicit method calls.
 

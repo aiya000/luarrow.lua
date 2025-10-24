@@ -7,7 +7,7 @@
 
 ## 🚗 Quick Examples
 
-Powered by Lua beautiful operator overloading, bring the elegance of:
+Powered by Lua's beautiful operator overloading, bringing the elegance of:
 
 - OCaml, Julia, F#, PHP, Elixir, Elm's **true** pipeline **operators** `x |> f |> g` -- Unlike `pipe(x, f, g)` (cheap pipe **function**)[^php-pipeline-operator]
     - The beauty of the pipeline operator hardly needs mentioning here

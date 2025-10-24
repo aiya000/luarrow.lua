@@ -1,8 +1,8 @@
 local M = {}
 
----**The enhanced pipleine operator**!
+---**The enhanced pipeline operator**!
 ---
----Simular to `Fun<A, B>`, but the direction of composition is different.
+---Similar to `Fun<A, B>`, but the direction of composition is different.
 ---Contains '**the Arrow version**' '**Haskell style function composition system**':
 ---
 ---```lua
