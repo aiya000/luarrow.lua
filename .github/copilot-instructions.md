@@ -4,7 +4,7 @@ This file contains custom instructions for GitHub Copilot when working on this p
 
 ## Commit Guidelines
 
-- Please write commits in Conventional Commits format
+- Please write commits in Conventional Commits format (e.g., `feat: add new feature`, `fix: resolve bug`, `docs: update documentation`, `refactor: improve code structure`)
 
 ## Code Style
 
@@ -13,7 +13,7 @@ This file contains custom instructions for GitHub Copilot when working on this p
 
 ## Project Context
 
-This is luarrow.lua - a Lua library that provides functional programming utilities including:
+This is luarrow - a Lua library that provides functional programming utilities including:
 - Pipeline operators inspired by OCaml, Julia, F#, PHP, Elixir, and Elm
 - Function composition operators inspired by Haskell
 - Both `arrow` (pipeline style) and `fun` (Haskell style) APIs
