@@ -200,7 +200,7 @@ The syntax is remarkably close to Haskell's elegance, while staying within Lua's
 
 | PHP | luarrow | Pure Lua |
 |-|-|-|
-| `$x |> $f |> $g |> var_dump` | `x % arrow(f) ^ arrow(g) ^ arrow(print)` | `print(g(f(x)))` |
+| `$x \|> $f \|> $g \|> var_dump` | `x % arrow(f) ^ arrow(g) ^ arrow(print)` | `print(g(f(x)))` |
 
 The syntax is remarkably close to general language's elegant pipeline operator, too!
 
