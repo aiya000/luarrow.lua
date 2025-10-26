@@ -1,13 +1,13 @@
 <div align="center">
 <h1>[→] luarrow [→]</h1>
-<div><code>|></code> <b>The true Pipeline operator</b> <code>|></code></div>
-<div><code>.</code> <code>$</code> <b>The Haskell-inspired function compositions</b> <code>.</code> <code>$</code></div>
-<div>The new syntax for Lua, and you.</div>
+<div><code>|></code> <b>The true Pipeline-operator</b> <code>|></code></div>
+<div><code>.</code><code>$</code> <b>The Haskell-inspired function compositions</b> <code>.</code><code>$</code></div>
+<div><code>*</code><code>%</code> The new syntax for Lua, and you <code>^</code><code>%</code></div>
 </div>
 
 ## 🚗 Quick Examples
 
-Powered by Lua's beautiful operator overloading, bringing the elegance of:
+Powered by Lua's beautiful operator overloading (of `%`, `*`, `^`), bringing you the elegance of:
 
 - OCaml, Julia, F#, PHP, Elixir, Elm's **true** pipeline **operators** `x |> f |> g` -- Unlike `pipe(x, f, g)` (cheap pipe **function**)[^php-pipeline-operator]
     - The beauty of the pipeline operator hardly needs mentioning here
@@ -296,4 +296,9 @@ Inspired by Haskell's elegant function composition and the power of operator ove
 luarrow brings functional programming elegance to Lua, making your code more expressive, composable, and maintainable.
 Whether you're building data pipelines, processing lists, or creating complex transformations, luarrow makes your intent crystal clear.
 
-**Happy composing!** 🎯
+- - - - -
+
+Like this project?  
+Give it a ⭐ to show your support!
+
+**Happy programming!** 🎯
