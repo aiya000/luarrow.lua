@@ -29,15 +29,17 @@ install-dependencies-for-test:
 	luarocks install --local busted
 
 ROCKSPEC_FILE = $(shell ls | grep '\.rockspec$$' | head -1)
+ROCK_FILE = $(shell ls | grep '\.src\.rock$$' | head -1)
 
 build:
 	@echo "Validating rockspec..."
 	luarocks pack $(ROCKSPEC_FILE)
 	luarocks make --local
+	./scripts/repack-src-rock.sh
 
-# `$ make build` is same as install
 install-to-local:
 	$(MAKE) build
+	luarocks install --local $(ROCK_FILE)
 
 install-dependencies-for-upload:
 	luarocks install --local dkjson
