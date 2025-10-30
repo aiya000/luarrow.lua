@@ -14,7 +14,6 @@ if [[ -z "$ROCKSPEC" ]]; then
 fi
 REVESION=$(basename "$ROCKSPEC" .rockspec | sed 's/^luarrow-//')
 echo "Detected revision: $REVESION"
-exit
 
 SRC=luarrow-$REVESION.src.rock
 OUT=luarrow-$REVESION.fixed.src.rock
