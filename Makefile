@@ -1,4 +1,4 @@
-.PHONY: install-dependencies-for-repl repl test lint format clean install-dependencies-for-test build install-to-local release upload open-repo open-luarocks check benchmark benchmark-both
+.PHONY: install-dependencies-for-repl repl test lint format clean install-dependencies-for-test build install-to-local release upload open-repo open-luarocks check benchmark benchmark-both increment-version
 
 install-dependencies-for-repl:
 	luarocks install --local luaprompt
@@ -68,3 +68,7 @@ benchmark:
 
 benchmark-both:
 	lua scripts/benchmark-both.lua
+
+increment-version:
+	@echo "Incrementing rockspec version..."
+	./scripts/increment-rockspec-version.sh
