@@ -1,5 +1,5 @@
 package = 'luarrow'
-version = 'main-6'
+version = 'main-7'
 source = {
    url = 'git+https://github.com/aiya000/luarrow.lua',
    tag = 'main',
@@ -25,11 +25,11 @@ dependencies = {
 build = {
    type = 'builtin',
    modules = {
-      luarrow = 'src/luarrow.lua',
-      ['luarrow.fun'] = 'src/luarrow/fun.lua',
-      ['luarrow.arrow'] = 'src/luarrow/arrow.lua',
+      luarrow = 'luarrow.lua/src/luarrow.lua',
+      ['luarrow.fun'] = 'luarrow.lua/src/luarrow/fun.lua',
+      ['luarrow.arrow'] = 'luarrow.lua/src/luarrow/arrow.lua',
    },
    copy_directories = {
-      'doc',
+      'luarrow.lua/doc',
    },
 }

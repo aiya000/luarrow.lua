@@ -54,7 +54,6 @@ build:
 	@echo "Validating rockspec..."
 	luarocks pack $(ROCKSPEC_FILE)
 	luarocks make --local
-	./scripts/repack-src-rock.sh
 
 clean:
 	@echo "Cleaning up..."
