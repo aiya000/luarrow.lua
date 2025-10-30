@@ -62,6 +62,9 @@ clean:
 	rm -f *.log
 	rm -f *.rock
 
+check-uploadable:
+	luarocks install --local $(ROCK_FILE) && echo "Package is uploadable." || (echo "Package is not uploadable." && exit 1)
+
 upload:
 	luarocks upload $(ROCKSPEC_FILE) --api-key=$(LUAROCKS_API_KEY)
 
