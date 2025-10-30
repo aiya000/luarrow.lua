@@ -1,5 +1,5 @@
 package = 'luarrow'
-version = 'main-1'
+version = 'main-2'
 source = {
    url = 'git+https://github.com/aiya000/luarrow.lua',
    tag = 'main',
