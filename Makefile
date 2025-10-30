@@ -21,7 +21,7 @@ install-dependencies-for-upload:
 # - `fun = require('luarrow').fun`
 # - `arrow = require('luarrow').arrow`
 repl:
-	cd src && luap
+	cd luarrow.lua/src && luap
 
 test:
 	@echo "Running tests..."
