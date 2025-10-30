@@ -64,9 +64,27 @@ local f = function(x) return x + 1 end
 local g = function(x) return x * 2 end
 
 -- Pipeline-style: data flows left-to-right
-local result = 5 % arrow(f) ^ arrow(g)
-print(result)  -- 12, because g(f(5)) = g(6) = 12
+local _ = 5 % arrow(f) ^ arrow(g) ^ arrow(print)  -- 12, because g(f(5)) = g(6) = 12
 ```
+
+> [!TIP]
+> **Alternative styles:**
+>
+> You can also use these styles if you prefer:
+>
+> ```lua
+> -- Store the result and print separately
+> local result = 5 % arrow(f) ^ arrow(g)
+> print(result)  -- 12
+>
+> -- Or wrap the entire pipeline in print()
+> print(5 % arrow(f) ^ arrow(g))  -- 12
+> ```
+>
+> The `local _ = ... ^ arrow(print)` style is recommended in this documentation because:
+> - It demonstrates the full power of pipeline composition
+> - The pipeline flows naturally from start to finish
+> - `local _` is a common Lua idiom for "unused variable" (required by Lua syntax)
 
 #### Method-Style Pipeline Composition
 
@@ -88,8 +106,11 @@ local times_ten = function(x) return x * 10 end
 local minus_two = function(x) return x - 2 end
 
 -- Pipeline: data flows naturally from left to right
-local result = 42 % arrow(add_one) ^ arrow(times_ten) ^ arrow(minus_two)
-print(result)  -- 428
+local _ = 42
+  % arrow(add_one)
+  ^ arrow(times_ten)
+  ^ arrow(minus_two)
+  ^ arrow(print)  -- 428
 -- Evaluation order (left to right):
 -- add_one(42) = 43
 -- times_ten(43) = 430
@@ -115,12 +136,11 @@ local add_prefix = function(s)
 end
 
 -- Verify a user name, process it, and print the result - pipeline reads left-to-right
-'  alice  '
+local _ = '  alice  '
   % arrow(trim)
   ^ arrow(uppercase)
   ^ arrow(add_prefix)
-  ^ arrow(print)
-  -- 'USER: ALICE'
+  ^ arrow(print)  -- 'USER: ALICE'
 ```
 
 ### Haskell-Style (`Fun`) Basic Examples
@@ -265,11 +285,11 @@ local reduce = function(initial, f)
   end
 end
 
-{ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 }
+local _ = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 }
   % arrow(filter(function(x) return x % 2 == 0 end)) -- filter evens: {2, 4, 6, 8, 10}
   ^ arrow(map(function(x) return x * 2 end)) -- double each: {4, 8, 12, 16, 20}
   ^ arrow(reduce(0, function(a, b) return a + b end)) -- sum: 60
-  ^ arrow(print) -- 60
+  ^ arrow(print)  -- 60
 ```
 
 ### Configuration Processing
@@ -454,20 +474,20 @@ local add_one = function(x) return x + 1 end
 local double = function(x) return x * 2 end
 local square = function(x) return x * x end
 
-local result = 5
-             % arrow(debug('input'))
-             ^ arrow(add_one)
-             ^ arrow(debug('after add_one'))
-             ^ arrow(double)
-             ^ arrow(debug('after double'))
-             ^ arrow(square)
-             ^ arrow(debug('final'))
+local _ = 5
+  % arrow(debug('input'))
+  ^ arrow(add_one)
+  ^ arrow(debug('after add_one'))
+  ^ arrow(double)
+  ^ arrow(debug('after double'))
+  ^ arrow(square)
+  ^ arrow(debug('final'))
+  ^ arrow(function(result) print('Result:', result) end)  -- Result: 144
 -- Output:
 -- [DEBUG input]: 5
 -- [DEBUG after add_one]: 6
 -- [DEBUG after double]: 12
 -- [DEBUG final]: 144
-print('Result:', result)  -- 144
 ```
 
 #### Composition with Side Effects

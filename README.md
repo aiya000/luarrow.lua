@@ -18,14 +18,16 @@ Powered by Lua's beautiful operator overloading (of `%`, `*`, `^`), bringing you
 local arrow = require('luarrow').arrow
 
 -- The **true** pipeline operator
-42
+local _ = 42
   % arrow(function(x) return x - 2 end)
   ^ arrow(function(x) return x * 10 end)
   ^ arrow(function(x) return x + 1 end)
   ^ arrow(print)  -- 401
 ```
 
-Equivalent to:
+Equivalent to: [^why-local-underscore]
+
+[^why-local-underscore]: In Lua, expressions cannot stand alone at the top level - they must be part of a statement. The `local _ =` assigns the result to an unused variable (indicated by `_`, a common convention), allowing the pipeline expression to be valid Lua syntax.
 
 ```php
 // PHP
@@ -87,17 +89,37 @@ If you prefer left-to-right (`→`) data flow (like the `|>` operator in OCaml/J
 local arrow = require('luarrow').arrow
 
 -- Pipeline style: data flows left to right
-local result =
-  42
+local _ = 42
   % arrow(function(x) return x - 2 end)
   ^ arrow(function(x) return x * 10 end)
   ^ arrow(function(x) return x + 1 end)
-
-print(result)  -- 401
+  ^ arrow(print)  -- 401
 -- Evaluation: minus_two(42) = 40
 --             times_ten(40) = 400
 --             add_one(400) = 401
 ```
+
+> [!TIP]
+> **Alternative styles:**
+>
+> You can also use these styles if you prefer:
+>
+> ```lua
+> -- Store the result and print separately
+> local result = 42
+>   % arrow(function(x) return x - 2 end)
+>   ^ arrow(function(x) return x * 10 end)
+>   ^ arrow(function(x) return x + 1 end)
+> print(result)  -- 401
+>
+> -- Or wrap the entire pipeline in print()
+> print(
+>   42
+>     % arrow(function(x) return x - 2 end)
+>     ^ arrow(function(x) return x * 10 end)
+>     ^ arrow(function(x) return x + 1 end)
+> )  -- 401
+> ```
 
 - [Method-Style API is also available](./doc/api.md)
 
@@ -236,12 +258,11 @@ print(username)  -- "USER: ALICE"
 ```lua
 local arrow = require('luarrow').arrow
 
-local result =
-  5
+local _ = 5
   % arrow(function(x) return -x end)
   ^ arrow(function(x) return x + 10 end)
   ^ arrow(function(x) return x * x end)
-print(result)  -- -35
+  ^ arrow(print)  -- 25
 ```
 
 ### List Processing (`fun`)
@@ -302,3 +323,7 @@ Like this project?
 Give it a ⭐ to show your support!
 
 **Happy programming!** 🎯
+
+- - - - -
+
+<!-- Footnotes will render at here -->
