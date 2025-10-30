@@ -32,10 +32,10 @@ Equivalent to: [^why-local-underscore]
 ```php
 // PHP
 42
-  |> fn($x) => $x - 2
-  |> fn($x) => $x * 10
-  |> fn($x) => $x + 1
-  |> var_dump;
+  |> (fn($x) => $x - 2)
+  |> (fn($x) => $x * 10)
+  |> (fn($x) => $x + 1)
+  |> var_dump(...);
 ```
 
 - Haskell's **highly readable** `f . g . h $ x` syntax -- Unlike `f(g(h(x)))` (too many parentheses!)
