@@ -60,9 +60,7 @@ Equivalent to:
 f . g . h $ 42
 ```
 
-> [!NOTE]
-> **Documentation location:**
-> Detailed documentation can be found in [`./luarrow.lua/doc/`](./luarrow.lua/doc/) directory.
+Detailed documentation can be found in [`./luarrow.lua/doc/`](./luarrow.lua/doc/) directory.
 
 ## ✨ Why luarrow?
 
