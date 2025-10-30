@@ -40,10 +40,12 @@ format:
 
 # Release Steps
 # Steps:
-# 1. increment-version
-# 2. git add luarrow-main-(latest).rockspec && git push
-# 3. build
-# 4. upload by https://luarocks.org/upload - Currently `make upload` is corrupted
+# 1. make increment-version
+# 2. make build
+# 3. (optional) make check-uploadable
+# 	- If the check fails, must fix issues before uploading
+# 4. make upload
+# 5. (optional) `luarocks install --local luarrow` outside of the repo to verify installation
 
 increment-version:
 	@echo "Incrementing rockspec version..."
