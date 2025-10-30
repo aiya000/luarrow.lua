@@ -39,7 +39,17 @@ format:
 	stylua .
 
 # Release Steps
+# Steps:
+# 1. increment-version
+# 2. git add luarrow-main-(latest).rockspec && git push
+# 3. build
+# 4. upload by https://luarocks.org/upload - Currently `make upload` is corrupted
 
+increment-version:
+	@echo "Incrementing rockspec version..."
+	./scripts/increment-rockspec-version.sh
+
+# NOTE: Run `git add luarrow-main-(latest).rockspec && git push` before `make build`
 build:
 	@echo "Validating rockspec..."
 	luarocks pack $(ROCKSPEC_FILE)
@@ -51,10 +61,6 @@ clean:
 	rm -f luacov.*.out
 	rm -f *.log
 	rm -f *.rock
-
-increment-version:
-	@echo "Incrementing rockspec version..."
-	./scripts/increment-rockspec-version.sh
 
 upload:
 	luarocks upload $(ROCKSPEC_FILE) --api-key=$(LUAROCKS_API_KEY)
