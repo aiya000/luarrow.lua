@@ -73,8 +73,8 @@ Arrow.__pow = Arrow.compose_to
 ---
 ---@generic A, B
 ---@param self Arrow<A, B>
----@param x A The primary argument (additional arguments supported via varargs)
----@return B The primary return value (additional return values supported)
+---@param ... A Variadic arguments passed to the wrapped function
+---@return B ... Variadic return values from the wrapped function
 function Arrow:apply(...)
   return self.raw(...)
 end
