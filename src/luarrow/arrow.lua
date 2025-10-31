@@ -45,8 +45,8 @@ function Arrow:compose_to(g)
   -- To optimize performance, assign to variables outside
   local self_raw = self.raw
   local g_raw = g.raw
-  return Arrow.new(function(x)
-    return g_raw(self_raw(x))
+  return Arrow.new(function(...)
+    return g_raw(self_raw(...))
   end)
 end
 
@@ -68,8 +68,8 @@ Arrow.__pow = Arrow.compose_to
 ---@param self Arrow<A, B>
 ---@param x A
 ---@return B
-function Arrow:apply(x)
-  return self.raw(x)
+function Arrow:apply(...)
+  return self.raw(...)
 end
 
 ---```lua
