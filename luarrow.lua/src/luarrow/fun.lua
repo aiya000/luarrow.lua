@@ -40,8 +40,8 @@ Fun.__index = Fun
 function Fun:compose(g)
   local self_raw = self.raw
   local g_raw = g.raw
-  return Fun.new(function(x)
-    return self_raw(g_raw(x))
+  return Fun.new(function(...)
+    return self_raw(g_raw(...))
   end)
 end
 
@@ -61,8 +61,8 @@ Fun.__mul = Fun.compose
 ---@param self Fun<A, B>
 ---@param x A
 ---@return B
-function Fun:apply(x)
-  return self.raw(x)
+function Fun:apply(...)
+  return self.raw(...)
 end
 
 Fun.__mod = Fun.apply
