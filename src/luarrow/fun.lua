@@ -33,6 +33,10 @@ Fun.__index = Fun
 ---===
 ---f ∘ g -- Mathematics
 ---```
+---
+---Note: Composition supports multiple arguments and return values.
+---Functions in the composition chain can accept and return multiple values.
+---
 ---@generic A, B, C
 ---@param self Fun<A, B>
 ---@param g Fun<B, C>
@@ -57,10 +61,14 @@ Fun.__mul = Fun.compose
 ---===
 ---f $ x -- Haskell
 ---```
+---
+---Note: This method supports multiple arguments and return values.
+---Example: `fun(f):apply(x, y, z)` will call `f(x, y, z)` and return all values.
+---
 ---@generic A, B
 ---@param self Fun<A, B>
----@param x A
----@return B
+---@param x A The primary argument (additional arguments supported via varargs)
+---@return B The primary return value (additional return values supported)
 function Fun:apply(...)
   return self.raw(...)
 end

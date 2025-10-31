@@ -37,6 +37,10 @@ Arrow.__index = Arrow
 ---===
 ---f ; g -- Mathematics
 ---```
+---
+---Note: Composition supports multiple arguments and return values.
+---Functions in the composition chain can accept and return multiple values.
+---
 ---@generic A, B, C
 ---@param self Arrow<A, B>
 ---@param g Arrow<B, C>
@@ -64,10 +68,13 @@ Arrow.__pow = Arrow.compose_to
 ---f(x) -- Pure Lua
 ---```
 ---
+---Note: This method supports multiple arguments and return values.
+---Example: `arrow(f):apply(x, y, z)` will call `f(x, y, z)` and return all values.
+---
 ---@generic A, B
 ---@param self Arrow<A, B>
----@param x A
----@return B
+---@param x A The primary argument (additional arguments supported via varargs)
+---@return B The primary return value (additional return values supported)
 function Arrow:apply(...)
   return self.raw(...)
 end
