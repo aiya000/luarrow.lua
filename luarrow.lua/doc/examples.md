@@ -33,6 +33,11 @@ For API reference, see [api.md](api.md).
         - [Partial Application with Composition](#partial-application-with-composition)
         - [Function Factory Pattern](#function-factory-pattern)
         - [Monadic-Style Error Handling](#monadic-style-error-handling)
+    - [Multiple Arguments and Return Values](#multiple-arguments-and-return-values)
+        - [Arrow-Style with Multiple Values](#arrow-style-with-multiple-values)
+        - [Fun-Style with Multiple Values](#fun-style-with-multiple-values)
+        - [Multiple Arguments with apply()](#multiple-arguments-with-apply)
+        - [Complex Multi-Value Pipeline](#complex-multi-value-pipeline)
 1. [Working with LuaCATS](#-working-with-luacats)
 1. [Performance Considerations](#-performance-considerations)
     - [Benchmark Results](#benchmark-results)
@@ -657,6 +662,110 @@ print(result2.ok, result2.error)  -- false, 'Not positive'
 local result3 = process % Ok('abc')
 print(result3.ok, result3.error)  -- false, 'Not a number'
 ```
+
+### Multiple Arguments and Return Values
+
+Both `arrow()` and `fun()` support functions that accept multiple arguments and return multiple values. This enables natural composition of multi-value functions.
+
+#### Arrow-Style with Multiple Values
+
+```lua
+local arrow = require('luarrow').arrow
+
+-- Function returning multiple values
+local cartesian_to_polar = arrow(function(x, y)
+  local r = math.sqrt(x * x + y * y)
+  local theta = math.atan2(y, x)
+  return r, theta
+end)
+
+-- Function accepting multiple values
+local format_polar = arrow(function(r, theta)
+  return string.format('(r=%.2f, θ=%.2f)', r, theta)
+end)
+
+-- Compose and apply
+local converter = cartesian_to_polar ^ format_polar
+local result = converter:apply(3, 4)
+print(result)  -- (r=5.00, θ=0.93)
+```
+
+#### Fun-Style with Multiple Values
+
+```lua
+local fun = require('luarrow').fun
+
+-- Split a number into value and its double
+local split = fun(function(x)
+  return x, x * 2
+end)
+
+-- Add two numbers
+local add = fun(function(a, b)
+  return a + b
+end)
+
+-- Compose: split first, then add the results
+local composed = add * split
+local result = composed:apply(5)
+print(result)  -- 15 (because 5 + 10 = 15)
+```
+
+#### Multiple Arguments with apply()
+
+```lua
+local arrow = require('luarrow').arrow
+
+-- Function accepting multiple arguments
+local sum = arrow(function(a, b, c)
+  return a + b + c
+end)
+
+-- Pass multiple arguments via apply()
+local result = sum:apply(1, 2, 3)
+print(result)  -- 6
+```
+
+#### Complex Multi-Value Pipeline
+
+```lua
+local arrow = require('luarrow').arrow
+
+-- Parse name into first and last
+local parse_name = arrow(function(full_name)
+  local first, last = full_name:match('(%S+)%s+(%S+)')
+  return first, last
+end)
+
+-- Normalize to lowercase
+local normalize = arrow(function(first, last)
+  return first:lower(), last:lower()
+end)
+
+-- Create email address
+local create_email = arrow(function(first, last)
+  return string.format('%s.%s@company.com', first, last)
+end)
+
+-- Compose all transformations
+local email_generator = parse_name ^ normalize ^ create_email
+
+-- Generate email
+local email = email_generator:apply('John Doe')
+print(email)  -- john.doe@company.com
+```
+
+> [!NOTE]
+> **Limitation with the `%` operator:**
+> Due to Lua's metamethod design, the `%` operator can only return a single value when used as an operator (e.g., `x % arrow(f)`). To capture multiple return values, use the `apply()` method or ensure the final function in the composition chain returns a single value.
+>
+> ```lua
+> -- ❌ This will only capture the first return value
+> local r1, r2 = 5 % arrow(split)  -- r2 will be nil
+> 
+> -- ✅ Use apply() to capture all return values
+> local r1, r2 = arrow(split):apply(5)  -- Both r1 and r2 are captured
+> ```
 
 ## 🏷️ Working with LuaCATS
 

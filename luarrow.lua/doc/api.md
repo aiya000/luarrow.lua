@@ -144,6 +144,25 @@ print(result)  -- 11
 **Returns:**
 - `luarrow.Fun<A, C>` - Composed function
 
+**Multiple Values in Composition:**
+
+Functions in a composition chain can accept and return multiple values, which are properly propagated through the chain:
+
+```lua
+-- Function returning multiple values
+local split = fun(function(x)
+  return x, x * 2
+end)
+
+-- Function accepting multiple values
+local add = fun(function(a, b)
+  return a + b
+end)
+
+local composed = add * split
+local result = composed:apply(5)  -- Returns 15 (5 + 10)
+```
+
 See [Tips](#haskell-style-composition-operator-tips) above for details on composition order and type relationships.
 
 ### `f % x` (Haskell-Style Application Operator)
@@ -190,6 +209,27 @@ print(result)  -- 11
 
 **Returns:**
 - `B` - Result of applying the function
+
+**Multiple Arguments and Return Values:**
+
+The `apply()` method supports multiple arguments and return values:
+
+```lua
+-- Multiple arguments
+local sum = fun(function(a, b, c)
+  return a + b + c
+end)
+local result = sum:apply(1, 2, 3)  -- Returns 6
+
+-- Multiple return values
+local split = fun(function(x)
+  return x, x * 2
+end)
+local r1, r2 = split:apply(5)  -- r1=5, r2=10
+```
+
+> [!NOTE]
+> When using the `%` operator (`f % x`), only single values are supported due to Lua's metamethod limitations. Use the `apply()` method for multiple arguments or when you need to capture multiple return values.
 
 ## 🎯 Arrow API Reference
 
@@ -328,6 +368,25 @@ print(result)  -- 12
 **Returns:**
 - `luarrow.Arrow<A, C>` - Composed function
 
+**Multiple Values in Composition:**
+
+Functions in a composition chain can accept and return multiple values, which are properly propagated through the chain:
+
+```lua
+-- Function returning multiple values
+local split = arrow(function(x)
+  return x, x * 2
+end)
+
+-- Function accepting multiple values
+local add = arrow(function(a, b)
+  return a + b
+end)
+
+local composed = split ^ add
+local result = composed:apply(5)  -- Returns 15 (5 + 10)
+```
+
 See [Tips](#pipeline-style-composition-operator-tips) above for details on composition order and type relationships.
 
 ### `x % f` (Pipeline-Style Application Operator)
@@ -379,3 +438,24 @@ print(result)  -- 11
 
 **Returns:**
 - `B` - Result of applying the function
+
+**Multiple Arguments and Return Values:**
+
+The `apply()` method supports multiple arguments and return values:
+
+```lua
+-- Multiple arguments
+local sum = arrow(function(a, b, c)
+  return a + b + c
+end)
+local result = sum:apply(1, 2, 3)  -- Returns 6
+
+-- Multiple return values
+local split = arrow(function(x)
+  return x, x * 2
+end)
+local r1, r2 = split:apply(5)  -- r1=5, r2=10
+```
+
+> [!NOTE]
+> When using the `%` operator (`x % f`), only single values are supported due to Lua's metamethod limitations. Use the `apply()` method for multiple arguments or when you need to capture multiple return values.
