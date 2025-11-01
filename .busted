@@ -11,7 +11,7 @@ return {
   },
 
   -- Lua paths
-  ['lua_path'] = './src/?.lua;./?.lua',
+  ['lua_path'] = './luarrow.lua/src/?.lua;./?.lua',
 
   -- Exclude patterns
   exclude = {
