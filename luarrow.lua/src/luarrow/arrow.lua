@@ -95,4 +95,116 @@ end
 
 M.arrow = Arrow.new
 
+---**Wrapped value for pipeline operations**!
+---
+---Allows using unwrapped functions in pipeline operations:
+---
+---```lua
+---local result = arrow.wrap(42)
+---  % f
+---  ^ g
+---```
+---which is equivalent to
+---```lua
+---local result = g(f(42))
+---```
+---
+---@generic A
+---@class ArrowValue<A> : { value: A }
+local ArrowValue = {}
+ArrowValue.__index = ArrowValue
+
+---Exposes for users
+---@alias luarrow.ArrowValue ArrowValue
+
+---Apply a function to the wrapped value and return a new wrapped value.
+---This allows chaining with the % operator.
+---
+---```lua
+---arrow.wrap(42) % f % g  -- returns arrow.wrap(g(f(42)))
+---```
+---@generic A, B
+---@param self ArrowValue<A>
+---@param f fun(x: A): B | Arrow<A, B>
+---@return ArrowValue<B>
+function ArrowValue:apply_and_wrap(f)
+  if type(f) == 'function' then
+    return ArrowValue.new(f(self.value))
+  else
+    -- f is an Arrow, use its raw function
+    return ArrowValue.new(f.raw(self.value))
+  end
+end
+
+---Apply a function to the wrapped value and return the result (unwrapped).
+---This is the terminal operation that extracts the value.
+---
+---```lua
+---arrow.wrap(42) % f ^ g  -- Because ^ has higher precedence, this becomes:
+---                        --   arrow.wrap(42) % (f ^ g) which won't work.
+---                        -- Use: (arrow.wrap(42) % f) ^ g to unwrap at the end.
+---```
+---@generic A, B
+---@param self ArrowValue<A>
+---@param f fun(x: A): B | Arrow<A, B>
+---@return B
+function ArrowValue:apply_final(f)
+  if type(f) == 'function' then
+    return f(self.value)
+  else
+    -- f is an Arrow, use its raw function
+    return f.raw(self.value)
+  end
+end
+
+ArrowValue.__mod = ArrowValue.apply_and_wrap
+ArrowValue.__pow = ArrowValue.apply_final
+
+-- Allow the wrapped value to be used in string contexts
+ArrowValue.__tostring = function(self)
+  return tostring(self.value)
+end
+
+-- Allow the wrapped value to be used in numeric contexts
+ArrowValue.__tonumber = function(self)
+  return tonumber(self.value)
+end
+
+-- Allow the wrapped value to be used in comparison contexts
+ArrowValue.__eq = function(self, other)
+  if getmetatable(other) == ArrowValue then
+    return self.value == other.value
+  else
+    return self.value == other
+  end
+end
+
+ArrowValue.__lt = function(self, other)
+  if getmetatable(other) == ArrowValue then
+    return self.value < other.value
+  else
+    return self.value < other
+  end
+end
+
+ArrowValue.__le = function(self, other)
+  if getmetatable(other) == ArrowValue then
+    return self.value <= other.value
+  else
+    return self.value <= other
+  end
+end
+
+---@generic A
+---@param value A
+---@return ArrowValue<A>
+function ArrowValue.new(value)
+  ---@type ArrowValue<unknown>
+  local self = setmetatable({}, ArrowValue)
+  self.value = value
+  return self
+end
+
+M.wrap = ArrowValue.new
+
 return M

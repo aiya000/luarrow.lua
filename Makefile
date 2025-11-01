@@ -25,7 +25,7 @@ repl:
 
 test:
 	@echo "Running tests..."
-	busted
+	LUA_PATH='./luarrow.lua/src/?.lua;./?.lua;;' busted
 
 lint:
 	@echo "Checking code style..."

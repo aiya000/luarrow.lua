@@ -79,4 +79,57 @@ end
 
 M.fun = Fun.new
 
+---**Wrapped value for Haskell-style operations**!
+---
+---Allows using unwrapped functions in Haskell-style operations:
+---
+---```lua
+---local result = fun.wrap(42) % f
+---```
+---which is equivalent to
+---```lua
+---local result = f(42)
+---```
+---
+---@generic A
+---@class FunValue<A> : { value: A }
+local FunValue = {}
+FunValue.__index = FunValue
+
+---Exposes for users
+---@alias luarrow.FunValue FunValue
+
+---Apply a function to the wrapped value and return the result (unwrapped).
+---This is the terminal operation that extracts the value.
+---
+---```lua
+---fun.wrap(42) % f  -- returns f(42), not wrapped
+---```
+---@generic A, B
+---@param self FunValue<A>
+---@param f fun(x: A): B | Fun<A, B>
+---@return B
+function FunValue:apply_final(f)
+  if type(f) == 'function' then
+    return f(self.value)
+  else
+    -- f is a Fun, use its raw function
+    return f.raw(self.value)
+  end
+end
+
+FunValue.__mod = FunValue.apply_final
+
+---@generic A
+---@param value A
+---@return FunValue<A>
+function FunValue.new(value)
+  ---@type FunValue<unknown>
+  local self = setmetatable({}, FunValue)
+  self.value = value
+  return self
+end
+
+M.wrap = FunValue.new
+
 return M
