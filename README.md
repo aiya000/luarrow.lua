@@ -57,7 +57,7 @@ Equivalent to:
 
 ```haskell
 -- Haskell
-f . g . h $ 42
+print . f . g . h $ 42
 ```
 
 Detailed documentation can be found in [`./luarrow.lua/doc/`](./luarrow.lua/doc/) directory.
