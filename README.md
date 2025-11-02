@@ -195,6 +195,43 @@ $ cd luarrow.lua
 $ make install-to-local
 ```
 
+### With Neovim
+
+For Neovim users, you can install luarrow using your preferred package manager:
+
+#### lazy.nvim
+
+```lua
+{
+  "aiya000/luarrow.lua",
+  build = "make install-to-local",
+}
+```
+
+#### packer.nvim
+
+```lua
+use {
+  "aiya000/luarrow.lua",
+  run = "make install-to-local",
+}
+```
+
+#### vim-plug
+
+```vim
+Plug 'aiya000/luarrow.lua', { 'do': 'make install-to-local' }
+```
+
+After installation, you can use luarrow in your Neovim configuration:
+
+```lua
+local arrow = require('luarrow').arrow
+local fun = require('luarrow').fun
+
+-- Now you can use luarrow in your Neovim configs!
+```
+
 ## 📚 API Reference
 
 For complete API documentation, see **[luarrow.lua/doc/api.md](luarrow.lua/doc/api.md)**.
