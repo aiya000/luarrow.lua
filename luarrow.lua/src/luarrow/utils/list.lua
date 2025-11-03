@@ -273,6 +273,10 @@ end
 ---Sort by key function or comparator.
 ---When key is a function that returns a value, it sorts by that value.
 ---When key is a comparator function, it uses it directly.
+---
+---Note: If a key function accepts two arguments and returns a boolean,
+---it will be treated as a comparator. In such cases, use a wrapper:
+---  `sort_by(list, function(x) return key_fn(x) end)`
 ---@generic A, K
 ---@param list A[]
 ---@param key fun(x: A): K | fun(a: A, b: A): boolean
