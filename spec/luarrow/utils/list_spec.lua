@@ -4,107 +4,101 @@ local arrow = require('luarrow.arrow').arrow
 describe('luarrow.utils.list', function()
   describe('map', function()
     it('should apply function to each element', function()
-      local result = list.map({ 1, 2, 3 }, function(x)
+      local result = list.map(function(x)
         return x * 2
-      end)
+      end)({ 1, 2, 3 })
       assert.are.same({ 2, 4, 6 }, result)
     end)
 
     it('should work with empty list', function()
-      local result = list.map({}, function(x)
+      local result = list.map(function(x)
         return x * 2
-      end)
+      end)({})
       assert.are.same({}, result)
     end)
 
     it('should work with arrow', function()
-      local result = { 1, 2, 3 }
-        % arrow(function(l)
-          return list.map(l, function(x)
-            return x + 10
-          end)
-        end)
+      local result = { 1, 2, 3 } % arrow(list.map(function(x)
+        return x + 10
+      end))
       assert.are.same({ 11, 12, 13 }, result)
     end)
   end)
 
   describe('filter', function()
     it('should keep elements that satisfy predicate', function()
-      local result = list.filter({ 1, 2, 3, 4, 5 }, function(x)
+      local result = list.filter(function(x)
         return x % 2 == 0
-      end)
+      end)({ 1, 2, 3, 4, 5 })
       assert.are.same({ 2, 4 }, result)
     end)
 
     it('should work with empty list', function()
-      local result = list.filter({}, function(x)
+      local result = list.filter(function(x)
         return x % 2 == 0
-      end)
+      end)({})
       assert.are.same({}, result)
     end)
 
     it('should work with arrow', function()
-      local result = { 11, 12, 13 }
-        % arrow(function(l)
-          return list.filter(l, function(x)
-            return x % 2 ~= 0
-          end)
-        end)
+      local result = { 11, 12, 13 } % arrow(list.filter(function(x)
+        return x % 2 ~= 0
+      end))
       assert.are.same({ 11, 13 }, result)
     end)
   end)
 
   describe('flat_map / concat_map', function()
     it('should map and flatten one level', function()
-      local result = list.flat_map({ 1, 2, 3 }, function(x)
+      local result = list.flat_map(function(x)
         return { x, x * 2 }
-      end)
+      end)({ 1, 2, 3 })
       assert.are.same({ 1, 2, 2, 4, 3, 6 }, result)
     end)
 
     it('concat_map should be alias for flat_map', function()
-      local result = list.concat_map({ 1, 2 }, function(x)
+      local result = list.concat_map(function(x)
         return { x, x + 1 }
-      end)
+      end)({ 1, 2 })
       assert.are.same({ 1, 2, 2, 3 }, result)
     end)
   end)
 
   describe('foldl / reduce', function()
     it('should fold left with initial value', function()
-      local result = list.foldl({ 1, 2, 3, 4 }, function(acc, x)
+      local result = list.foldl(function(acc, x)
         return acc + x
-      end, 0)
+      end, 0)({ 1, 2, 3, 4 })
       assert.are.equal(10, result)
     end)
 
     it('should work with strings', function()
-      local result = list.foldl({ 'a', 'b', 'c' }, function(acc, x)
+      local result = list.foldl(function(acc, x)
         return acc .. x
-      end, '')
+      end, '')({ 'a', 'b', 'c' })
       assert.are.equal('abc', result)
     end)
 
     it('reduce should be alias for foldl', function()
-      local result = list.reduce({ 1, 2, 3 }, function(acc, x)
+      local result = list.reduce(function(acc, x)
         return acc * x
-      end, 1)
+      end, 1)({ 1, 2, 3 })
       assert.are.equal(6, result)
     end)
   end)
 
   describe('foldr', function()
     it('should fold right with initial value', function()
-      local result = list.foldr({ 'a', 'b', 'c' }, function(x, acc)
+      local result = list.foldr(function(x, acc)
         return x .. acc
-      end, 'd')
+      end, 'd')({ 'a', 'b', 'c' })
       assert.are.equal('abcd', result)
     end)
 
     it('should work with numbers', function()
-      local result = list.foldr({ 1, 2, 3 }, function(x, acc)
+      local result = list.foldr(function(x, acc)
         return x - acc
-      end, 0)
+      end, 0)({ 1, 2, 3 })
       -- 1 - (2 - (3 - 0)) = 1 - (2 - 3) = 1 - (-1) = 2
       assert.are.equal(2, result)
     end)
@@ -112,34 +106,34 @@ describe('luarrow.utils.list', function()
 
   describe('foldl1', function()
     it('should fold left without initial value', function()
-      local result = list.foldl1({ 1, 2, 3, 4 }, function(acc, x)
+      local result = list.foldl1(function(acc, x)
         return acc + x
-      end)
+      end)({ 1, 2, 3, 4 })
       assert.are.equal(10, result)
     end)
 
     it('should throw error on empty list', function()
       assert.has_error(function()
-        list.foldl1({}, function(acc, x)
+        list.foldl1(function(acc, x)
           return acc + x
-        end)
+        end)({})
       end)
     end)
   end)
 
   describe('foldr1', function()
     it('should fold right without initial value', function()
-      local result = list.foldr1({ 'a', 'b', 'c' }, function(x, acc)
+      local result = list.foldr1(function(x, acc)
         return x .. acc
-      end)
+      end)({ 'a', 'b', 'c' })
       assert.are.equal('abc', result)
     end)
 
     it('should throw error on empty list', function()
       assert.has_error(function()
-        list.foldr1({}, function(x, acc)
+        list.foldr1(function(x, acc)
           return x .. acc
-        end)
+        end)({})
       end)
     end)
   end)
@@ -158,12 +152,12 @@ describe('luarrow.utils.list', function()
 
   describe('join', function()
     it('should join strings with delimiter', function()
-      local result = list.join({ 'a', 'b', 'c' }, ', ')
+      local result = list.join(', ')({ 'a', 'b', 'c' })
       assert.are.equal('a, b, c', result)
     end)
 
     it('should work with empty string delimiter', function()
-      local result = list.join({ 'hello', 'world' }, '')
+      local result = list.join('')({ 'hello', 'world' })
       assert.are.equal('helloworld', result)
     end)
   end)
@@ -316,36 +310,36 @@ describe('luarrow.utils.list', function()
   describe('sort_by / sort_with', function()
     it('should sort by key function', function()
       local items = { { name = 'c', value = 3 }, { name = 'a', value = 1 }, { name = 'b', value = 2 } }
-      local result = list.sort_by(items, function(x)
+      local result = list.sort_by(function(x)
         return x.value
-      end)
+      end)(items)
       assert.are.equal('a', result[1].name)
       assert.are.equal('b', result[2].name)
       assert.are.equal('c', result[3].name)
     end)
 
     it('should sort with comparator function', function()
-      local result = list.sort_by({ 3, 1, 2 }, function(a, b)
+      local result = list.sort_by(function(a, b)
         return a > b
-      end)
+      end)({ 3, 1, 2 })
       assert.are.same({ 3, 2, 1 }, result)
     end)
 
     it('should handle key function that returns boolean', function()
       -- Even if key function returns boolean, it should still work as a key function
       local items = { { active = true, id = 3 }, { active = false, id = 1 }, { active = true, id = 2 } }
-      local result = list.sort_by(items, function(x)
+      local result = list.sort_by(function(x)
         return x.id
-      end)
+      end)(items)
       assert.are.equal(1, result[1].id)
       assert.are.equal(2, result[2].id)
       assert.are.equal(3, result[3].id)
     end)
 
     it('sort_with should be alias for sort_by', function()
-      local result = list.sort_with({ 3, 1, 2 }, function(a, b)
+      local result = list.sort_with(function(a, b)
         return a < b
-      end)
+      end)({ 3, 1, 2 })
       assert.are.same({ 1, 2, 3 }, result)
     end)
   end)
@@ -365,18 +359,18 @@ describe('luarrow.utils.list', function()
   describe('group_by', function()
     it('should group by key function', function()
       local items = { 1, 2, 3, 4, 5, 6 }
-      local result = list.group_by(items, function(x)
+      local result = list.group_by(function(x)
         return x % 2
-      end)
+      end)(items)
       assert.are.same({ 2, 4, 6 }, result[0])
       assert.are.same({ 1, 3, 5 }, result[1])
     end)
 
     it('should work with string keys', function()
       local items = { { type = 'a', val = 1 }, { type = 'b', val = 2 }, { type = 'a', val = 3 } }
-      local result = list.group_by(items, function(x)
+      local result = list.group_by(function(x)
         return x.type
-      end)
+      end)(items)
       assert.are.equal(2, #result['a'])
       assert.are.equal(1, #result['b'])
     end)
@@ -384,26 +378,23 @@ describe('luarrow.utils.list', function()
 
   describe('find', function()
     it('should find first element satisfying predicate', function()
-      local result = list.find({ 1, 2, 3, 4, 5 }, function(x)
+      local result = list.find(function(x)
         return x > 3
-      end)
+      end)({ 1, 2, 3, 4, 5 })
       assert.are.equal(4, result)
     end)
 
     it('should return nil if no element satisfies predicate', function()
-      local result = list.find({ 1, 2, 3 }, function(x)
+      local result = list.find(function(x)
         return x > 10
-      end)
+      end)({ 1, 2, 3 })
       assert.is_nil(result)
     end)
 
     it('should work with arrow', function()
-      local result = { 11, 12, 13 }
-        % arrow(function(l)
-          return list.find(l, function(x)
-            return x > 10
-          end)
-        end)
+      local result = { 11, 12, 13 } % arrow(list.find(function(x)
+        return x > 10
+      end))
       assert.are.equal(11, result)
     end)
   end)
@@ -411,21 +402,15 @@ describe('luarrow.utils.list', function()
   describe('pipeline example from issue', function()
     it('should work with map, filter, and find', function()
       local result = { 1, 2, 3 }
-        % arrow(function(l)
-            return list.map(l, function(x)
-              return x + 10
-            end)
-          end)
-          ^ arrow(function(l)
-            return list.filter(l, function(x)
-              return x % 2 ~= 0
-            end)
-          end)
-          ^ arrow(function(l)
-            return list.find(l, function(x)
-              return x > 10
-            end)
-          end)
+        % arrow(list.map(function(x)
+            return x + 10
+          end))
+          ^ arrow(list.filter(function(x)
+            return x % 2 ~= 0
+          end))
+          ^ arrow(list.find(function(x)
+            return x > 10
+          end))
       assert.are.equal(11, result)
     end)
   end)
