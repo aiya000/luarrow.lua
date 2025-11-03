@@ -331,6 +331,17 @@ describe('luarrow.utils.list', function()
       assert.are.same({ 3, 2, 1 }, result)
     end)
 
+    it('should handle key function that returns boolean', function()
+      -- Even if key function returns boolean, it should still work as a key function
+      local items = { { active = true, id = 3 }, { active = false, id = 1 }, { active = true, id = 2 } }
+      local result = list.sort_by(items, function(x)
+        return x.id
+      end)
+      assert.are.equal(1, result[1].id)
+      assert.are.equal(2, result[2].id)
+      assert.are.equal(3, result[3].id)
+    end)
+
     it('sort_with should be alias for sort_by', function()
       local result = list.sort_with({ 3, 1, 2 }, function(a, b)
         return a < b

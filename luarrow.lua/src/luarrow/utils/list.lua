@@ -283,14 +283,17 @@ function M.sort_by(list, key)
     result[i] = v
   end
 
-  -- Try to determine if key is a comparator or key function
-  -- If it returns boolean, it's likely a comparator
-  local test_result = nil
+  -- Safely detect if key is a comparator or key function
+  -- Try calling with two arguments in a protected call
+  local is_comparator = false
   if #list >= 2 then
-    test_result = key(list[1], list[2])
+    local success, test_result = pcall(key, list[1], list[2])
+    if success and type(test_result) == 'boolean' then
+      is_comparator = true
+    end
   end
 
-  if type(test_result) == 'boolean' then
+  if is_comparator then
     -- It's a comparator function
     table.sort(result, key)
   else
