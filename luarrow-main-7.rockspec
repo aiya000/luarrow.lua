@@ -25,11 +25,11 @@ dependencies = {
 build = {
    type = 'builtin',
    modules = {
-      luarrow = 'luarrow.lua/src/luarrow.lua',
-      ['luarrow.fun'] = 'luarrow.lua/src/luarrow/fun.lua',
-      ['luarrow.arrow'] = 'luarrow.lua/src/luarrow/arrow.lua',
+      luarrow = 'src/luarrow.lua',
+      ['luarrow.fun'] = 'src/luarrow/fun.lua',
+      ['luarrow.arrow'] = 'src/luarrow/arrow.lua',
    },
    copy_directories = {
-      'luarrow.lua/doc',
+      'doc',
    },
 }
