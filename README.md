@@ -228,8 +228,14 @@ After installation, you need to ensure Neovim can find the LuaRocks modules. Add
 ```lua
 -- Add LuaRocks paths to Neovim's package.path and package.cpath
 -- Note: Ensure LuaRocks is configured for Lua 5.1 (Neovim's Lua version)
-local luarocks_path = vim.fn.system('luarocks path --lr-path 2>/dev/null'):gsub('\n', '')
-local luarocks_cpath = vim.fn.system('luarocks path --lr-cpath 2>/dev/null'):gsub('\n', '')
+local handle = io.popen('luarocks path --lr-path')
+local luarocks_path = handle:read('*a'):gsub('\n', '')
+handle:close()
+
+handle = io.popen('luarocks path --lr-cpath')
+local luarocks_cpath = handle:read('*a'):gsub('\n', '')
+handle:close()
+
 if luarocks_path ~= '' then
   package.path = package.path .. ';' .. luarocks_path
 end
@@ -244,8 +250,8 @@ local fun = require('luarrow').fun
 
 > [!NOTE]
 > If you encounter issues with `require('luarrow')`, ensure that:
-> 1. LuaRocks is installed and configured for Lua 5.1 (run `luarocks config lua_version` to check)
-> 2. The package was installed with `luarocks install --lua-version 5.1 luarrow` or the repository's `make install-to-local` was run with Lua 5.1
+> 1. LuaRocks is installed and configured for Lua 5.1 (check with `luarocks show luarrow` after installation)
+> 2. The package was installed with the correct Lua version: `luarocks install --lua-version 5.1 luarrow`
 > 3. You can also launch Neovim with LuaRocks paths pre-configured: `eval $(luarocks path) && nvim`
 
 ## 📚 API Reference
