@@ -229,18 +229,21 @@ After installation, you need to ensure Neovim can find the LuaRocks modules. Add
 -- Add LuaRocks paths to Neovim's package.path and package.cpath
 -- Note: Ensure LuaRocks is configured for Lua 5.1 (Neovim's Lua version)
 local handle = io.popen('luarocks path --lr-path')
-local luarocks_path = handle:read('*a'):gsub('\n', '')
-handle:close()
+if handle then
+  local luarocks_path = handle:read('*a'):gsub('\n', '')
+  handle:close()
+  if luarocks_path ~= '' then
+    package.path = package.path .. ';' .. luarocks_path
+  end
+end
 
 handle = io.popen('luarocks path --lr-cpath')
-local luarocks_cpath = handle:read('*a'):gsub('\n', '')
-handle:close()
-
-if luarocks_path ~= '' then
-  package.path = package.path .. ';' .. luarocks_path
-end
-if luarocks_cpath ~= '' then
-  package.cpath = package.cpath .. ';' .. luarocks_cpath
+if handle then
+  local luarocks_cpath = handle:read('*a'):gsub('\n', '')
+  handle:close()
+  if luarocks_cpath ~= '' then
+    package.cpath = package.cpath .. ';' .. luarocks_cpath
+  end
 end
 
 -- Now you can use luarrow in your Neovim configs!
@@ -252,7 +255,9 @@ local fun = require('luarrow').fun
 > If you encounter issues with `require('luarrow')`, ensure that:
 > 1. LuaRocks is installed and configured for Lua 5.1 (check with `luarocks show luarrow` after installation)
 > 2. The package was installed with the correct Lua version: `luarocks install --lua-version 5.1 luarrow`
-> 3. You can also launch Neovim with LuaRocks paths pre-configured: `eval $(luarocks path) && nvim`
+> 3. Alternatively, launch Neovim with LuaRocks paths pre-configured:
+>    - **Unix/macOS**: `eval $(luarocks path) && nvim`
+>    - **Windows (PowerShell)**: `$env:LUA_PATH = (luarocks path --lr-path); $env:LUA_CPATH = (luarocks path --lr-cpath); nvim`
 
 ## 📚 API Reference
 
