@@ -31,13 +31,16 @@ jobs:
           if [ -n "${{ inputs.rockspec_file }}" ]; then
             ROCKSPEC="${{ inputs.rockspec_file }}"
           else
-            ROCKSPEC=$(ls luarrow-*.rockspec | head -1)
+            ROCKSPEC=$(find . -maxdepth 1 -name 'luarrow-*.rockspec' -print -quit)
           fi
           
           if [ -z "$ROCKSPEC" ]; then
             echo "Error: No rockspec file found"
             exit 1
           fi
+          
+          # Remove leading './' if present
+          ROCKSPEC=${ROCKSPEC#./}
           
           echo "rockspec=$ROCKSPEC" >> $GITHUB_OUTPUT
           echo "Found rockspec: $ROCKSPEC"
@@ -61,5 +64,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: luarrow-rock
-          path: "*.rock"
+          path: "luarrow-*.rock"
           retention-days: 30
