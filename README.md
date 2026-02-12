@@ -223,14 +223,30 @@ use {
 Plug 'aiya000/luarrow.lua', { 'do': 'make install-to-local' }
 ```
 
-After installation, you can use luarrow in your Neovim configuration:
+After installation, you need to ensure Neovim can find the LuaRocks modules. Add this to your `init.lua` before requiring luarrow:
 
 ```lua
-local arrow = require('luarrow').arrow
-local fun = require('luarrow').fun
+-- Add LuaRocks paths to Neovim's package.path and package.cpath
+-- Note: Ensure LuaRocks is configured for Lua 5.1 (Neovim's Lua version)
+local luarocks_path = vim.fn.system('luarocks path --lr-path 2>/dev/null'):gsub('\n', '')
+local luarocks_cpath = vim.fn.system('luarocks path --lr-cpath 2>/dev/null'):gsub('\n', '')
+if luarocks_path ~= '' then
+  package.path = package.path .. ';' .. luarocks_path
+end
+if luarocks_cpath ~= '' then
+  package.cpath = package.cpath .. ';' .. luarocks_cpath
+end
 
 -- Now you can use luarrow in your Neovim configs!
+local arrow = require('luarrow').arrow
+local fun = require('luarrow').fun
 ```
+
+> [!NOTE]
+> If you encounter issues with `require('luarrow')`, ensure that:
+> 1. LuaRocks is installed and configured for Lua 5.1 (run `luarocks config lua_version` to check)
+> 2. The package was installed with `luarocks install --lua-version 5.1 luarrow` or the repository's `make install-to-local` was run with Lua 5.1
+> 3. You can also launch Neovim with LuaRocks paths pre-configured: `eval $(luarocks path) && nvim`
 
 ## 📚 API Reference
 
