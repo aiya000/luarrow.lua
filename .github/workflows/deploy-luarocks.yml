@@ -1,0 +1,68 @@
+name: Deploy to LuaRocks
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      rockspec_file:
+        description: 'Rockspec file to upload (e.g., luarrow-main-8.rockspec)'
+        required: false
+        type: string
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Lua and LuaRocks
+        uses: leafo/gh-actions-lua@v10
+        with:
+          luaVersion: "5.1"
+
+      - name: Find rockspec file
+        id: find_rockspec
+        run: |
+          if [ -n "${{ inputs.rockspec_file }}" ]; then
+            ROCKSPEC="${{ inputs.rockspec_file }}"
+          else
+            ROCKSPEC=$(find . -maxdepth 1 -name 'luarrow-*.rockspec' -print -quit)
+          fi
+          
+          if [ -z "$ROCKSPEC" ]; then
+            echo "Error: No rockspec file found"
+            exit 1
+          fi
+          
+          # Remove leading './' if present
+          ROCKSPEC=${ROCKSPEC#./}
+          
+          echo "rockspec=$ROCKSPEC" >> $GITHUB_OUTPUT
+          echo "Found rockspec: $ROCKSPEC"
+
+      - name: Validate rockspec
+        run: |
+          luarocks pack "${{ steps.find_rockspec.outputs.rockspec }}"
+
+      - name: Upload to LuaRocks
+        env:
+          LUAROCKS_API_KEY: ${{ secrets.LUAROCKS_API_KEY }}
+        run: |
+          if [ -z "$LUAROCKS_API_KEY" ]; then
+            echo "Error: LUAROCKS_API_KEY secret is not set"
+            exit 1
+          fi
+          
+          luarocks upload "${{ steps.find_rockspec.outputs.rockspec }}" --api-key="$LUAROCKS_API_KEY"
+
+      - name: Upload rock artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: luarrow-rock
+          path: "luarrow-*.src.rock"
+          retention-days: 30
