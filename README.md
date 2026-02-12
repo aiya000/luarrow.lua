@@ -60,7 +60,7 @@ Equivalent to:
 print . f . g . h $ 42
 ```
 
-Detailed documentation can be found in [`./luarrow.lua/doc/`](./luarrow.lua/doc/) directory.
+Detailed documentation can be found in [`./doc/`](./doc/) directory.
 
 ## ✨ Why luarrow?
 
@@ -72,7 +72,7 @@ Write **dramatically** cleaner, more expressive Lua code:
     - **Haskell-inspired syntax** - Write `f * g % x` instead of `f(g(x))`
 - **Zero dependencies** - Pure Lua implementation with no external dependencies
 - **Excellent performance** - In LuaJIT environments (like Neovim), pre-composed functions have **virtually no overhead** compared to pure Lua
-    - See [Performance Benchmarks](luarrow.lua/doc/examples.md#-performance-considerations) for detailed results
+    - See [Performance Benchmarks](./doc/examples.md#-performance-considerations) for detailed results
 
 > [!NOTE]
 > **About the name:**
@@ -123,7 +123,7 @@ local _ = 42
 > )  -- 401
 > ```
 
-- [Method-Style API is also available](./luarrow.lua/doc/api.md)
+- [Method-Style API is also available](./doc/api.md)
 
 ### Haskell-Style Composition
 
@@ -151,7 +151,7 @@ print(result)  -- 401
 > 🤫 Secret Notes:  
 > Actually, the function composition part `f ^ g` of the pipeline operator is also used in some areas of mathematics as `f ; g`.
 
-- [Method-Style API is also available](./luarrow.lua/doc/api.md)
+- [Method-Style API is also available](./doc/api.md)
 
 ### Pipeline-Style vs Haskell-Style
 
@@ -168,7 +168,7 @@ For example, Point-Free-Style.
 
 See below for more information on Point-Free-Style:
 - [Real-World Examples > Data Transformation Pipeline](#point-free-style-example)
-- [examples.md > Point-Free-Style](luarrow.lua/doc/examples.md#about-point-free-style)
+- [examples.md > Point-Free-Style](./doc/examples.md#about-point-free-style)
 
 But when it comes down to it, ✨**choose whichever you want to write**✨.  
 luarrow aims to make your programming entertaining!
@@ -197,9 +197,9 @@ $ make install-to-local
 
 ## 📚 API Reference
 
-For complete API documentation, see **[luarrow.lua/doc/api.md](luarrow.lua/doc/api.md)**.
+For complete API documentation, see **[./doc/api.md](./doc/api.md)**.
 
-For practical examples and use cases, see **[luarrow.lua/doc/examples.md](luarrow.lua/doc/examples.md)**.
+For practical examples and use cases, see **[./doc/examples.md](./doc/examples.md)**.
 
 **Quick reference for `fun`:**
 - `fun(f)` -- Wrap a function for composition
@@ -305,8 +305,8 @@ print(result) -- { 4, 8, 12 }
 
 ## 📖 Documentation
 
-- **[API Reference](luarrow.lua/doc/api.md)** - Complete API documentation
-- **[Examples](luarrow.lua/doc/examples.md)** - Practical examples and use cases
+- **[API Reference](./doc/api.md)** - Complete API documentation
+- **[Examples](./doc/examples.md)** - Practical examples and use cases
 
 ## 🙏 Acknowledgments
 
