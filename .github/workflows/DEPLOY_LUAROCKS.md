@@ -50,7 +50,7 @@ Once you publish the release, the workflow will automatically:
 3. Find the latest rockspec file
 4. Validate the rockspec by packing it
 5. Upload to LuaRocks using your API key
-6. Save the built `.rock` file as an artifact
+6. Save the built `.src.rock` file as an artifact
 
 ## Manual Deployment
 

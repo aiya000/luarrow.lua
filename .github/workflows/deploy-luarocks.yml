@@ -24,9 +24,6 @@ jobs:
         with:
           luaVersion: "5.1"
 
-      - name: Install LuaRocks
-        uses: leafo/gh-actions-luarocks@v4
-
       - name: Find rockspec file
         id: find_rockspec
         run: |
@@ -63,6 +60,7 @@ jobs:
           luarocks upload "${{ steps.find_rockspec.outputs.rockspec }}" --api-key="$LUAROCKS_API_KEY"
 
       - name: Upload rock artifact
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: luarrow-rock
