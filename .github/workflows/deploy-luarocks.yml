@@ -66,5 +66,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: luarrow-rock
-          path: "luarrow-*.rock"
+          path: "luarrow-*.src.rock"
           retention-days: 30
