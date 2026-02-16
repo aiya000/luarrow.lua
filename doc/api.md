@@ -82,6 +82,9 @@ print(result)  -- 11, because f(g(5)) = f(10) = 11
 **Returns:**
 - `luarrow.Fun<A, C>` - Composed function
 
+> [!NOTE]
+> Functions with multiple return values can be composed with functions that accept multiple arguments. See the [detailed explanation](#fun-multiple-values-composition) in the `Fun:compose(g)` section below for examples using `split` and `add` functions.
+
 <a name="haskell-style-composition-operator-tips"></a>
 
 > [!TIP]
@@ -162,6 +165,16 @@ end)
 local composed = add * split
 local result = composed:apply(5)  -- Returns 15 (5 + 10)
 ```
+
+<a name="fun-multiple-values-composition"></a>
+
+This demonstrates a powerful feature: **functions with multiple return values can be seamlessly composed with functions that accept multiple arguments**. In this example:
+
+1. `split` returns two values: `x` and `x * 2`
+2. These two values are passed as arguments to `add`, which accepts two parameters `a` and `b`
+3. The composition `add * split` creates a pipeline where `split` runs first, and its multiple return values flow directly into `add`'s multiple parameters
+
+This works because the varargs implementation (`...`) properly propagates all values through the composition chain, enabling natural data flow between functions regardless of their arity.
 
 See [Tips](#haskell-style-composition-operator-tips) above for details on composition order and type relationships.
 
@@ -303,6 +316,9 @@ print(result)  -- 12, because g(f(5)) = g(6) = 12
 **Returns:**
 - `luarrow.Arrow<A, C>` - Composed function
 
+> [!NOTE]
+> Functions with multiple return values can be composed with functions that accept multiple arguments. See the [detailed explanation](#arrow-multiple-values-composition) in the `Arrow:compose_to(g)` section below for examples using `split` and `add` functions.
+
 <a name="pipeline-style-composition-operator-tips"></a>
 
 > [!TIP]
@@ -386,6 +402,16 @@ end)
 local composed = split ^ add
 local result = composed:apply(5)  -- Returns 15 (5 + 10)
 ```
+
+<a name="arrow-multiple-values-composition"></a>
+
+This demonstrates a powerful feature: **functions with multiple return values can be seamlessly composed with functions that accept multiple arguments**. In this example:
+
+1. `split` returns two values: `x` and `x * 2`
+2. These two values are passed as arguments to `add`, which accepts two parameters `a` and `b`
+3. The composition `split ^ add` creates a pipeline where `split` runs first, and its multiple return values flow directly into `add`'s multiple parameters
+
+This works because the varargs implementation (`...`) properly propagates all values through the composition chain, enabling natural data flow between functions regardless of their arity.
 
 See [Tips](#pipeline-style-composition-operator-tips) above for details on composition order and type relationships.
 
