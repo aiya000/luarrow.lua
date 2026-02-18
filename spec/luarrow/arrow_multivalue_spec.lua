@@ -20,12 +20,6 @@ local function triple(x, y)
   return x, y, x * y
 end
 
----@type fun(...: unknown[]): unknown[]
-local function pack(...)
-  local args = { ... }
-  return args
-end
-
 ---@type fun(xs: unknown[]): integer
 local function count(xs)
   return #xs
@@ -44,15 +38,30 @@ describe('arrow with multiple values', function()
     assert.are.equal(15, (arrow(add) ^ arrow(split)):apply(10, 5))
   end)
 
-  it('should can take returned multiple results', function()
-    local r1, r2, r3 = 5 % arrow(split) ^ arrow(triple)
-    assert.are.equal(5, r1)
-    assert.are.equal(10, r2)
-    assert.are.equal(50, r3)
+  it('returns all multiple values when using `:apply()`', function()
+    local r1, r2, r3 = (arrow(split) ^ arrow(triple)):apply(10)
+    assert.are.equal(10, r1)
+    assert.are.equal(20, r2)
+    assert.are.equal(200, r3)
+  end)
+
+  it('returns only the first value when using `%` due to Lua\'s operator limitations', function()
+    -- The `%` operator only captures the first return value
+    ---@diagnostic disable-next-line: unbalanced-assignments
+    local r1, r2, r3 = 10 % arrow(split) ^ arrow(triple)
+    assert.are.equal(10, r1)
+    assert.are.equal(nil, r2)
+    assert.are.equal(nil, r3)
+
+    -- To capture all values, append `arrow(table.pack)` at the end of the chain to collect them into a table
+    local result = 10 % arrow(split) ^ arrow(triple) ^ arrow(table.pack)
+    assert.are.equal(10, result[1])
+    assert.are.equal(20, result[2])
+    assert.are.equal(200, result[3])
   end)
 
   it('should support varargs in composition', function()
-    assert.are.equal(5, (arrow(pack) ^ arrow(count)):apply(1, 2, 3, 4, 5))
+    assert.are.equal(5, (arrow(table.pack) ^ arrow(count)):apply(1, 2, 3, 4, 5))
   end)
 
   it('should handle functions that return different numbers of values', function()

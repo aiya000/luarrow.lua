@@ -37,6 +37,10 @@ The `luarrow.Fun<A, B>` class represents a wrapped function from type A to type 
 **Fields:**
 - `raw: fun(x: A): B` - The original unwrapped Lua function
 
+> [!NOTE]
+> Due to LuaCATS limitations, `Fun<A, B>` is only typed with a single input type `A` and a single output type `B`.  
+> For details on both multiple arguments and multiple return values, see [Type Limitations in `Fun:apply()`](#fun-apply-type-limitations).
+
 ### `fun(f)`
 
 Wraps a Lua function into a `Fun` object that supports composition and application.
@@ -55,6 +59,10 @@ local wrapped = fun(function(x) return x * 2 end)
 
 **Returns:**
 - `luarrow.Fun<A, B>` - Wrapped function object
+
+> [!NOTE]
+> Due to LuaCATS limitations, `fun(f)` is typed with fixed parameters `A` and `B`.  
+> For details on both multiple arguments and multiple return values, see [Type Limitations in `Fun:apply()`](#fun-apply-type-limitations).
 
 ### `f * g` (Haskell-Style Composition Operator)
 
@@ -210,26 +218,51 @@ print(result)  -- 11
 **Returns:**
 - `B` - Result of applying the function
 
-**Multiple Arguments and Return Values:**
+#### Multiple Arguments and Return Values
 
 The `apply()` method supports multiple arguments and return values:
 
 ```lua
--- Multiple arguments
-local sum = fun(function(a, b, c)
-  return a + b + c
-end)
-local result = sum:apply(1, 2, 3)  -- Returns 6
-
--- Multiple return values
+---@type fun(x: integer): integer, integer
 local split = fun(function(x)
   return x, x * 2
 end)
-local r1, r2 = split:apply(5)  -- r1=5, r2=10
+
+---@type fun(x: integer, y: integer): integer
+local add = fun(function(x, y)
+  return x + y
+end)
+
+local result = fun(add) * fun(split) % 10
+-- 30
 ```
 
+<a name="fun-apply-type-limitations"></a>
+
 > [!NOTE]
-> When using the `%` operator (`f % x`), only single values are supported due to Lua's metamethod limitations. Use the `apply()` method for multiple arguments or when you need to capture multiple return values.
+> Due to LuaCATS limitations, `fun()` does not support variadic type parameters.  
+> It is typed with fixed type parameters `A` and `B`, representing a single input and a single output.
+
+> [!NOTE]
+> When using the `%` operator (`f % x`), only single values are supported due to Lua's metamethod limitations.  
+> If you want to capture multiple return values using the `%` operator, prepend `fun(table.pack)` at the front of the composition chain to collect all values into a table:
+>
+> ```lua
+> local result1, result2 = fun(split) % 10
+> -- result1: 10
+> -- result2: nil
+>
+> local result = fun(table.pack) * fun(split) % 10
+> -- result[1]: 10
+> -- result[2]: 20
+> ```
+>
+> Or use the `apply()` method for multiple arguments or when you need to capture multiple return values.
+> ```lua
+> local result1, result2 = fun(split):apply(10)
+> -- result1: 10
+> -- result2: 20
+> ```
 
 ## 🎯 Arrow API Reference
 
@@ -258,6 +291,10 @@ This is similar to `Fun`, but with **Pipeline-Style** that reads left-to-right.
 - `Arrow`: Composes left-to-right (`→`)
     - `x % arrow(f) ^ arrow(g)` means `g(f(x))`
 
+> [!NOTE]
+> Due to LuaCATS limitations, `Arrow<A, B>` is only typed with a single input type `A` and a single output type `B`.  
+> For details on both multiple arguments and multiple return values, see [Type Limitations in `Arrow:apply()`](#arrow-apply-type-limitations).
+
 ### `arrow(f)`
 
 Wraps a Lua function into an `Arrow` object that supports pipeline-style composition and application.
@@ -276,6 +313,10 @@ local wrapped = arrow(function(x) return x * 2 end)
 
 **Returns:**
 - `luarrow.Arrow<A, B>` - Wrapped function object
+
+> [!NOTE]
+> Due to LuaCATS limitations, `arrow(f)` is typed with fixed parameters `A` and `B`.  
+> For details on both multiple arguments and multiple return values, see [Type Limitations in `Arrow:apply()`](#arrow-apply-type-limitations).
 
 ### `f ^ g` (Pipeline-Style Composition Operator)
 
@@ -439,23 +480,48 @@ print(result)  -- 11
 **Returns:**
 - `B` - Result of applying the function
 
-**Multiple Arguments and Return Values:**
+#### Multiple Arguments and Return Values
 
 The `apply()` method supports multiple arguments and return values:
 
 ```lua
--- Multiple arguments
-local sum = arrow(function(a, b, c)
-  return a + b + c
-end)
-local result = sum:apply(1, 2, 3)  -- Returns 6
-
--- Multiple return values
+---@type fun(x: integer): integer, integer
 local split = arrow(function(x)
   return x, x * 2
 end)
-local r1, r2 = split:apply(5)  -- r1=5, r2=10
+
+---@type fun(x: integer, y: integer): integer
+local add = arrow(function(x, y)
+  return x + y
+end)
+
+local result = 10 % arrow(split) ^ arrow(add)
+-- 30
 ```
 
+<a name="arrow-apply-type-limitations"></a>
+
 > [!NOTE]
-> When using the `%` operator (`x % f`), only single values are supported due to Lua's metamethod limitations. Use the `apply()` method for multiple arguments or when you need to capture multiple return values.
+> Due to LuaCATS limitations, `arrow()` does not support variadic type parameters.  
+> It is typed with fixed type parameters `A` and `B`, representing a single input and a single output.
+
+> [!NOTE]
+> When using the `%` operator (`x % f`), only single values are supported due to Lua's metamethod limitations.
+> If you want to capture multiple return values using the `%` operator, append `arrow(table.pack)` at the end of the composition chain to collect all values into a table:
+>
+> ```lua
+> local result1, result2 = 10 % arrow(split)
+> -- result1: 10
+> -- result2: nil
+>
+> local result = 10 % arrow(split) ^ arrow(table.pack)
+> -- result[1]: 10
+> -- result[2]: 20
+> ```
+>
+> Or use the `apply()` method for multiple arguments or when you need to capture multiple return values.
+> ```lua
+> local result1, result2 = arrow(split):apply(10)
+> -- result1: 10
+> -- result2: 20
+> ```
