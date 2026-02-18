@@ -4,19 +4,19 @@ For practical examples and use cases, see [examples.md](examples.md).
 
 ## Table of Contents
 
-1. [Fun API Reference](#-fun-api-reference)
+1. [Fun API Reference](#fun-api-reference)
     - [Fun class](#fun-class)
     - [fun(f)](#funf)
-    - [f * g (Haskell-Style Composition Operator)](#f--g-haskell-style-composition-operator)
+    - [f * g (Haskell-Style Composition Operator)](#f-g-haskell-style-composition-operator)
     - [Fun:compose(g)](#funcomposeg)
-    - [f % x (Haskell-Style Application Operator)](#f--x-haskell-style-application-operator)
+    - [f % x (Haskell-Style Application Operator)](#f-x-haskell-style-application-operator)
     - [Fun:apply(x)](#funapplyx)
-2. [Arrow API Reference](#-arrow-api-reference)
+2. [Arrow API Reference](#arrow-api-reference)
     - [Arrow class](#arrow-class)
     - [arrow(f)](#arrowf)
-    - [f ^ g (Pipeline-Style Composition Operator)](#f--g-pipeline-style-composition-operator)
+    - [f ^ g (Pipeline-Style Composition Operator)](#f-g-pipeline-style-composition-operator)
     - [Arrow:compose_to(g)](#arrowcompose_tog)
-    - [x % f (Pipeline-Style Application Operator)](#x--f-pipeline-style-application-operator)
+    - [x % f (Pipeline-Style Application Operator)](#x-f-pipeline-style-application-operator)
     - [Arrow:apply(x)](#arrowapplyx)
 
 ## ⛲ `Fun` API Reference
