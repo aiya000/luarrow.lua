@@ -243,6 +243,8 @@ local result = fun(add) * fun(split) % 10
 > Due to LuaCATS limitations, `fun()` does not support variadic type parameters.  
 > It is typed with fixed type parameters `A` and `B`, representing a single input and a single output.
 
+<a name="fun-muitiple-arguments-and-multiple-return-values"></a>
+
 > [!NOTE]
 > When using the `%` operator (`f % x`), only single values are supported due to Lua's metamethod limitations.  
 > If you want to capture multiple return values using the `%` operator, prepend `fun(table.pack)` at the front of the composition chain to collect all values into a table:
@@ -504,6 +506,8 @@ local result = 10 % arrow(split) ^ arrow(add)
 > [!NOTE]
 > Due to LuaCATS limitations, `arrow()` does not support variadic type parameters.  
 > It is typed with fixed type parameters `A` and `B`, representing a single input and a single output.
+
+<a name="arrow-muitiple-arguments-and-multiple-return-values"></a>
 
 > [!NOTE]
 > When using the `%` operator (`x % f`), only single values are supported due to Lua's metamethod limitations.

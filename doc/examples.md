@@ -757,14 +757,18 @@ print(email)  -- john.doe@company.com
 
 > [!NOTE]
 > **Limitation with the `%` operator:**
-> Due to Lua's metamethod design, the `%` operator can only return a single value when used as an operator (e.g., `x % arrow(f)`). To capture multiple return values, use the `apply()` method or ensure the final function in the composition chain returns a single value.
+> Due to Lua's metamethod design, the `%` operator can only return a single value when used as an operator (e.g., `x % arrow(f)`).
 >
 > ```lua
-> -- ❌ This will only capture the first return value
+> -- ❌ Only the first return value is captured
 > local r1, r2 = 5 % arrow(split)  -- r2 will be nil
-> 
+>
 > -- ✅ Use apply() to capture all return values
-> local r1, r2 = arrow(split):apply(5)  -- Both r1 and r2 are captured
+> local r1, r2 = arrow(split):apply(5)
+>
+> -- ✅ Or append arrow(table.pack) at the end of the chain
+> local result = 5 % arrow(split) ^ arrow(table.pack)
+> -- result[1] = 5, result[2] = 10
 > ```
 
 ## 🏷️ Working with LuaCATS
