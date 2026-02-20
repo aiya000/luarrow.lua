@@ -33,6 +33,10 @@ Fun.__index = Fun
 ---===
 ---f ∘ g -- Mathematics
 ---```
+---
+---Note: Composition supports multiple arguments and return values.
+---Functions in the composition chain can accept and return multiple values.
+---
 ---@generic A, B, C
 ---@param self Fun<A, B>
 ---@param g Fun<B, C>
@@ -40,8 +44,8 @@ Fun.__index = Fun
 function Fun:compose(g)
   local self_raw = self.raw
   local g_raw = g.raw
-  return Fun.new(function(x)
-    return self_raw(g_raw(x))
+  return Fun.new(function(...)
+    return self_raw(g_raw(...))
   end)
 end
 
@@ -57,12 +61,16 @@ Fun.__mul = Fun.compose
 ---===
 ---f $ x -- Haskell
 ---```
+---
+---Note: This method supports multiple arguments and return values.
+---Example: `fun(f):apply(x, y, z)` will call `f(x, y, z)` and return all values.
+---
 ---@generic A, B
 ---@param self Fun<A, B>
----@param x A
----@return B
-function Fun:apply(x)
-  return self.raw(x)
+---@param ... A Variadic arguments passed to the wrapped function
+---@return B ... Variadic return values from the wrapped function
+function Fun:apply(...)
+  return self.raw(...)
 end
 
 Fun.__mod = Fun.apply

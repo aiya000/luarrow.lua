@@ -6,26 +6,26 @@ For API reference, see [api.md](api.md).
 
 ## Table of Contents
 
-1. [Basic Examples](#-basic-examples)
+1. [Basic Examples](#basic-examples)
     - [Pipeline-Style (`Arrow`) Basic Examples](#pipeline-style-arrow-basic-examples)
         - [Operator-Style Pipeline Composition](#operator-style-pipeline-composition)
         - [Method-Style Pipeline Composition](#method-style-pipeline-composition)
         - [Multi-Stage Pipeline](#multi-stage-pipeline)
         - [String Processing Pipeline](#string-processing-pipeline)
     - [Haskell-Style (`Fun`) Basic Examples](#haskell-style-fun-basic-examples)
-        - [Operator-Style Composition](#operator-style-composition)
-        - [Method-Style Composition](#method-style-composition)
+        - [Function Composition Operators](#function-composition-operators)
+        - [Function Composition Methods](#function-composition-methods)
         - [Multi-Function Composition](#multi-function-composition)
 1. [Comparison: Fun vs Arrow](#comparison-fun-vs-arrow)
-1. [Real-World Examples](#-real-world-examples)
+1. [Real-World Examples](#real-world-examples)
     - [Pipeline-Style (`Arrow`) Real-World Examples](#pipeline-style-arrow-real-world-examples)
         - [List Transformations](#list-transformations)
         - [Configuration Processing](#configuration-processing)
     - [Haskell-Style (`Fun`) Real-World Examples](#haskell-style-fun-real-world-examples)
         - [Data Validation Pipeline](#data-validation-pipeline)
-        - [String Processing Pipeline](#string-processing-pipeline-1)
+        - [String Processing Pipeline](#string-processing-pipeline)
         - [Mathematical Computations](#mathematical-computations)
-1. [Advanced Patterns](#-advanced-patterns)
+1. [Advanced Patterns](#advanced-patterns)
     - [Pipeline-Style (`Arrow`) Advanced Patterns](#pipeline-style-arrow-advanced-patterns)
         - [Debugging Pipeline](#debugging-pipeline)
         - [Composition with Side Effects](#composition-with-side-effects)
@@ -33,15 +33,20 @@ For API reference, see [api.md](api.md).
         - [Partial Application with Composition](#partial-application-with-composition)
         - [Function Factory Pattern](#function-factory-pattern)
         - [Monadic-Style Error Handling](#monadic-style-error-handling)
-1. [Working with LuaCATS](#-working-with-luacats)
-1. [Performance Considerations](#-performance-considerations)
+    - [Multiple Arguments and Return Values](#multiple-arguments-and-return-values)
+        - [Arrow-Style with Multiple Values](#arrow-style-with-multiple-values)
+        - [Fun-Style with Multiple Values](#fun-style-with-multiple-values)
+        - [Multiple Arguments with apply()](#multiple-arguments-with-apply)
+        - [Complex Multi-Value Pipeline](#complex-multi-value-pipeline)
+1. [Working with LuaCATS](#working-with-luacats)
+1. [Performance Considerations](#performance-considerations)
     - [Benchmark Results](#benchmark-results)
     - [How to optimize performance](#how-to-optimize-performance)
-1. [Comparison with Other Approaches](#-comparison-with-other-approaches)
+1. [Summary: Comparison with Other Approaches](#summary-comparison-with-other-approaches)
     - [vs Pure Lua](#vs-pure-lua)
     - [vs Function Chaining](#vs-function-chaining)
     - [vs Lodash-Style](#vs-lodash-style)
-1. [Conclusion](#-conclusion)
+1. [Conclusion](#conclusion)
 
 ## 🎯 Basic Examples
 
@@ -657,6 +662,114 @@ print(result2.ok, result2.error)  -- false, 'Not positive'
 local result3 = process % Ok('abc')
 print(result3.ok, result3.error)  -- false, 'Not a number'
 ```
+
+### Multiple Arguments and Return Values
+
+Both `arrow()` and `fun()` support functions that accept multiple arguments and return multiple values. This enables natural composition of multi-value functions.
+
+#### Arrow-Style with Multiple Values
+
+```lua
+local arrow = require('luarrow').arrow
+
+-- Function returning multiple values
+local cartesian_to_polar = arrow(function(x, y)
+  local r = math.sqrt(x * x + y * y)
+  local theta = math.atan2(y, x)
+  return r, theta
+end)
+
+-- Function accepting multiple values
+local format_polar = arrow(function(r, theta)
+  return string.format('(r=%.2f, θ=%.2f)', r, theta)
+end)
+
+-- Compose and apply
+local converter = cartesian_to_polar ^ format_polar
+local result = converter:apply(3, 4)
+print(result)  -- (r=5.00, θ=0.93)
+```
+
+#### Fun-Style with Multiple Values
+
+```lua
+local fun = require('luarrow').fun
+
+-- Split a number into value and its double
+local split = fun(function(x)
+  return x, x * 2
+end)
+
+-- Add two numbers
+local add = fun(function(a, b)
+  return a + b
+end)
+
+-- Compose: split first, then add the results
+local composed = add * split
+local result = composed:apply(5)
+print(result)  -- 15 (because 5 + 10 = 15)
+```
+
+#### Multiple Arguments with apply()
+
+```lua
+local arrow = require('luarrow').arrow
+
+-- Function accepting multiple arguments
+local sum = arrow(function(a, b, c)
+  return a + b + c
+end)
+
+-- Pass multiple arguments via apply()
+local result = sum:apply(1, 2, 3)
+print(result)  -- 6
+```
+
+#### Complex Multi-Value Pipeline
+
+```lua
+local arrow = require('luarrow').arrow
+
+-- Parse name into first and last
+local parse_name = arrow(function(full_name)
+  local first, last = full_name:match('(%S+)%s+(%S+)')
+  return first, last
+end)
+
+-- Normalize to lowercase
+local normalize = arrow(function(first, last)
+  return first:lower(), last:lower()
+end)
+
+-- Create email address
+local create_email = arrow(function(first, last)
+  return string.format('%s.%s@company.com', first, last)
+end)
+
+-- Compose all transformations
+local email_generator = parse_name ^ normalize ^ create_email
+
+-- Generate email
+local email = email_generator:apply('John Doe')
+print(email)  -- john.doe@company.com
+```
+
+> [!NOTE]
+> **Limitation with the `%` operator:**
+> Due to Lua's metamethod design, the `%` operator can only return a single value when used as an operator (e.g., `x % arrow(f)`).
+>
+> ```lua
+> -- ❌ Only the first return value is captured
+> local r1, r2 = 5 % arrow(split)  -- r2 will be nil
+>
+> -- ✅ Use apply() to capture all return values
+> local r1, r2 = arrow(split):apply(5)
+>
+> -- ✅ Or append arrow(table.pack) at the end of the chain
+> local result = 5 % arrow(split) ^ arrow(table.pack)
+> -- result[1] = 5, result[2] = 10
+> ```
 
 ## 🏷️ Working with LuaCATS
 

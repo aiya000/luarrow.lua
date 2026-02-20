@@ -303,6 +303,32 @@ local result = fun(map(double)) * fun(filter(is_even)) % numbers
 print(result) -- { 4, 8, 12 }
 ```
 
+### Multi-Value Composition (`arrow` and `fun`)
+
+Both `arrow` and `fun` naturally support functions that pass multiple values through a pipeline:
+
+```lua
+local arrow = require('luarrow').arrow
+
+local function split_name(full_name)
+  local first, last = full_name:match('(%S+)%s+(%S+)')
+  return first, last
+end
+
+local function create_email(first, last)
+  return string.format('%s.%s@company.com', first:lower(), last:lower())
+end
+
+local email = 'John Doe' % arrow(split_name) ^ arrow(create_email)
+print(email)  -- john.doe@company.com
+```
+
+> [!TIP]
+> For more multi-value examples, see:
+> - [examples.md > Multiple Arguments and Return Values](./doc/examples.md#multiple-arguments-and-return-values)
+> - [api.md > Fun > Multiple Arguments and Return Values](./doc/api.md#fun-muitiple-arguments-and-multiple-return-values)
+> - [api.md > Arrow > Multiple Arguments and Return Values](./doc/api.md#arrow-muitiple-arguments-and-multiple-return-values)
+
 ## 📖 Documentation
 
 - **[API Reference](./doc/api.md)** - Complete API documentation
