@@ -19,7 +19,7 @@ For API reference, see [api.md](api.md).
 1. [Comparison: Fun vs Arrow](#comparison-fun-vs-arrow)
 1. [Real-World Examples](#real-world-examples)
     - [Pipeline-Style (`Arrow`) Real-World Examples](#pipeline-style-arrow-real-world-examples)
-        - [List Transformations](#list-transformations)
+        - [List Processing with `luarrow.utils.list`](#list-processing-with-luarrowutilslist)
         - [Configuration Processing](#configuration-processing)
     - [Haskell-Style (`Fun`) Real-World Examples](#haskell-style-fun-real-world-examples)
         - [Data Validation Pipeline](#data-validation-pipeline)
@@ -253,49 +253,37 @@ Both produce the same result, but the syntax reflects different mental models:
 
 ### Pipeline-Style (`Arrow`) Real-World Examples
 
-#### List Transformations
+### List Processing with `luarrow.utils.list`
+
+`luarrow.utils.list` provides curried list functions that compose directly with `arrow`, so no wrapper functions are needed.
 
 ```lua
 local arrow = require('luarrow').arrow
+local list = require('luarrow.utils.list')
 
--- Higher-order functions for lists
-local filter = function(predicate)
-  return function(list)
-    local result = {}
-    for _, v in ipairs(list) do
-      if predicate(v) then
-        table.insert(result, v)
-      end
-    end
-    return result
-  end
-end
-
-local map = function(f)
-  return function(list)
-    local result = {}
-    for i, v in ipairs(list) do
-      result[i] = f(v)
-    end
-    return result
-  end
-end
-
-local reduce = function(initial, f)
-  return function(list)
-    local acc = initial
-    for _, v in ipairs(list) do
-      acc = f(acc, v)
-    end
-    return acc
-  end
-end
-
+-- The curried functions plug straight into arrow()
 local _ = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 }
-  % arrow(filter(function(x) return x % 2 == 0 end)) -- filter evens: {2, 4, 6, 8, 10}
-  ^ arrow(map(function(x) return x * 2 end)) -- double each: {4, 8, 12, 16, 20}
-  ^ arrow(reduce(0, function(a, b) return a + b end)) -- sum: 60
+  % arrow(list.filter(function(x) return x % 2 == 0 end))  -- evens: { 2, 4, 6, 8, 10 }
+  ^ arrow(list.map(function(x) return x * 2 end))          -- doubled: { 4, 8, 12, 16, 20 }
+  ^ arrow(list.foldl(function(a, b) return a + b end, 0))  -- sum: 60
   ^ arrow(print)  -- 60
+```
+
+More list utilities:
+
+```lua
+local arrow = require('luarrow').arrow
+local list = require('luarrow.utils.list')
+
+-- Sort, group, and report
+local numbers = { 5, 3, 8, 1, 9, 2, 7, 4, 6 }
+
+local _ = numbers
+  % arrow(list.sort)           -- { 1, 2, 3, 4, 5, 6, 7, 8, 9 }
+  ^ arrow(list.reverse)        -- { 9, 8, 7, 6, 5, 4, 3, 2, 1 }
+  ^ arrow(list.unique)         -- same (no duplicates)
+  ^ arrow(list.join(', '))     -- '9, 8, 7, 6, 5, 4, 3, 2, 1'
+  ^ arrow(print)
 ```
 
 ### Configuration Processing

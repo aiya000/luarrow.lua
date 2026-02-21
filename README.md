@@ -216,6 +216,15 @@ For practical examples and use cases, see **[./doc/examples.md](./doc/examples.m
 - `let(x, y) % arrow(f)` -- Start an arrow pipeline with multiple values
 - `fun(f) % let(x, y)` -- Start a fun pipeline with multiple values
 
+**Quick reference for `luarrow.utils.list`:**
+- `list.map(f)` -- Apply `f` to each element
+- `list.filter(pred)` -- Keep elements satisfying `pred`
+- `list.foldl(f, init)` -- Left fold with initial value
+- `list.find(pred)` -- First element satisfying `pred`
+- `list.sort_by(key)` -- Sort by key function or comparator
+- `list.group_by(f)` -- Group elements by key function
+- ...and [many more](luarrow.lua/doc/api.md#-luarrowutilslist-api-reference)
+
 ## 🔄 Comparison Haskell-Style with Real Haskell
 
 | Haskell | luarrow | Pure Lua |
@@ -272,40 +281,18 @@ local _ = 5
   ^ arrow(print)  -- 25
 ```
 
-### List Processing (`fun`)
+### List Processing (`luarrow.utils.list`)
 
 ```lua
-local fun = require('luarrow').fun
+local arrow = require('luarrow').arrow
+local list = require('luarrow.utils.list')
 
-local map = function(f)
-  return function(list)
-    local result = {}
-    for i, v in ipairs(list) do
-      result[i] = f(v)
-    end
-    return result
-  end
-end
-
-local filter = function(predicate)
-  return function(list)
-    local result = {}
-    for _, v in ipairs(list) do
-      if predicate(v) then
-        table.insert(result, v)
-      end
-    end
-    return result
-  end
-end
-
-local numbers = {1, 2, 3, 4, 5, 6}
-
-local is_even = function(x) return x % 2 == 0 end
-local double = function(x) return x * 2 end
-
-local result = fun(map(double)) * fun(filter(is_even)) % numbers
-print(result) -- { 4, 8, 12 }
+-- Curried list functions compose directly with arrow!
+local _ = { 1, 2, 3 }
+  % arrow(list.map(function(x) return x + 10 end))   -- { 11, 12, 13 }
+  ^ arrow(list.filter(function(x) return x % 2 ~= 0 end))  -- { 11, 13 }
+  ^ arrow(list.find(function(x) return x > 10 end))  -- 11
+  ^ arrow(print)
 ```
 
 ### Multi-Value Composition (`arrow` and `fun`)
