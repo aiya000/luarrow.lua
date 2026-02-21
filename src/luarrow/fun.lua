@@ -73,7 +73,15 @@ function Fun:apply(...)
   return self.raw(...)
 end
 
-Fun.__mod = Fun.apply
+---@param self Fun
+---@param x unknown
+Fun.__mod = function(self, x)
+  local mt = type(x) == 'table' and getmetatable(x) or nil
+  if mt and mt.__is_luarrow_let then
+    return self.raw(table.unpack(x._values))
+  end
+  return self.raw(x)
+end
 
 ---@generic A, B
 ---@param func fun(x: A): B

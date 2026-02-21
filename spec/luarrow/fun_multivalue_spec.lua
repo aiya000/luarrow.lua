@@ -45,7 +45,7 @@ describe('fun with multiple values', function()
     assert.are.equal(50, r3)
   end)
 
-  it('returns only the first value when using `%` due to Lua\'s operator limitations', function()
+  it("returns only the first value when using `%` due to Lua's operator limitations", function()
     -- The `%` operator only captures the first return value
     ---@diagnostic disable-next-line: unbalanced-assignments
     local r1, r2, r3 = fun(triple) * fun(split) % 5
