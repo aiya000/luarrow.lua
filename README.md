@@ -334,10 +334,10 @@ When you need to **start** a pipeline with multiple values, use `let(x, y, ...)`
 local arrow = require('luarrow').arrow
 local let = require('luarrow').let
 
-local result = let(10, 20)
+local _ = let(10, 20)
   % arrow(function(x, y) return x * 10, y * 20 end)
   ^ arrow(function(x, y) return tostring(x + y) end)
-print(result)  -- "500"
+  ^ arrow(print)  -- "500"
 ```
 
 > [!TIP]
