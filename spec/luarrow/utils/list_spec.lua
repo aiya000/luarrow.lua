@@ -329,11 +329,11 @@ describe('luarrow.utils.list', function()
       -- Even if key function returns boolean, it should still work as a key function
       local items = { { active = true, id = 3 }, { active = false, id = 1 }, { active = true, id = 2 } }
       local result = list.sort_by(function(x)
-        return x.id
+        return x.active
       end)(items)
-      assert.are.equal(1, result[1].id)
-      assert.are.equal(2, result[2].id)
-      assert.are.equal(3, result[3].id)
+      assert.is_false(result[1].active)
+      assert.is_true(result[2].active)
+      assert.is_true(result[3].active)
     end)
 
     it('sort_with should be alias for sort_by', function()
