@@ -18,6 +18,10 @@ For practical examples and use cases, see [examples.md](examples.md).
     - [Arrow:compose_to(g)](#arrowcompose_tog)
     - [x % f (Pipeline-Style Application Operator)](#x-f-pipeline-style-application-operator)
     - [Arrow:apply(x)](#arrowapplyx)
+3. [Let API Reference](#let-api-reference)
+    - [Let class](#let-class)
+    - [let(...)](#let)
+    - [let(...) % arrow\_or\_fun (Multi-Value Pipeline Entry)](#let--arrow_or_fun-multi-value-pipeline-entry)
 
 ## ⛲ `Fun` API Reference
 
@@ -529,3 +533,76 @@ local result = 10 % arrow(split) ^ arrow(add)
 > -- result1: 10
 > -- result2: 20
 > ```
+
+## 🔖 `Let` API Reference
+
+### `Let` class
+
+The `luarrow.Let` class holds multiple values as a bundle, to be used as the entry point of a pipeline without needing `:apply()`.
+
+```lua
+---@class luarrow.Let
+---@field _values unknown[]  -- The stored values
+```
+
+> [!TIP]
+> `Let` is the recommended way to start a pipeline that takes multiple initial values.
+> It works with both `arrow` (pipeline-style) and `fun` (Haskell-style):
+>
+> ```lua
+> -- Arrow style
+> let(x, y) % arrow(f) ^ arrow(g)
+>
+> -- Fun style
+> fun(g) * fun(f) % let(x, y)
+> ```
+
+### `let(...)`
+
+Creates a `Let` object that holds all provided values for use in a pipeline.
+
+```lua
+local let = require('luarrow').let
+local values = let(10, 20)
+```
+
+**Parameters:**
+- `...: unknown` - Any number of values to hold
+
+**Returns:**
+- `luarrow.Let` - Object holding the provided values
+
+### `let(...) % arrow_or_fun` (Multi-Value Pipeline Entry)
+
+Applies the held values to the given `Arrow` or `Fun` using the `%` operator, unpacking them as multiple arguments.
+
+```lua
+local arrow = require('luarrow').arrow
+local let = require('luarrow').let
+
+-- Arrow style: start a multi-value pipeline
+local result = let(10, 20)
+  % arrow(function(x, y) return x * 10, y * 20 end)
+  ^ arrow(function(x, y) return tostring(x + y) end)
+print(result)  -- "500"
+
+-- Fun style: apply multiple values at the end of a chain
+local fun = require('luarrow').fun
+
+local function scale(x, y) return x * 10, y * 20 end
+local function format(x, y) return tostring(x + y) end
+
+local result2 = fun(format) * fun(scale) % let(10, 20)
+print(result2)  -- "500"
+```
+
+**Parameters:**
+- `self: luarrow.Let` - The held values
+- `f: luarrow.Arrow|luarrow.Fun` - The wrapped function to apply to
+
+**Returns:**
+- Result of calling `f:apply(...)` with the unpacked values
+
+> [!NOTE]
+> `let(x, y, ...) % f` is equivalent to `f:apply(x, y, ...)`.
+> It provides cleaner syntax for multi-value pipeline entry points.
