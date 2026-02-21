@@ -1,3 +1,4 @@
+local utils = require('luarrow.utils')
 local M = {}
 
 ---The wrapper of a function from A to B.
@@ -73,7 +74,15 @@ function Fun:apply(...)
   return self.raw(...)
 end
 
-Fun.__mod = Fun.apply
+---@param self Fun
+---@param x unknown
+Fun.__mod = function(self, x)
+  local mt = type(x) == 'table' and getmetatable(x) or nil
+  if mt ~= nil and mt.__is_luarrow_let ~= nil then
+    return self.raw(utils.unpack(x._values))
+  end
+  return self.raw(x)
+end
 
 ---@generic A, B
 ---@param func fun(x: A): B

@@ -211,6 +211,11 @@ For practical examples and use cases, see **[./doc/examples.md](./doc/examples.m
 - `f ^ g` -- Compose two functions in pipeline order (`f |> g`)
 - `x % f` -- Apply function to value in Pipeline-Style
 
+**Quick reference for `let`:**
+- `let(x, y, ...)` -- Hold multiple values as a pipeline entry point
+- `let(x, y) % arrow(f)` -- Start an arrow pipeline with multiple values
+- `fun(f) % let(x, y)` -- Start a fun pipeline with multiple values
+
 ## 🔄 Comparison Haskell-Style with Real Haskell
 
 | Haskell | luarrow | Pure Lua |
@@ -321,6 +326,18 @@ end
 
 local email = 'John Doe' % arrow(split_name) ^ arrow(create_email)
 print(email)  -- john.doe@company.com
+```
+
+When you need to **start** a pipeline with multiple values, use `let(x, y, ...)` instead of `:apply()`:
+
+```lua
+local arrow = require('luarrow').arrow
+local let = require('luarrow').let
+
+local _ = let(10, 20)
+  % arrow(function(x, y) return x * 10, y * 20 end)
+  ^ arrow(function(x, y) return tostring(x + y) end)
+  ^ arrow(print)  -- "500"
 ```
 
 > [!TIP]

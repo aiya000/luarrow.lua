@@ -37,6 +37,7 @@ For API reference, see [api.md](api.md).
         - [Arrow-Style with Multiple Values](#arrow-style-with-multiple-values)
         - [Fun-Style with Multiple Values](#fun-style-with-multiple-values)
         - [Multiple Arguments with apply()](#multiple-arguments-with-apply)
+        - [Multiple Arguments with let()](#multiple-arguments-with-let)
         - [Complex Multi-Value Pipeline](#complex-multi-value-pipeline)
 1. [Working with LuaCATS](#working-with-luacats)
 1. [Performance Considerations](#performance-considerations)
@@ -725,6 +726,37 @@ end)
 local result = sum:apply(1, 2, 3)
 print(result)  -- 6
 ```
+
+#### Multiple Arguments with let()
+
+`let(x, y, ...)` provides a cleaner alternative to `:apply()` when starting a pipeline with multiple initial values.
+
+```lua
+local arrow = require('luarrow').arrow
+local let = require('luarrow').let
+
+-- Arrow style: start a multi-value pipeline with let()
+local result = let(10, 20)
+  % arrow(function(x, y) return x * 10, y * 20 end)
+  ^ arrow(function(x, y) return tostring(x + y) end)
+print(result)  -- "500"
+```
+
+```lua
+local fun = require('luarrow').fun
+local let = require('luarrow').let
+
+-- Fun style: use let() at the end of a composition chain
+local function scale(x, y) return x * 10, y * 20 end
+local function format(x, y) return tostring(x + y) end
+
+local result = fun(format) * fun(scale) % let(10, 20)
+print(result)  -- "500"
+```
+
+> [!TIP]
+> `let(x, y, ...) % f` is equivalent to `f:apply(x, y, ...)`.
+> Prefer `let()` when you want the pipeline to read naturally from the input values.
 
 #### Complex Multi-Value Pipeline
 
