@@ -309,10 +309,19 @@ function M.sort_by(key)
       -- It's a comparator function
       table.sort(result, key)
     else
-      -- It's a key function
-      table.sort(result, function(a, b)
-        return key(a) < key(b)
+      -- It's a key function: use Schwartzian transform to compute keys once
+      local decorated = {}
+      for i, v in ipairs(result) do
+        decorated[i] = { value = v, key = key(v) }
+      end
+
+      table.sort(decorated, function(a, b)
+        return a.key < b.key
       end)
+
+      for i, item in ipairs(decorated) do
+        result[i] = item.value
+      end
     end
 
     return result
