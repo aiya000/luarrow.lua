@@ -576,24 +576,31 @@ local values = let(10, 20)
 
 Applies the held values to the given `Arrow` or `Fun` using the `%` operator, unpacking them as multiple arguments.
 
+**Arrow style:**
+
 ```lua
 local arrow = require('luarrow').arrow
 local let = require('luarrow').let
 
--- Arrow style: start a multi-value pipeline
+-- Start a multi-value pipeline
 local result = let(10, 20)
   % arrow(function(x, y) return x * 10, y * 20 end)
   ^ arrow(function(x, y) return tostring(x + y) end)
 print(result)  -- "500"
+```
 
--- Fun style: apply multiple values at the end of a chain
+**Fun style:**
+
+```lua
 local fun = require('luarrow').fun
+local let = require('luarrow').let
 
 local function scale(x, y) return x * 10, y * 20 end
 local function format(x, y) return tostring(x + y) end
 
-local result2 = fun(format) * fun(scale) % let(10, 20)
-print(result2)  -- "500"
+-- Apply multiple values at the end of a composition chain
+local result = fun(format) * fun(scale) % let(10, 20)
+print(result)  -- "500"
 ```
 
 **Parameters:**
