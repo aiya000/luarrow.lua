@@ -12,9 +12,9 @@ local M = {}
 ---
 ---Example (fun style):
 ---```lua
----local result = fun(function(x, y) return tostring(x + y) end)
----  * fun(function(x, y) return x * 10, y * 20 end)
----  % let(10, 20) -- result == "500"
+---local function scale(x, y) return x * 10, y * 20 end
+---local function format(x, y) return tostring(x + y) end
+---local result = fun(format) * fun(scale) % let(10, 20) -- result == "500"
 ---```
 ---
 ---@class Let : { _values: unknown[] }
