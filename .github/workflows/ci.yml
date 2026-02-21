@@ -1,0 +1,32 @@
+name: CI
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+    branches: ["**"]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Lua and LuaRocks
+        uses: leafo/gh-actions-lua@v10
+        with:
+          luaVersion: "5.1"
+
+      - name: Install LuaRocks dependencies
+        uses: leafo/gh-actions-luarocks@v4
+
+      - name: Install test dependencies
+        run: luarocks install --local busted
+
+      - name: Run tests
+        run: |
+          eval $(luarocks path)
+          busted
