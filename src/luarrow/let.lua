@@ -25,7 +25,7 @@ Let.__is_luarrow_let = true
 ---@alias luarrow.Let Let
 
 ---Handles `let(x, y, ...) % arrow_or_fun`, applying all stored values.
----@param f Arrow|Fun
+---@param f luarrow.Arrow|luarrow.Fun
 Let.__mod = function(self, f)
   return f:apply(table.unpack(self._values))
 end
