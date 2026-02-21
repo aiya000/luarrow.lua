@@ -78,7 +78,7 @@ end
 ---@param x unknown
 Fun.__mod = function(self, x)
   local mt = type(x) == 'table' and getmetatable(x) or nil
-  if mt and mt.__is_luarrow_let then
+  if mt ~= nil and mt.__is_luarrow_let ~= nil then
     return self.raw(utils.unpack(x._values))
   end
   return self.raw(x)
