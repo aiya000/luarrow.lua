@@ -1,3 +1,4 @@
+local utils = require('luarrow.utils')
 local M = {}
 
 ---The wrapper of a function from A to B.
@@ -78,7 +79,7 @@ end
 Fun.__mod = function(self, x)
   local mt = type(x) == 'table' and getmetatable(x) or nil
   if mt and mt.__is_luarrow_let then
-    return self.raw(table.unpack(x._values))
+    return self.raw(utils.unpack(x._values))
   end
   return self.raw(x)
 end

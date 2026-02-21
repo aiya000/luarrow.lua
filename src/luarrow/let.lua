@@ -1,3 +1,4 @@
+local utils = require('luarrow.utils')
 local M = {}
 
 ---Holds multiple values for use in arrow and fun pipelines without needing `:apply()`.
@@ -11,7 +12,9 @@ local M = {}
 ---
 ---Example (fun style):
 ---```lua
----local result = fun(g) * fun(f) % let(10, 20)
+---local result = fun(function(x, y) return tostring(x + y) end)
+---  * fun(function(x, y) return x * 10, y * 20 end)
+---  % let(10, 20) -- result == "500"
 ---```
 ---
 ---@class Let : { _values: unknown[] }
@@ -27,7 +30,7 @@ Let.__is_luarrow_let = true
 ---Handles `let(x, y, ...) % arrow_or_fun`, applying all stored values.
 ---@param f luarrow.Arrow|luarrow.Fun
 Let.__mod = function(self, f)
-  return f:apply(table.unpack(self._values))
+  return f:apply(utils.unpack(self._values))
 end
 
 ---@param ... unknown
