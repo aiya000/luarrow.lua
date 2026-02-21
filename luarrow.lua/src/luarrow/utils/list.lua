@@ -279,12 +279,38 @@ function M.sort(list)
 end
 
 ---Sort by key function or comparator.
----When key is a function that returns a value, it sorts by that value.
----When key is a comparator function, it uses it directly.
+---When `key` is a function that returns a value, it sorts by that derived value.
+---When `key` is a comparator function (`fun(a: A, b: A): boolean`), it uses it directly.
+---
+---@usage
+---  -- Using a key function (sort strings by length)
+---  -- Result: {"a", "bb", "ccc"}
+---  list.sort_by(function(x) return #x end)({"bb", "a", "ccc"})
+---
+---  -- Using a comparator (sort numbers in descending order)
+---  -- Result: {3, 2, 1}
+---  list.sort_by(function(a, b) return a > b end)({1, 3, 2})
+---
+---@example
+---  -- WARNING: auto-detection of comparator vs key function
+---  -- sort_by tries calling `key(a, b)`; if it succeeds and returns a boolean,
+---  -- it is treated as a comparator instead of a key function.
+---
+---  -- This key function accepts two arguments and returns a boolean,
+---  -- so it will be misidentified as a comparator:
+---  local function problematic_key(x, _)
+---    return x > 0  -- boolean result
+---  end
+---
+---  -- BAD: treated as comparator, not as a key function
+---  list.sort_by(problematic_key)({1, -1, 2})
+---
+---  -- GOOD: wrap it so sort_by only sees a single-argument key function
+---  list.sort_by(function(x) return problematic_key(x) end)({1, -1, 2})
 ---
 ---Note: If a key function accepts two arguments and returns a boolean,
----it will be treated as a comparator. In such cases, use a wrapper:
----  `sort_by(function(x) return key_fn(x) end)`
+---it will be treated as a comparator due to this auto-detection rule.
+---In such cases, wrap it in a single-argument function, as shown above.
 ---@generic A, K
 ---@param key fun(x: A): K | fun(a: A, b: A): boolean
 ---@return fun(xs: A[]): A[]
