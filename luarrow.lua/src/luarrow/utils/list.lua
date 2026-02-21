@@ -321,12 +321,12 @@ function M.sort_by(key)
       result[i] = v
     end
 
-    -- Safely detect if key is a comparator or key function
-    -- Try calling with two arguments in a protected call
+    -- Detect if key is a comparator or key function using function arity
     local is_comparator = false
-    if #list >= 2 then
-      local success, test_result = pcall(key, list[1], list[2])
-      if success and type(test_result) == 'boolean' then
+
+    if type(key) == 'function' and debug and debug.getinfo then
+      local info = debug.getinfo(key, 'u')
+      if info and info.nparams and info.nparams >= 2 then
         is_comparator = true
       end
     end
