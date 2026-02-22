@@ -223,6 +223,35 @@ use {
 Plug 'aiya000/luarrow.lua', { 'do': 'make install-to-local' }
 ```
 
+#### Manually (git clone or git submodule)
+
+You can also add luarrow directly to your Neovim config directory without a package manager.
+
+**With git clone:**
+
+```shell-session
+$ git clone https://github.com/aiya000/luarrow.lua ~/.config/nvim/lua/luarrow-repo
+```
+
+**With git submodule** (if your Neovim config is a git repository):
+
+```shell-session
+$ cd ~/.config/nvim
+$ git submodule add https://github.com/aiya000/luarrow.lua lua/luarrow-repo
+```
+
+Then add the `src` directory to the Lua path in your `init.lua`:
+
+```lua
+-- Add luarrow's src directory to the Lua path
+local luarrow_src = vim.fn.stdpath('config') .. '/lua/luarrow-repo/luarrow.lua/src'
+package.path = luarrow_src .. '/?.lua;' .. package.path
+
+-- Now you can use luarrow!
+local arrow = require('luarrow').arrow
+local fun = require('luarrow').fun
+```
+
 After installation, you need to ensure Neovim can find the LuaRocks modules. Add this to your `init.lua` before requiring luarrow:
 
 ```lua
