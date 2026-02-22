@@ -230,21 +230,21 @@ You can also add luarrow directly to your Neovim config directory without a pack
 **With git clone:**
 
 ```shell-session
-$ git clone https://github.com/aiya000/luarrow.lua ~/.config/nvim/lua/luarrow-repo
+$ git clone https://github.com/aiya000/luarrow.lua ~/.config/nvim/lua/luarrow
 ```
 
 **With git submodule** (if your Neovim config is a git repository):
 
 ```shell-session
 $ cd ~/.config/nvim
-$ git submodule add https://github.com/aiya000/luarrow.lua lua/luarrow-repo
+$ git submodule add https://github.com/aiya000/luarrow.lua lua/luarrow
 ```
 
 Then add the `src` directory to the Lua path in your `init.lua`:
 
 ```lua
 -- Add luarrow's src directory to the Lua path
-local luarrow_src = vim.fn.stdpath('config') .. '/lua/luarrow-repo/luarrow.lua/src'
+local luarrow_src = vim.fn.stdpath('config') .. '/lua/luarrow/luarrow.lua/src'
 package.path = luarrow_src .. '/?.lua;' .. package.path
 
 -- Now you can use luarrow!
