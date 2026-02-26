@@ -4,4 +4,6 @@ local M = {}
 ---@type fun(list: unknown[], i?: integer, j?: integer): ...
 M.unpack = table.unpack or unpack
 
+M.list = require('luarrow.utils.list')
+
 return M
