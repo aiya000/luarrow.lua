@@ -223,7 +223,7 @@ For practical examples and use cases, see **[./doc/examples.md](./doc/examples.m
 - `list.find(pred)` -- First element satisfying `pred`
 - `list.sort_by(key)` -- Sort by key function or comparator
 - `list.group_by(f)` -- Group elements by key function
-- ...and [many more](luarrow.lua/doc/api.md#-luarrowutilslist-api-reference)
+- ...and [many more](./doc/api.md#-luarrowutilslist-api-reference)
 
 ## 🔄 Comparison Haskell-Style with Real Haskell
 
