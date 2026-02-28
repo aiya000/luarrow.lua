@@ -987,29 +987,49 @@ list.sort({ 3, 1, 4, 1, 5 })  -- { 1, 1, 3, 4, 5 }
 
 ---
 
-#### `sort_by(key)` / `sort_with(key)`
+#### `sort_by(key)`
 
-Sort by key function or comparator. `sort_with` is an alias.
-
-When called with a single-argument key function, elements are sorted by the key value.  
-When called with a two-argument comparator returning boolean, it is used directly.
+Sort by a derived key value. The key function is applied to each element exactly once (Schwartzian transform). Keys must be comparable with `<` (numbers or strings).
 
 ```lua
--- By key function
 local items = { { name = 'b', v = 2 }, { name = 'a', v = 1 } }
 local result = list.sort_by(function(x) return x.v end)(items)
 -- { { name='a', v=1 }, { name='b', v=2 } }
 
--- By comparator (descending)
-local result = list.sort_by(function(a, b) return a > b end)({ 3, 1, 2 })
--- { 3, 2, 1 }
+-- Sort strings by length
+list.sort_by(function(s) return #s end)({ 'banana', 'fig', 'apple' })
+-- { 'fig', 'apple', 'banana' }
 ```
 
 > [!NOTE]
-> If your key function accepts two arguments and returns a boolean, it will be detected as a comparator. Wrap it to avoid this: `sort_by(function(x) return key_fn(x) end)`.
+> To sort by a boolean field, convert it to a number: `sort_by(function(x) return x.active and 1 or 0 end)`.
 
 **Parameters:**
-- `key: fun(x: A): K | fun(a: A, b: A): boolean`
+- `key: fun(x: A): K`
+
+**Returns:**
+- `fun(xs: A[]): A[]`
+
+---
+
+#### `sort_with(cmp)`
+
+Sort using a custom comparator function. The comparator receives two elements and must return `true` when the first should precede the second (same contract as `table.sort`).
+
+```lua
+-- Descending order
+local result = list.sort_with(function(a, b) return a > b end)({ 3, 1, 2 })
+-- { 3, 2, 1 }
+
+-- Sort structs by multiple fields
+list.sort_with(function(a, b)
+  if a.score ~= b.score then return a.score > b.score end
+  return a.name < b.name
+end)(players)
+```
+
+**Parameters:**
+- `cmp: fun(a: A, b: A): boolean`
 
 **Returns:**
 - `fun(xs: A[]): A[]`
@@ -1018,10 +1038,11 @@ local result = list.sort_by(function(a, b) return a > b end)({ 3, 1, 2 })
 
 #### `unique(list)`
 
-Remove duplicates, keeping the first occurrence of each value.
+Remove duplicates, keeping the first occurrence of each value. Equality uses Lua's `==` operator: primitives (numbers, strings, booleans) are compared by value; tables and functions are compared by **reference**. Use `unique_by` to deduplicate tables by a derived key.
 
 ```lua
 list.unique({ 1, 2, 2, 3, 1, 4 })  -- { 1, 2, 3, 4 }
+list.unique({ 'a', 'b', 'a' })      -- { 'a', 'b' }
 ```
 
 **Parameters:**
@@ -1029,6 +1050,28 @@ list.unique({ 1, 2, 2, 3, 1, 4 })  -- { 1, 2, 3, 4 }
 
 **Returns:**
 - `A[]`
+
+---
+
+#### `unique_by(f)`
+
+Remove duplicates by a derived key, keeping the first occurrence whose key was not yet seen. The key returned by `f` is compared with `==` (use primitives — numbers, strings — as keys for reliable equality).
+
+```lua
+local t1 = { name = 'Alice', score = 10 }
+local t2 = { name = 'Alice', score = 20 }
+local t3 = { name = 'Bob',   score = 30 }
+
+-- Deduplicate by the 'name' field
+list.unique_by(function(x) return x.name end)({ t1, t2, t3 })
+-- { t1, t3 }  (t2 dropped — 'Alice' already seen)
+```
+
+**Parameters:**
+- `f: fun(x: A): K`
+
+**Returns:**
+- `fun(xs: A[]): A[]`
 
 ---
 

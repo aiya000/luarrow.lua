@@ -253,7 +253,7 @@ Both produce the same result, but the syntax reflects different mental models:
 
 ### Pipeline-Style (`Arrow`) Real-World Examples
 
-### List Processing with `luarrow.utils.list`
+#### List Processing with `luarrow.utils.list`
 
 `luarrow.utils.list` provides curried list functions that compose directly with `arrow`, so no wrapper functions are needed.
 
