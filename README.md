@@ -311,9 +311,7 @@ Then add the `src` directory to the Lua path in your `init.lua`:
 
 ```lua
 -- Add luarrow's src directory to the Lua path
--- Note: the cloned repository contains a "luarrow.lua/src" subdirectory,
--- so the full path becomes: <your-config>/lua/luarrow/luarrow.lua/src
-local luarrow_src = vim.fn.stdpath('config') .. '/lua/luarrow/luarrow.lua/src'
+local luarrow_src = vim.fn.stdpath('config') .. '/lua/luarrow/src'
 package.path = luarrow_src .. '/?.lua;' .. package.path
 
 -- Now you can use luarrow!
