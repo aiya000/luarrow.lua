@@ -369,6 +369,9 @@ function M.unique_by(f)
     local seen = {}
     for _, v in ipairs(list) do
       local key = f(v)
+      if key == nil then
+        error('unique_by: key function returned nil (nil keys are not supported)', 2)
+      end
       if seen[key] == nil then
         seen[key] = true
         table.insert(result, v)
@@ -385,9 +388,12 @@ end
 function M.group_by(f)
   return function(list)
     local result = {}
-    for _, v in ipairs(list) do
+    for i, v in ipairs(list) do
       local key = f(v)
-      if not result[key] then
+      if key == nil then
+        error('group_by: key function returned nil for element at index ' .. tostring(i), 2)
+      end
+      if result[key] == nil then
         result[key] = {}
       end
       table.insert(result[key], v)

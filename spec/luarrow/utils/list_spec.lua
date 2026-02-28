@@ -391,6 +391,14 @@ describe('luarrow.utils.list', function()
       end)({})
       assert.are.same({}, result)
     end)
+
+    it('should error when key function returns nil', function()
+      assert.has_error(function()
+        list.unique_by(function(_)
+          return nil
+        end)({ 1, 2, 3 })
+      end, 'unique_by: key function returned nil (nil keys are not supported)')
+    end)
   end)
 
   describe('group_by', function()
@@ -410,6 +418,14 @@ describe('luarrow.utils.list', function()
       end)(items)
       assert.are.equal(2, #result['a'])
       assert.are.equal(1, #result['b'])
+    end)
+
+    it('should error when key function returns nil', function()
+      assert.has_error(function()
+        list.group_by(function(_)
+          return nil
+        end)({ 1, 2, 3 })
+      end, 'group_by: key function returned nil for element at index 1')
     end)
   end)
 
