@@ -294,7 +294,11 @@ function M.sort_by(key)
     -- Schwartzian transform: compute each key once, sort, then strip keys
     local decorated = {}
     for i, v in ipairs(list) do
-      decorated[i] = { value = v, key = key(v) }
+      local k = key(v)
+      if k == nil then
+        error('sort_by: key function returned nil (nil keys are not supported)')
+      end
+      decorated[i] = { value = v, key = k }
     end
 
     table.sort(decorated, function(a, b)

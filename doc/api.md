@@ -1005,7 +1005,7 @@ list.sort_by(function(s) return #s end)({ 'banana', 'fig', 'apple' })
 > To sort by a boolean field, convert it to a number: `sort_by(function(x) return x.active and 1 or 0 end)`.
 
 **Parameters:**
-- `key: fun(x: A): K`
+- `key: fun(x: A): K` - Key function. Must not return `nil`; raises `'sort_by: key function returned nil (nil keys are not supported)'` if it does.
 
 **Returns:**
 - `fun(xs: A[]): A[]`
@@ -1068,7 +1068,7 @@ list.unique_by(function(x) return x.name end)({ t1, t2, t3 })
 ```
 
 **Parameters:**
-- `f: fun(x: A): K`
+- `f: fun(x: A): K` - Key function. Must not return `nil`; raises `'unique_by: key function returned nil (nil keys are not supported)'` if it does.
 
 **Returns:**
 - `fun(xs: A[]): A[]`
@@ -1086,7 +1086,7 @@ local groups = list.group_by(function(x) return x % 2 end)({ 1, 2, 3, 4, 5, 6 })
 ```
 
 **Parameters:**
-- `f: fun(x: A): K` - Key function
+- `f: fun(x: A): K` - Key function. Must not return `nil`; raises `'group_by: key function returned nil for element at index N'` if it does.
 
 **Returns:**
 - `fun(xs: A[]): table<K, A[]>`

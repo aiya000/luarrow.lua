@@ -334,6 +334,14 @@ describe('luarrow.utils.list', function()
       assert.is_false(result[1].active)
     end)
 
+    it('sort_by should error when key function returns nil', function()
+      assert.has_error(function()
+        list.sort_by(function(_)
+          return nil
+        end)({ 1, 2, 3 })
+      end, 'sort_by: key function returned nil (nil keys are not supported)')
+    end)
+
     it('sort_with ascending', function()
       local result = list.sort_with(function(a, b)
         return a < b
