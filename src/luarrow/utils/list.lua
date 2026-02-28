@@ -329,7 +329,12 @@ function M.sort_with(cmp)
   end
 end
 
----Remove duplicates (first occurrence kept).
+---Remove duplicates using Lua's `==` operator (first occurrence kept).
+---
+---For primitives (numbers, strings, booleans) equality is by value.
+---For tables and functions equality is by **reference** — two separate tables
+---with identical contents are considered distinct. Use `unique_by` to
+---deduplicate tables by a derived key.
 ---@generic A
 ---@param list A[]
 ---@return A[]
@@ -337,12 +342,40 @@ function M.unique(list)
   local result = {}
   local seen = {}
   for _, v in ipairs(list) do
-    if not seen[v] then
+    if seen[v] == nil then
       seen[v] = true
       table.insert(result, v)
     end
   end
   return result
+end
+
+---Remove duplicates by a derived key (first occurrence kept).
+---Two elements are considered equal when their derived keys are `==`.
+---This is useful for deduplicating tables by a field value.
+---
+---```lua
+---list.unique_by(function(x) return x.name end)(
+---  { {name='Alice'}, {name='Bob'}, {name='Alice'} }
+---)
+----- => { {name='Alice'}, {name='Bob'} }
+---```
+---@generic A, K
+---@param f fun(x: A): K
+---@return fun(xs: A[]): A[]
+function M.unique_by(f)
+  return function(list)
+    local result = {}
+    local seen = {}
+    for _, v in ipairs(list) do
+      local key = f(v)
+      if seen[key] == nil then
+        seen[key] = true
+        table.insert(result, v)
+      end
+    end
+    return result
+  end
 end
 
 ---Group by key function.

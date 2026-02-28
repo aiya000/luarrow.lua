@@ -352,6 +352,45 @@ describe('luarrow.utils.list', function()
       local result = list.unique({ 'a', 'b', 'a', 'c', 'b' })
       assert.are.same({ 'a', 'b', 'c' }, result)
     end)
+
+    it('should keep both tables with identical content (reference equality)', function()
+      local t1 = { name = 'Alice' }
+      local t2 = { name = 'Alice' }  -- same content, different reference
+      local result = list.unique({ t1, t2, t1 })
+      -- t1 and t2 are distinct references, so both are kept; second t1 is a duplicate
+      assert.are.equal(2, #result)
+      assert.are.equal(t1, result[1])
+      assert.are.equal(t2, result[2])
+    end)
+  end)
+
+  describe('unique_by', function()
+    it('should deduplicate tables by derived key', function()
+      local t1 = { name = 'Alice', age = 30 }
+      local t2 = { name = 'Bob', age = 25 }
+      local t3 = { name = 'Alice', age = 40 }  -- same name as t1, different reference
+      local result = list.unique_by(function(x)
+        return x.name
+      end)({ t1, t2, t3 })
+      assert.are.equal(2, #result)
+      assert.are.equal(t1, result[1])
+      assert.are.equal(t2, result[2])
+    end)
+
+    it('should keep first occurrence by key', function()
+      local result = list.unique_by(function(x)
+        return x % 3
+      end)({ 1, 2, 3, 4, 5, 6 })
+      -- remainders: 1,2,0,1,2,0 → keep 1 (r=1), 2 (r=2), 3 (r=0)
+      assert.are.same({ 1, 2, 3 }, result)
+    end)
+
+    it('should handle empty list', function()
+      local result = list.unique_by(function(x)
+        return x
+      end)({})
+      assert.are.same({}, result)
+    end)
   end)
 
   describe('group_by', function()
