@@ -296,7 +296,7 @@ function M.sort_by(key)
     for i, v in ipairs(list) do
       local k = key(v)
       if k == nil then
-        error('sort_by: key function returned nil (nil keys are not supported)')
+        error('sort_by: key function returned nil (nil keys are not supported)', 2)
       end
       decorated[i] = { value = v, key = k }
     end

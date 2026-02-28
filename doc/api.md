@@ -22,7 +22,7 @@ For practical examples and use cases, see [examples.md](examples.md).
     - [Let class](#let-class)
     - [let(...)](#let)
     - [let(...) % arrow\_or\_fun (Multi-Value Pipeline Entry)](#let--arrow_or_fun-multi-value-pipeline-entry)
-4. [luarrow.utils.list API Reference](#-luarrowutilslist-api-reference)
+4. [luarrow.utils.list API Reference](#luarrowutilslist-api-reference)
     - [Basic Operations](#basic-operations)
     - [Fold Operations](#fold-operations)
     - [Aggregation](#aggregation)

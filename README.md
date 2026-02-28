@@ -221,9 +221,10 @@ For practical examples and use cases, see **[./doc/examples.md](./doc/examples.m
 - `list.filter(pred)` -- Keep elements satisfying `pred`
 - `list.foldl(f, init)` -- Left fold with initial value
 - `list.find(pred)` -- First element satisfying `pred`
-- `list.sort_by(key)` -- Sort by key function or comparator
+- `list.sort_by(key)` -- Sort by key function
+- `list.sort_with(cmp)` -- Sort with comparator function
 - `list.group_by(f)` -- Group elements by key function
-- ...and [many more](./doc/api.md#-luarrowutilslist-api-reference)
+- ...and [many more](./doc/api.md#luarrowutilslist-api-reference)
 
 ## 🔄 Comparison Haskell-Style with Real Haskell
 
