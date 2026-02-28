@@ -232,11 +232,11 @@ if vim.fn.executable('luarocks') ~= 1 then
 end
 
 -- Add LuaRocks paths to Neovim's package.path and package.cpath
--- Note: Ensure LuaRocks is configured for Lua 5.1 (Neovim's Lua version)
+-- Note: Explicitly request Lua 5.1 (Neovim's LuaJIT version) paths from LuaRocks
 local function add_luarocks_paths()
-  local handle = io.popen('luarocks path')
+  local handle, popen_err = io.popen('luarocks path --lua-version 5.1')
   if not handle then
-    return
+    error('Failed to run "luarocks path": ' .. (popen_err or 'unknown error'))
   end
 
   local result = handle:read('*a') or ''
