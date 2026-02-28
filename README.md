@@ -287,8 +287,8 @@ local fun = require('luarrow').fun
 > 1. LuaRocks is installed and configured for Lua 5.1 (check with `luarocks show luarrow` after installation)
 > 2. The package was installed with the correct Lua version: `luarocks install --lua-version 5.1 luarrow`
 > 3. Alternatively, launch Neovim with LuaRocks paths pre-configured:
->    - **Unix/macOS**: `eval $(luarocks path) && nvim`
->    - **Windows (PowerShell)**: Run `luarocks path` and apply the printed `LUA_PATH` / `LUA_CPATH` values in your PowerShell session before starting `nvim`
+>    - **Unix/macOS**: `eval $(luarocks path --lua-version 5.1) && nvim`
+>    - **Windows (PowerShell)**: Run `luarocks path --lua-version 5.1` and apply the printed `LUA_PATH` / `LUA_CPATH` values in your PowerShell session before starting `nvim`
 
 #### Manually (git clone or git submodule)
 
