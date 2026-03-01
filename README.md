@@ -309,7 +309,7 @@ local fun = require('luarrow').fun
 > [!NOTE]
 > Order of `require()` for this case is important.
 > First, `require('plugins')` and `require('luarocks')` to load `luarrow`.
-> (assuming `~/.config/nvim/l/ua/plugins.lua` manages your plugins including `luarrow` as above mentioned lines.)
+> (assuming `~/.config/nvim/lua/plugins.lua` manages your plugins including `luarrow` as above mentioned lines.)
 > Next, `require('luarrow')`.
 
 - - -
