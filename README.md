@@ -203,8 +203,8 @@ For Neovim users, you can install luarrow using your preferred package manager:
 
 ```lua
 {
-  "aiya000/luarrow.lua",
-  build = "luarocks install --lua-version 5.1 luarrow",
+  'aiya000/luarrow.lua',
+  build = 'luarocks install --lua-version 5.1 luarrow',
 }
 ```
 
@@ -212,8 +212,8 @@ For Neovim users, you can install luarrow using your preferred package manager:
 
 ```lua
 use {
-  "aiya000/luarrow.lua",
-  run = "luarocks install --lua-version 5.1 luarrow",
+  'aiya000/luarrow.lua',
+  run = 'luarocks install --lua-version 5.1 luarrow',
 }
 ```
 
@@ -223,9 +223,17 @@ use {
 Plug 'aiya000/luarrow.lua', { 'do': 'luarocks install --lua-version 5.1 luarrow' }
 ```
 
+- - -
+
 For package manager installations (lazy.nvim, packer.nvim, vim-plug), you need to ensure Neovim can find the LuaRocks modules. Add this to your `init.lua` before requiring luarrow:
 
-```lua
+1. Create `~/.config/nvim/lua/luarocks.lua`
+
+> [!TIP]
+> This is useful common function for luarocks packages.
+> You can also use it for other packages.
+
+```lua:luarocks.lua
 -- Ensure LuaRocks is installed and available in PATH
 if vim.fn.executable('luarocks') ~= 1 then
   error('LuaRocks is not found. Please make sure it is in your PATH.')
@@ -270,17 +278,41 @@ local function add_luarocks_paths()
 end
 
 add_luarocks_paths()
-
--- Verify luarrow was installed correctly
-local ok, luarrow = pcall(require, 'luarrow')
-if not ok then
-  error('luarrow package not found. Please check your LuaRocks installation.')
-end
-
--- Now you can use luarrow in your Neovim configs!
-local arrow = luarrow.arrow
-local fun = luarrow.fun
 ```
+
+2. Add following line to your `init.lua` to load the luarocks config:
+
+```lua
+require('luarocks')
+``````
+
+3. (optional) Verify that luarrow is now properly usable
+
+On your Neoivm:
+```vim
+:lua = require('luarrow')
+" {
+"   arrow = <function 1>,
+"   fun = <function 2>
+" }
+
+" (And other modules.)
+```
+
+4. Use `require('luarrow')` in your Neovim Lua code to access luarrow's API.
+
+```lua
+local arrow = require('luarrow').arrow
+local fun = require('luarrow').fun
+```
+
+> [!NOTE]
+> Order of `require()` for this case is important.
+> First, `require('plugins')` and `require('luarocks')` to load `luarrow`.
+> (assuming `~/.config/nvim/l/ua/plugins.lua` manages your plugins including `luarrow` as above mentioned lines.)
+> Next, `require('luarrow')`.
+
+- - -
 
 > [!NOTE]
 > If you encounter issues with `require('luarrow')`, ensure that:
