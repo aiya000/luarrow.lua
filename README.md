@@ -288,7 +288,7 @@ require('luarocks')
 
 3. (optional) Verify that luarrow is now properly usable
 
-On your Neoivm:
+On your Neovim:
 ```vim
 :lua = require('luarrow')
 " {
