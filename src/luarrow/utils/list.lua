@@ -90,7 +90,7 @@ end
 function M.foldl1(f)
   return function(list)
     if #list == 0 then
-      error('foldl1: empty list')
+      error('foldl1: empty list', 2)
     end
     local acc = list[1]
     for i = 2, #list do
@@ -107,7 +107,7 @@ end
 function M.foldr1(f)
   return function(list)
     if #list == 0 then
-      error('foldr1: empty list')
+      error('foldr1: empty list', 2)
     end
     local acc = list[#list]
     for i = #list - 1, 1, -1 do
@@ -238,7 +238,7 @@ end
 ---@return number
 function M.maximum(list)
   if #list == 0 then
-    error('maximum: empty list')
+    error('maximum: empty list', 2)
   end
   local max = list[1]
   for i = 2, #list do
@@ -254,7 +254,7 @@ end
 ---@return number
 function M.minimum(list)
   if #list == 0 then
-    error('minimum: empty list')
+    error('minimum: empty list', 2)
   end
   local min = list[1]
   for i = 2, #list do
