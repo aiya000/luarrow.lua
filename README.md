@@ -233,7 +233,7 @@ For package manager installations (lazy.nvim, packer.nvim, vim-plug), you need t
 > This is useful common function for luarocks packages.
 > You can also use it for other packages.
 
-```lua:luarocks.lua
+```lua
 -- Ensure LuaRocks is installed and available in PATH
 if vim.fn.executable('luarocks') ~= 1 then
   error('LuaRocks is not found. Please make sure it is in your PATH.')
@@ -284,7 +284,7 @@ add_luarocks_paths()
 
 ```lua
 require('luarocks')
-``````
+```
 
 3. (optional) Verify that luarrow is now properly usable
 
