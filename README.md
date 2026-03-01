@@ -72,7 +72,7 @@ Write **dramatically** cleaner, more expressive Lua code:
     - **Haskell-inspired syntax** - Write `f * g % x` instead of `f(g(x))`
 - **Zero dependencies** - Pure Lua implementation with no external dependencies
 - **Excellent performance** - In LuaJIT environments (like Neovim), pre-composed functions have **virtually no overhead** compared to pure Lua
-    - See [Performance Benchmarks](./doc/examples.md#-performance-considerations) for detailed results
+    - See [Performance Benchmarks](./doc/examples.md#performance-considerations) for detailed results
 
 > [!NOTE]
 > **About the name:**
