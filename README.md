@@ -195,6 +195,162 @@ $ cd luarrow.lua
 $ make install-to-local
 ```
 
+### With Neovim
+
+For Neovim users, you can install luarrow using your preferred package manager:
+
+#### lazy.nvim
+
+```lua
+{
+  'aiya000/luarrow.lua',
+  build = 'luarocks install --lua-version 5.1 luarrow',
+}
+```
+
+#### packer.nvim
+
+```lua
+use {
+  'aiya000/luarrow.lua',
+  run = 'luarocks install --lua-version 5.1 luarrow',
+}
+```
+
+#### vim-plug
+
+```vim
+Plug 'aiya000/luarrow.lua', { 'do': 'luarocks install --lua-version 5.1 luarrow' }
+```
+
+- - -
+
+For package manager installations (lazy.nvim, packer.nvim, vim-plug), you need to ensure Neovim can find the LuaRocks modules. Add this to your `init.lua` before requiring luarrow:
+
+1. Create `~/.config/nvim/lua/luarocks.lua`
+
+> [!TIP]
+> This is useful common function for luarocks packages.
+> You can also use it for other packages.
+
+```lua
+-- Ensure LuaRocks is installed and available in PATH
+if vim.fn.executable('luarocks') ~= 1 then
+  error('LuaRocks is not found. Please make sure it is in your PATH.')
+end
+
+-- Add LuaRocks paths to Neovim's package.path and package.cpath
+-- Note: Explicitly request Lua 5.1 (Neovim's LuaJIT version) paths from LuaRocks
+local function add_luarocks_paths()
+  local handle, popen_err = io.popen('luarocks path --lua-version 5.1')
+  if not handle then
+    error('Failed to run "luarocks path": ' .. (popen_err or 'unknown error'))
+  end
+
+  local result = handle:read('*a') or ''
+  handle:close()
+
+  local function trim_trailing_separators(s)
+    return (s:gsub('[;%s]+$', ''))
+  end
+
+  -- Extract LUA_PATH from the shell commands printed by `luarocks path`
+  local lua_path = result:match('LUA_PATH%s*=%s*"([^"]+)"')
+                or result:match("LUA_PATH%s*=%s*'([^']+)'")
+                or result:match('LUA_PATH%s*=%s*([^\n]+)')
+  if lua_path and lua_path ~= '' then
+    lua_path = trim_trailing_separators(lua_path)
+    if lua_path ~= '' then
+      package.path = package.path .. ';' .. lua_path
+    end
+  end
+
+  -- Extract LUA_CPATH from the shell commands printed by `luarocks path`
+  local lua_cpath = result:match('LUA_CPATH%s*=%s*"([^"]+)"')
+                 or result:match("LUA_CPATH%s*=%s*'([^']+)'")
+                 or result:match('LUA_CPATH%s*=%s*([^\n]+)')
+  if lua_cpath and lua_cpath ~= '' then
+    lua_cpath = trim_trailing_separators(lua_cpath)
+    if lua_cpath ~= '' then
+      package.cpath = package.cpath .. ';' .. lua_cpath
+    end
+  end
+end
+
+add_luarocks_paths()
+```
+
+2. Add following line to your `init.lua` to load the luarocks config:
+
+```lua
+require('luarocks')
+```
+
+3. (optional) Verify that luarrow is now properly usable
+
+On your Neovim:
+```vim
+:lua = require('luarrow')
+" {
+"   arrow = <function 1>,
+"   fun = <function 2>
+" }
+
+" (And other modules.)
+```
+
+4. Use `require('luarrow')` in your Neovim Lua code to access luarrow's API.
+
+```lua
+local arrow = require('luarrow').arrow
+local fun = require('luarrow').fun
+```
+
+> [!NOTE]
+> Order of `require()` for this case is important.
+> First, `require('plugins')` and `require('luarocks')` to load `luarrow`.
+> (assuming `~/.config/nvim/lua/plugins.lua` manages your plugins including `luarrow` as above mentioned lines.)
+> Next, `require('luarrow')`.
+
+- - -
+
+> [!NOTE]
+> If you encounter issues with `require('luarrow')`, ensure that:
+> 1. LuaRocks is installed and configured for Lua 5.1 (check with `luarocks show luarrow` after installation)
+> 2. The package was installed with the correct Lua version: `luarocks install --lua-version 5.1 luarrow`
+> 3. Alternatively, launch Neovim with LuaRocks paths pre-configured:
+>    - **Unix/macOS**: `eval $(luarocks path --lua-version 5.1) && nvim`
+>    - **Windows (PowerShell)**: Run `luarocks path --lua-version 5.1` and apply the printed `LUA_PATH` / `LUA_CPATH` values in your PowerShell session before starting `nvim`
+
+#### Manually (git clone or git submodule)
+
+You can also add luarrow directly to your Neovim config directory without a package manager.
+
+**With git clone:**
+
+```shell-session
+$ git clone https://github.com/aiya000/luarrow.lua ~/.config/nvim/lua/luarrow
+```
+
+**With git submodule** (if your Neovim config is a git repository):
+
+```shell-session
+$ cd ~/.config/nvim
+$ git submodule add https://github.com/aiya000/luarrow.lua lua/luarrow
+```
+
+Then add the `src` directory to the Lua path in your `init.lua`:
+
+```lua
+-- Add luarrow's src directory to the Lua path
+local luarrow_src = vim.fn.stdpath('config') .. '/lua/luarrow/src'
+package.path = luarrow_src .. '/?.lua;' .. package.path
+
+-- Now you can use luarrow!
+local arrow = require('luarrow').arrow
+local fun = require('luarrow').fun
+```
+
 ## 📚 API Reference
 
 For complete API documentation, see **[./doc/api.md](./doc/api.md)**.
