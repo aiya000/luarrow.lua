@@ -22,6 +22,13 @@ For practical examples and use cases, see [examples.md](examples.md).
     - [Let class](#let-class)
     - [let(...)](#let)
     - [let(...) % arrow\_or\_fun (Multi-Value Pipeline Entry)](#let--arrow_or_fun-multi-value-pipeline-entry)
+4. [luarrow.utils.list API Reference](#luarrowutilslist-api-reference)
+    - [Basic Operations](#basic-operations)
+    - [Fold Operations](#fold-operations)
+    - [Aggregation](#aggregation)
+    - [Inspection](#inspection)
+    - [Transformation](#transformation)
+    - [Search](#search)
 
 ## ⛲ `Fun` API Reference
 
@@ -613,3 +620,507 @@ print(result)  -- "500"
 > [!NOTE]
 > `let(x, y, ...) % f` is equivalent to `f:apply(x, y, ...)`.
 > It provides cleaner syntax for multi-value pipeline entry points.
+
+## 📋 `luarrow.utils.list` API Reference
+
+The `luarrow.utils.list` module provides functional list manipulation utilities. All functions that accept additional arguments are **curried** — they return a `fun(xs: A[])` — so they compose directly with `arrow`:
+
+```lua
+local arrow = require('luarrow').arrow
+local list = require('luarrow.utils.list')
+
+local _ = { 1, 2, 3 }
+  % arrow(list.map(function(x) return x + 10 end))
+  ^ arrow(list.filter(function(x) return x % 2 ~= 0 end))
+  ^ arrow(list.find(function(x) return x > 10 end))
+  ^ arrow(print)  -- 11
+```
+
+### Basic Operations
+
+#### `map(f)`
+
+Apply a function to each element, producing a new list.
+
+```lua
+local doubled = list.map(function(x) return x * 2 end)({ 1, 2, 3 })
+-- { 2, 4, 6 }
+
+-- With arrow:
+local _ = { 1, 2, 3 } % arrow(list.map(function(x) return x * 2 end))
+```
+
+**Parameters:**
+- `f: fun(x: A): B` - Transformation function
+
+**Returns:**
+- `fun(xs: A[]): B[]`
+
+---
+
+#### `filter(pred)`
+
+Keep elements that satisfy a predicate.
+
+```lua
+local evens = list.filter(function(x) return x % 2 == 0 end)({ 1, 2, 3, 4, 5 })
+-- { 2, 4 }
+```
+
+**Parameters:**
+- `pred: fun(x: A): boolean` - Predicate function
+
+**Returns:**
+- `fun(xs: A[]): A[]`
+
+---
+
+#### `flat_map(f)` / `concat_map(f)`
+
+Map then flatten one level. `concat_map` is an alias.
+
+```lua
+local result = list.flat_map(function(x) return { x, x * 2 } end)({ 1, 2, 3 })
+-- { 1, 2, 2, 4, 3, 6 }
+```
+
+**Parameters:**
+- `f: fun(x: A): B[]` - Function returning a list
+
+**Returns:**
+- `fun(xs: A[]): B[]`
+
+---
+
+#### `flatten(list)`
+
+Flatten one level of nesting.
+
+```lua
+local result = list.flatten({ { 1, 2 }, { 3, 4 }, { 5 } })
+-- { 1, 2, 3, 4, 5 }
+```
+
+**Parameters:**
+- `list: A[][]` - Nested list
+
+**Returns:**
+- `A[]`
+
+---
+
+#### `find(pred)`
+
+Return the first element satisfying the predicate, or `nil`.
+
+```lua
+local first = list.find(function(x) return x > 3 end)({ 1, 2, 3, 4, 5 })
+-- 4
+```
+
+**Parameters:**
+- `pred: fun(x: A): boolean` - Predicate function
+
+**Returns:**
+- `fun(xs: A[]): A | nil`
+
+---
+
+### Fold Operations
+
+#### `foldl(f, init)` / `reduce(f, init)`
+
+Left fold with an initial accumulator. `reduce` is an alias.
+
+```lua
+local sum = list.foldl(function(acc, x) return acc + x end, 0)({ 1, 2, 3, 4 })
+-- 10
+```
+
+**Parameters:**
+- `f: fun(acc: B, x: A): B` - Fold function
+- `init: B` - Initial accumulator
+
+**Returns:**
+- `fun(xs: A[]): B`
+
+---
+
+#### `foldr(f, init)`
+
+Right fold with an initial accumulator.
+
+```lua
+local result = list.foldr(function(x, acc) return x .. acc end, 'd')({ 'a', 'b', 'c' })
+-- 'abcd'
+```
+
+**Parameters:**
+- `f: fun(x: A, acc: B): B` - Fold function
+- `init: B` - Initial accumulator
+
+**Returns:**
+- `fun(xs: A[]): B`
+
+---
+
+#### `foldl1(f)`
+
+Left fold without initial value (errors on empty list).
+
+```lua
+local product = list.foldl1(function(acc, x) return acc * x end)({ 2, 3, 4 })
+-- 24
+```
+
+**Parameters:**
+- `f: fun(acc: A, x: A): A` - Fold function
+
+**Returns:**
+- `fun(xs: A[]): A`
+
+---
+
+#### `foldr1(f)`
+
+Right fold without initial value (errors on empty list).
+
+```lua
+local result = list.foldr1(function(x, acc) return x .. acc end)({ 'a', 'b', 'c' })
+-- 'abc'
+```
+
+**Parameters:**
+- `f: fun(x: A, acc: A): A` - Fold function
+
+**Returns:**
+- `fun(xs: A[]): A`
+
+---
+
+### Aggregation
+
+#### `join(sep)`
+
+Join a list of strings with a delimiter.
+
+```lua
+local result = list.join(', ')({ 'a', 'b', 'c' })
+-- 'a, b, c'
+```
+
+**Parameters:**
+- `sep: string` - Delimiter string
+
+**Returns:**
+- `fun(xs: string[]): string`
+
+---
+
+#### `sum(list)`
+
+Sum all numeric elements.
+
+```lua
+list.sum({ 1, 2, 3, 4, 5 })  -- 15
+list.sum({})  -- 0
+```
+
+**Parameters:**
+- `list: number[]`
+
+**Returns:**
+- `number`
+
+---
+
+#### `product(list)`
+
+Multiply all numeric elements.
+
+```lua
+list.product({ 2, 3, 4 })  -- 24
+list.product({})  -- 1
+```
+
+**Parameters:**
+- `list: number[]`
+
+**Returns:**
+- `number`
+
+---
+
+### Inspection
+
+#### `length(list)`
+
+Return the number of elements.
+
+```lua
+list.length({ 1, 2, 3 })  -- 3
+```
+
+**Parameters:**
+- `list: A[]`
+
+**Returns:**
+- `integer`
+
+---
+
+#### `is_empty(list)`
+
+Return `true` if the list has no elements.
+
+```lua
+list.is_empty({})    -- true
+list.is_empty({ 1 }) -- false
+```
+
+**Parameters:**
+- `list: A[]`
+
+**Returns:**
+- `boolean`
+
+---
+
+#### `head(list)`
+
+Return the first element, or `nil` for an empty list.
+
+```lua
+list.head({ 1, 2, 3 })  -- 1
+list.head({})            -- nil
+```
+
+**Parameters:**
+- `list: A[]`
+
+**Returns:**
+- `A | nil`
+
+---
+
+#### `tail(list)`
+
+Return all elements except the first.
+
+```lua
+list.tail({ 1, 2, 3, 4 })  -- { 2, 3, 4 }
+list.tail({})               -- {}
+```
+
+**Parameters:**
+- `list: A[]`
+
+**Returns:**
+- `A[]`
+
+---
+
+#### `last(list)`
+
+Return the last element, or `nil` for an empty list.
+
+```lua
+list.last({ 1, 2, 3 })  -- 3
+list.last({})            -- nil
+```
+
+**Parameters:**
+- `list: A[]`
+
+**Returns:**
+- `A | nil`
+
+---
+
+#### `init(list)`
+
+Return all elements except the last.
+
+```lua
+list.init({ 1, 2, 3, 4 })  -- { 1, 2, 3 }
+```
+
+**Parameters:**
+- `list: A[]`
+
+**Returns:**
+- `A[]`
+
+---
+
+### Transformation
+
+#### `reverse(list)`
+
+Return a reversed copy of the list.
+
+```lua
+list.reverse({ 1, 2, 3 })  -- { 3, 2, 1 }
+```
+
+**Parameters:**
+- `list: A[]`
+
+**Returns:**
+- `A[]`
+
+---
+
+#### `sort(list)`
+
+Return a sorted copy using the default comparator.
+
+```lua
+list.sort({ 3, 1, 4, 1, 5 })  -- { 1, 1, 3, 4, 5 }
+```
+
+**Parameters:**
+- `list: A[]`
+
+**Returns:**
+- `A[]`
+
+---
+
+#### `sort_by(key)`
+
+Sort by a derived key value. The key function is applied to each element exactly once (Schwartzian transform). Keys must be comparable with `<` (numbers or strings).
+
+```lua
+local items = { { name = 'b', v = 2 }, { name = 'a', v = 1 } }
+local result = list.sort_by(function(x) return x.v end)(items)
+-- { { name='a', v=1 }, { name='b', v=2 } }
+
+-- Sort strings by length
+list.sort_by(function(s) return #s end)({ 'banana', 'fig', 'apple' })
+-- { 'fig', 'apple', 'banana' }
+```
+
+> [!NOTE]
+> To sort by a boolean field, convert it to a number: `sort_by(function(x) return x.active and 1 or 0 end)`.
+
+**Parameters:**
+- `key: fun(x: A): K` - Key function. Must not return `nil`; raises `'sort_by: key function returned nil (nil keys are not supported)'` if it does.
+
+**Returns:**
+- `fun(xs: A[]): A[]`
+
+---
+
+#### `sort_with(cmp)`
+
+Sort using a custom comparator function. The comparator receives two elements and must return `true` when the first should precede the second (same contract as `table.sort`).
+
+```lua
+-- Descending order
+local result = list.sort_with(function(a, b) return a > b end)({ 3, 1, 2 })
+-- { 3, 2, 1 }
+
+-- Sort structs by multiple fields
+list.sort_with(function(a, b)
+  if a.score ~= b.score then return a.score > b.score end
+  return a.name < b.name
+end)(players)
+```
+
+**Parameters:**
+- `cmp: fun(a: A, b: A): boolean`
+
+**Returns:**
+- `fun(xs: A[]): A[]`
+
+---
+
+#### `unique(list)`
+
+Remove duplicates, keeping the first occurrence of each value. Equality uses Lua's `==` operator: primitives (numbers, strings, booleans) are compared by value; tables and functions are compared by **reference**. Use `unique_by` to deduplicate tables by a derived key.
+
+```lua
+list.unique({ 1, 2, 2, 3, 1, 4 })  -- { 1, 2, 3, 4 }
+list.unique({ 'a', 'b', 'a' })      -- { 'a', 'b' }
+```
+
+**Parameters:**
+- `list: A[]`
+
+**Returns:**
+- `A[]`
+
+---
+
+#### `unique_by(f)`
+
+Remove duplicates by a derived key, keeping the first occurrence whose key was not yet seen. The key returned by `f` is compared with `==` (use primitives — numbers, strings — as keys for reliable equality).
+
+```lua
+local t1 = { name = 'Alice', score = 10 }
+local t2 = { name = 'Alice', score = 20 }
+local t3 = { name = 'Bob',   score = 30 }
+
+-- Deduplicate by the 'name' field
+list.unique_by(function(x) return x.name end)({ t1, t2, t3 })
+-- { t1, t3 }  (t2 dropped — 'Alice' already seen)
+```
+
+**Parameters:**
+- `f: fun(x: A): K` - Key function. Must not return `nil`; raises `'unique_by: key function returned nil (nil keys are not supported)'` if it does.
+
+**Returns:**
+- `fun(xs: A[]): A[]`
+
+---
+
+#### `group_by(f)`
+
+Group elements by the value returned by `f`.
+
+```lua
+local groups = list.group_by(function(x) return x % 2 end)({ 1, 2, 3, 4, 5, 6 })
+-- groups[0] = { 2, 4, 6 }  (even)
+-- groups[1] = { 1, 3, 5 }  (odd)
+```
+
+**Parameters:**
+- `f: fun(x: A): K` - Key function. Must not return `nil`; raises `'group_by: key function returned nil for element at index N'` if it does.
+
+**Returns:**
+- `fun(xs: A[]): table<K, A[]>`
+
+---
+
+### Search
+
+#### `maximum(list)`
+
+Return the largest element (errors on empty list).
+
+```lua
+list.maximum({ 3, 1, 4, 1, 5 })  -- 5
+```
+
+**Parameters:**
+- `list: number[]`
+
+**Returns:**
+- `number`
+
+---
+
+#### `minimum(list)`
+
+Return the smallest element (errors on empty list).
+
+```lua
+list.minimum({ 3, 1, 4, 1, 5 })  -- 1
+```
+
+**Parameters:**
+- `list: number[]`
+
+**Returns:**
+- `number`

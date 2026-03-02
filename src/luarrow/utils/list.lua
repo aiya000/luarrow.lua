@@ -1,0 +1,424 @@
+local M = {}
+
+---Apply a function to each element, producing a new list.
+---@generic A, B
+---@param f fun(x: A): B
+---@return fun(xs: A[]): B[]
+function M.map(f)
+  return function(list)
+    local result = {}
+    for i, v in ipairs(list) do
+      result[i] = f(v)
+    end
+    return result
+  end
+end
+
+---Keep elements that satisfy a predicate.
+---@generic A
+---@param pred fun(x: A): boolean
+---@return fun(xs: A[]): A[]
+function M.filter(pred)
+  return function(list)
+    local result = {}
+    for _, v in ipairs(list) do
+      if pred(v) then
+        table.insert(result, v)
+      end
+    end
+    return result
+  end
+end
+
+---Map then flatten one level.
+---@generic A, B
+---@param f fun(x: A): B[]
+---@return fun(xs: A[]): B[]
+function M.flat_map(f)
+  return function(list)
+    local result = {}
+    for _, v in ipairs(list) do
+      local mapped = f(v)
+      for _, item in ipairs(mapped) do
+        table.insert(result, item)
+      end
+    end
+    return result
+  end
+end
+
+---Alias for flat_map
+M.concat_map = M.flat_map
+
+---Left fold.
+---@generic A, B
+---@param f fun(acc: B, x: A): B
+---@param init B
+---@return fun(xs: A[]): B
+function M.foldl(f, init)
+  return function(list)
+    local acc = init
+    for _, v in ipairs(list) do
+      acc = f(acc, v)
+    end
+    return acc
+  end
+end
+
+---Alias for foldl
+M.reduce = M.foldl
+
+---Right fold.
+---@generic A, B
+---@param f fun(x: A, acc: B): B
+---@param init B
+---@return fun(xs: A[]): B
+function M.foldr(f, init)
+  return function(list)
+    local acc = init
+    for i = #list, 1, -1 do
+      acc = f(list[i], acc)
+    end
+    return acc
+  end
+end
+
+---Left fold without initial value.
+---@generic A
+---@param f fun(acc: A, x: A): A
+---@return fun(xs: A[]): A
+function M.foldl1(f)
+  return function(list)
+    if #list == 0 then
+      error('foldl1: empty list', 2)
+    end
+    local acc = list[1]
+    for i = 2, #list do
+      acc = f(acc, list[i])
+    end
+    return acc
+  end
+end
+
+---Right fold without initial value.
+---@generic A
+---@param f fun(x: A, acc: A): A
+---@return fun(xs: A[]): A
+function M.foldr1(f)
+  return function(list)
+    if #list == 0 then
+      error('foldr1: empty list', 2)
+    end
+    local acc = list[#list]
+    for i = #list - 1, 1, -1 do
+      acc = f(list[i], acc)
+    end
+    return acc
+  end
+end
+
+---Flatten one level of nesting.
+---@generic A
+---@param list A[][]
+---@return A[]
+function M.flatten(list)
+  local result = {}
+  for _, sublist in ipairs(list) do
+    for _, item in ipairs(sublist) do
+      table.insert(result, item)
+    end
+  end
+  return result
+end
+
+---Join list of strings with delimiter.
+---@param sep string
+---@return fun(xs: string[]): string
+function M.join(sep)
+  return function(list)
+    return table.concat(list, sep)
+  end
+end
+
+---Sum numeric elements.
+---@param list number[]
+---@return number
+function M.sum(list)
+  local total = 0
+  for _, v in ipairs(list) do
+    total = total + v
+  end
+  return total
+end
+
+---Product of numeric elements.
+---@param list number[]
+---@return number
+function M.product(list)
+  if #list == 0 then
+    return 1
+  end
+  local result = 1
+  for _, v in ipairs(list) do
+    result = result * v
+  end
+  return result
+end
+
+---Return number of elements.
+---@generic A
+---@param list A[]
+---@return integer
+function M.length(list)
+  return #list
+end
+
+---True if list is empty.
+---@generic A
+---@param list A[]
+---@return boolean
+function M.is_empty(list)
+  return #list == 0
+end
+
+---First element (or nil).
+---@generic A
+---@param list A[]
+---@return A | nil
+function M.head(list)
+  return list[1]
+end
+
+---List without the first element.
+---@generic A
+---@param list A[]
+---@return A[]
+function M.tail(list)
+  local result = {}
+  for i = 2, #list do
+    table.insert(result, list[i])
+  end
+  return result
+end
+
+---Last element (or nil).
+---@generic A
+---@param list A[]
+---@return A | nil
+function M.last(list)
+  return list[#list]
+end
+
+---All elements except the last.
+---@generic A
+---@param list A[]
+---@return A[]
+function M.init(list)
+  local result = {}
+  for i = 1, #list - 1 do
+    table.insert(result, list[i])
+  end
+  return result
+end
+
+---Reverse the list.
+---@generic A
+---@param list A[]
+---@return A[]
+function M.reverse(list)
+  local result = {}
+  for i = #list, 1, -1 do
+    table.insert(result, list[i])
+  end
+  return result
+end
+
+---Largest element.
+---@param list number[]
+---@return number
+function M.maximum(list)
+  if #list == 0 then
+    error('maximum: empty list', 2)
+  end
+  local max = list[1]
+  for i = 2, #list do
+    if list[i] > max then
+      max = list[i]
+    end
+  end
+  return max
+end
+
+---Smallest element.
+---@param list number[]
+---@return number
+function M.minimum(list)
+  if #list == 0 then
+    error('minimum: empty list', 2)
+  end
+  local min = list[1]
+  for i = 2, #list do
+    if list[i] < min then
+      min = list[i]
+    end
+  end
+  return min
+end
+
+---Sort with default comparator.
+---@generic A
+---@param list A[]
+---@return A[]
+function M.sort(list)
+  local result = {}
+  for i, v in ipairs(list) do
+    result[i] = v
+  end
+  table.sort(result)
+  return result
+end
+
+---Sort by a key function.
+---Derives a sort key from each element and sorts ascending by `key(a) < key(b)`.
+---Keys are computed once per element (Schwartzian transform) for efficiency.
+---Keys must be comparable with `<` (numbers or strings).
+---To sort by a boolean field, convert to a number:
+---  `sort_by(function(x) return x.active and 1 or 0 end)`
+---
+---For sorting with a custom comparator, use `sort_with` instead.
+---@generic A, K
+---@param key fun(x: A): K
+---@return fun(xs: A[]): A[]
+function M.sort_by(key)
+  return function(list)
+    -- Schwartzian transform: compute each key once, sort, then strip keys
+    local decorated = {}
+    for i, v in ipairs(list) do
+      local k = key(v)
+      if k == nil then
+        error('sort_by: key function returned nil (nil keys are not supported)', 2)
+      end
+      decorated[i] = { value = v, key = k }
+    end
+
+    table.sort(decorated, function(a, b)
+      return a.key < b.key
+    end)
+
+    local result = {}
+    for i, item in ipairs(decorated) do
+      result[i] = item.value
+    end
+
+    return result
+  end
+end
+
+---Sort using a comparator function.
+---The comparator receives two elements and must return `true` when the first
+---should precede the second (i.e. behaves like `<`).
+---
+---For sorting by a derived key value, use `sort_by` instead.
+---@generic A
+---@param cmp fun(a: A, b: A): boolean
+---@return fun(xs: A[]): A[]
+function M.sort_with(cmp)
+  return function(list)
+    local result = {}
+    for i, v in ipairs(list) do
+      result[i] = v
+    end
+    table.sort(result, cmp)
+    return result
+  end
+end
+
+---Remove duplicates using Lua's `==` operator (first occurrence kept).
+---
+---For primitives (numbers, strings, booleans) equality is by value.
+---For tables and functions equality is by **reference** — two separate tables
+---with identical contents are considered distinct. Use `unique_by` to
+---deduplicate tables by a derived key.
+---@generic A
+---@param list A[]
+---@return A[]
+function M.unique(list)
+  local result = {}
+  local seen = {}
+  for _, v in ipairs(list) do
+    if seen[v] == nil then
+      seen[v] = true
+      table.insert(result, v)
+    end
+  end
+  return result
+end
+
+---Remove duplicates by a derived key (first occurrence kept).
+---Two elements are considered equal when their derived keys are `==`.
+---This is useful for deduplicating tables by a field value.
+---
+---```lua
+---list.unique_by(function(x) return x.name end)(
+---  { {name='Alice'}, {name='Bob'}, {name='Alice'} }
+---)
+----- => { {name='Alice'}, {name='Bob'} }
+---```
+---@generic A, K
+---@param f fun(x: A): K
+---@return fun(xs: A[]): A[]
+function M.unique_by(f)
+  return function(list)
+    local result = {}
+    local seen = {}
+    for _, v in ipairs(list) do
+      local key = f(v)
+      if key == nil then
+        error('unique_by: key function returned nil (nil keys are not supported)', 2)
+      end
+      if seen[key] == nil then
+        seen[key] = true
+        table.insert(result, v)
+      end
+    end
+    return result
+  end
+end
+
+---Group by key function.
+---@generic A, K
+---@param f fun(x: A): K
+---@return fun(xs: A[]): table<K, A[]>
+function M.group_by(f)
+  return function(list)
+    local result = {}
+    for i, v in ipairs(list) do
+      local key = f(v)
+      if key == nil then
+        error('group_by: key function returned nil for element at index ' .. tostring(i), 2)
+      end
+      if result[key] == nil then
+        result[key] = {}
+      end
+      table.insert(result[key], v)
+    end
+    return result
+  end
+end
+
+---Find first element that satisfies predicate.
+---@generic A
+---@param pred fun(x: A): boolean
+---@return fun(xs: A[]): A | nil
+function M.find(pred)
+  return function(list)
+    for _, v in ipairs(list) do
+      if pred(v) then
+        return v
+      end
+    end
+    return nil
+  end
+end
+
+return M

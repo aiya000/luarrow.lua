@@ -28,6 +28,9 @@ build = {
       luarrow = 'src/luarrow.lua',
       ['luarrow.fun'] = 'src/luarrow/fun.lua',
       ['luarrow.arrow'] = 'src/luarrow/arrow.lua',
+      ['luarrow.let'] = 'src/luarrow/let.lua',
+      ['luarrow.utils'] = 'src/luarrow/utils.lua',
+      ['luarrow.utils.list'] = 'src/luarrow/utils/list.lua',
    },
    copy_directories = {
       'doc',
