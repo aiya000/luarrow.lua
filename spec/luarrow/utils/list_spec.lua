@@ -363,7 +363,7 @@ describe('luarrow.utils.list', function()
 
     it('should keep both tables with identical content (reference equality)', function()
       local t1 = { name = 'Alice' }
-      local t2 = { name = 'Alice' }  -- same content, different reference
+      local t2 = { name = 'Alice' } -- same content, different reference
       local result = list.unique({ t1, t2, t1 })
       -- t1 and t2 are distinct references, so both are kept; second t1 is a duplicate
       assert.are.equal(2, #result)
@@ -376,7 +376,7 @@ describe('luarrow.utils.list', function()
     it('should deduplicate tables by derived key', function()
       local t1 = { name = 'Alice', age = 30 }
       local t2 = { name = 'Bob', age = 25 }
-      local t3 = { name = 'Alice', age = 40 }  -- same name as t1, different reference
+      local t3 = { name = 'Alice', age = 40 } -- same name as t1, different reference
       local result = list.unique_by(function(x)
         return x.name
       end)({ t1, t2, t3 })
