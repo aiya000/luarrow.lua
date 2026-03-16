@@ -59,12 +59,8 @@ clean:
 check-uploadable:
 	luarocks install --local --force $(ROCK_FILE) && echo "Package is uploadable." || (echo "Package is not uploadable." && exit 1)
 
-# Usage:
-# ```bash
-# LUAROCKS_API_KEY=$LUAROCKS_LUARROW_API_KEY make upload
-# ```
 upload:
-	luarocks upload $(ROCKSPEC_FILE) --api-key=$(LUAROCKS_API_KEY)
+	luarocks upload $(ROCKSPEC_FILE) --api-key=$(LUAROCKS_LUARROW_API_KEY)
 
 install-to-local:
 	$(MAKE) build
