@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-# chotto.lua version bump script
+# luarrow.lua version bump script
 # Usage: ./bump-version.sh [new_version]
 # Example: ./bump-version.sh 15
 
@@ -22,12 +22,12 @@ if [ -z "$CURRENT_ROCKSPEC" ]; then
 fi
 
 # Extract current version number
-CURRENT_VERSION=$(basename "$CURRENT_ROCKSPEC" .rockspec | sed 's/chotto-main-//')
+CURRENT_VERSION=$(basename "$CURRENT_ROCKSPEC" .rockspec | sed 's/luarrow-main-//')
 echo "Current version: main-$CURRENT_VERSION"
 echo "New version: main-$NEW_VERSION"
 
 # Create new rockspec filename
-NEW_ROCKSPEC="chotto-main-$NEW_VERSION.rockspec"
+NEW_ROCKSPEC="luarrow-main-$NEW_VERSION.rockspec"
 
 # Check if new version already exists
 if [ -f "$NEW_ROCKSPEC" ]; then
@@ -44,7 +44,7 @@ echo "Removing old $CURRENT_ROCKSPEC..."
 rm "$CURRENT_ROCKSPEC"
 
 # Remove old .src.rock file if exists
-OLD_ROCK_FILE="chotto-main-$CURRENT_VERSION.src.rock"
+OLD_ROCK_FILE="luarrow-main-$CURRENT_VERSION.src.rock"
 if [ -f "$OLD_ROCK_FILE" ]; then
     echo "Removing old $OLD_ROCK_FILE..."
     rm "$OLD_ROCK_FILE"

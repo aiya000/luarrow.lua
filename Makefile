@@ -38,20 +38,13 @@ format:
 	@echo "Formatting code..."
 	stylua .
 
-# Release Steps
-# Steps:
-# 1. make increment-version
-# 2. make build
-# 3. (optional) make check-uploadable
-# 	- If the check fails, must fix issues before uploading
-# 4. make upload
-# 5. (optional) `luarocks install --local luarrow` outside of the repo to verify installation
+# Usage:
+# ```bash
+# $ VER=9 make release
+# ```
+release:
+	./scripts/release.sh $(VER)
 
-increment-version:
-	@echo "Incrementing rockspec version..."
-	./scripts/increment-rockspec-version.sh
-
-# NOTE: Run `git add luarrow-main-(latest).rockspec && git push` before `make build`
 build:
 	@echo "Validating rockspec..."
 	luarocks pack $(ROCKSPEC_FILE)
@@ -66,8 +59,8 @@ clean:
 check-uploadable:
 	luarocks install --local --force $(ROCK_FILE) && echo "Package is uploadable." || (echo "Package is not uploadable." && exit 1)
 
-# Must specify:
-# ```shell-session
+# Usage:
+# ```bash
 # LUAROCKS_API_KEY=$LUAROCKS_LUARROW_API_KEY make upload
 # ```
 upload:
